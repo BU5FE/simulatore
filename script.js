@@ -1,118 +1,147 @@
-// Database "statico" dei valori del PUN per mese
-// AGGIORNA QUESTI VALORI OGNI MESE CON I DATI REALI DEL GME
-const datiPUN = {
-    '2025-01': 0.143030,
-    '2025-02': 0.150360,
-    '2025-03': 0.120550,
-    '2025-04': 0.099850,
-    '2025-05': 0.093580,
-    '2025-06': 0.111780,
-    '2025-07': 0.113130,
-    '2025-08': 0.108790
+// script.js - Simulatore di Risparmio
+
+// Database statico dei prezzi (da sostituire con un'API in futuro)
+const monthlyPrices = {
+    pun: {
+        '2025-01': 0.135,
+        '2025-02': 0.14,
+        '2025-03': 0.145,
+        '2025-04': 0.15,
+        '2025-05': 0.155,
+        '2025-06': 0.16,
+        '2025-07': 0.165,
+        '2025-08': 0.17
+    }
 };
 
-// Nuovi costi delle offerte
-const costiOfferte = {
-    'UltraGreenCasa': 0.05,
-    'UltraGreenPMI': 0.04,
-    'UltraGreenFIX': 0.18,
-    'UltraGreenGrandiAziende': 0.02
-};
-
-// Funzione per calcolare il valore OGT
-function getOGT(tipoCliente, offerta) {
-    if (tipoCliente === 'consumer') {
-        return 8.95;
-    } else if (tipoCliente === 'business') {
-        if (offerta === 'UltraGreenFIX') {
-            return 14.95;
-        } else if (offerta === 'UltraGreenPMI' || offerta === 'UltraGreenGrandiAziende') {
-            return 19.95;
+// Funzione per calcolare la componente OGT in base al tipo di utente e offerta
+function getOGT(userType, selectedOfferId) {
+    if (userType === 'consumer') {
+        return 8.95; 
+    } else if (userType === 'business') {
+        switch (selectedOfferId) {
+            case 'revolutionTax':
+                return 14.94;
+            case 'ultraGreenFix':
+                return 14.95;
+            case 'ultraGreenPMI':
+            case 'ultraGreenGrandiAziende':
+                return 19.95;
+            default:
+                return 0;
         }
     }
-    return 0; // Valore di default se non ci sono corrispondenze
+    return 0;
 }
 
-// Event listener per aggiornare il valore OGT dinamicamente
-document.getElementById('simulazioneForm').addEventListener('change', function() {
-    const tipoCliente = document.getElementById('tipoCliente').value;
-    const selettoreOfferta = document.getElementById('selettoreOfferta').value;
-    const ogtContainer = document.getElementById('OGT-container');
-    const ogtValueSpan = document.getElementById('OGT-value');
+// Logica per nascondere/mostrare l'offerta UltraGreen Casa
+document.getElementById('userType').addEventListener('change', function() {
+    const userType = this.value;
+    const offerSelect = document.getElementById('selectedOffer');
+    const ultraGreenCasaOption = offerSelect.querySelector('option[value="ultraGreenCasa"]');
 
-    if (tipoCliente && selettoreOfferta) {
-        const ogt = getOGT(tipoCliente, selettoreOfferta);
-        ogtValueSpan.textContent = ogt.toFixed(2);
-        ogtContainer.style.display = 'block';
+    if (userType === 'business') {
+        ultraGreenCasaOption.style.display = 'none';
+        // Se UltraGreen Casa è l'offerta selezionata, la cambia in un'altra
+        if (offerSelect.value === 'ultraGreenCasa') {
+            offerSelect.value = ''; // Svuota la selezione o imposta un'opzione di default
+        }
     } else {
-        ogtContainer.style.display = 'none';
+        ultraGreenCasaOption.style.display = 'block';
     }
 });
 
+document.getElementById('calculator-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-document.getElementById('simulazioneForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+    // Prendi i valori dal modulo
+    const annualConsumption = parseFloat(document.getElementById('annualConsumption').value);
+    const monthlyConsumptionInput = parseFloat(document.getElementById('currentConsumption').value);
+    const currentPrice = parseFloat(document.getElementById('currentPrice').value);
+    const userType = document.getElementById('userType').value;
+    const selectedOfferId = document.getElementById('selectedOffer').value;
+    const selectedMonth = document.getElementById('monthSelection').value;
 
-    // Dati attuali
-    const tipoCliente = document.getElementById('tipoCliente').value;
-    const mese = document.getElementById('meseRiferimento').value;
-    const spesaMateriaEnergiaMensile = parseFloat(document.getElementById('spesaMateriaEnergia').value);
-    const consumoLuceMensile = parseFloat(document.getElementById('consumoLuceAttuale').value);
-    const consumoAnnuale = parseFloat(document.getElementById('consumoAnnuale').value);
-    const offertaScelta = document.getElementById('selettoreOfferta').value;
+    let monthlyConsumption;
     
-    // Validazione dei campi
-    if (isNaN(consumoAnnuale) || consumoAnnuale <= 0) {
-        alert("Inserisci un consumo annuale valido per calcolare il risparmio stimato.");
-        return;
-    }
-    
-    if (isNaN(consumoLuceMensile) || consumoLuceMensile <= 0) {
-        alert("Inserisci il consumo del mese di riferimento per calcolare la spesa mensile.");
-        return;
-    }
-
-    let prezzoEnergia;
-    
-    // Calcolo del costo della materia energia per kWh in base all'offerta
-    if (offertaScelta === "UltraGreenFIX") {
-        prezzoEnergia = costiOfferte['UltraGreenFIX'];
+    // Logica per determinare il consumo mensile: priorità al campo 'currentConsumption'
+    if (!isNaN(monthlyConsumptionInput)) {
+        monthlyConsumption = monthlyConsumptionInput;
+    } else if (!isNaN(annualConsumption)) {
+        monthlyConsumption = annualConsumption / 12;
     } else {
-        const punDelMese = datiPUN[mese];
-        
-        if (punDelMese === undefined) {
-            alert("Dati PUN non disponibili per il mese selezionato. Si prega di aggiornare il codice.");
-            return;
-        }
-        
-        const spreadOfferta = costiOfferte[offertaScelta];
-        prezzoEnergia = punDelMese + spreadOfferta;
+        alert("Per favore, inserisci o il consumo annuo o il consumo mensile per continuare.");
+        return;
     }
     
-    // Calcolo del costo OGT
-    const costoOGT = getOGT(tipoCliente, offertaScelta);
+    // Controlla che i dati rimanenti siano validi
+    if (isNaN(currentPrice)) {
+        alert("Per favore, inserisci valori numerici validi.");
+        return;
+    }
     
-    // --- Calcolo dei risparmi ---
+    // Calcolo della spesa per l'offerta selezionata
+    let energyCost = 0;
+    const punPrice = monthlyPrices.pun[selectedMonth];
     
-    // Calcolo della spesa del mese simulata
-    const spesaSimulataMensile = (consumoLuceMensile * prezzoEnergia) + costoOGT;
+    switch(selectedOfferId) {
+        case 'ultraGreenCasa':
+            energyCost = monthlyConsumption * (punPrice + 0.0651);
+            break;
+        case 'ultraGreenGrandiAziende':
+            energyCost = monthlyConsumption * (punPrice + 0.0662);
+            break;
+        case 'revolutionTax':
+            const revolutionTaxSpread = userType === 'consumer' ? 0.05625 : 0.061;
+            energyCost = monthlyConsumption * (punPrice + revolutionTaxSpread);
+            break;
+        case 'ultraGreenFix':
+            energyCost = monthlyConsumption * 0.19;
+            break;
+        case 'ultraGreenPMI':
+            energyCost = monthlyConsumption * (punPrice + 0.0695);
+            break;
+        default:
+            energyCost = 0;
+            break;
+    }
     
-    // Calcolo del risparmio del mese
-    const risparmioMensile = spesaMateriaEnergiaMensile - spesaSimulataMensile;
-    
-    // Calcolo della spesa annuale simulata (materia energia + OGT)
-    const spesaSimulataAnnuale = (consumoAnnuale * prezzoEnergia) + (costoOGT * 12);
+    // 2. Costo degli OGT (Oneri Generali e Trasporto)
+    const ogtCost = getOGT(userType, selectedOfferId);
 
-    // Calcolo della spesa annuale attuale (estrapolazione dal dato mensile)
-    const spesaAttualeAnnuale = spesaMateriaEnergiaMensile * 12;
+    // 3. Spesa totale mensile per l'offerta
+    const totalNewOfferCost = energyCost + ogtCost;
 
-    // Calcolo del risparmio annuale
-    const risparmioAnnuale = spesaAttualeAnnuale - spesaSimulataAnnuale;
+    // Calcolo del risparmio mensile
+    const savingMonthly = currentPrice - totalNewOfferCost;
 
-    // Mostra i risultati
-    document.getElementById('spesaSimulata').textContent = `Spesa del mese simulata: ${spesaSimulataMensile.toFixed(2)} €`;
-    document.getElementById('risparmioStimato').innerHTML = `
-        <p>Risparmio mensile stimato: <strong>${risparmioMensile.toFixed(2)} €</strong></p>
-        <p>Risparmio annuale stimato: <strong>${risparmioAnnuale.toFixed(2)} €</strong></p>
+    // Calcolo del risparmio annuo
+    let savingAnnual = 0;
+    if (monthlyConsumption > 0) {
+        savingAnnual = (savingMonthly / monthlyConsumption) * annualConsumption;
+    }
+    
+    // Dati per i nomi delle offerte
+    const offers = {
+        ultraGreenCasa: { name: 'UltraGreen Casa' },
+        ultraGreenFix: { name: 'UltraGreen Fix' },
+        ultraGreenPMI: { name: 'UltraGreen PMI' },
+        ultraGreenGrandiAziende: { name: 'UltraGreen Grandi Aziende' },
+        revolutionTax: { name: 'Revolution Tax' }
+    };
+
+    // Definisci i colori in base al risparmio
+    const savingMonthlyColor = savingMonthly > 0 ? 'green' : 'red';
+    const savingAnnualColor = savingAnnual > 0 ? 'green' : 'red';
+
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = `
+        <h3>Risultato della simulazione per ${offers[selectedOfferId].name}</h3>
+        <p>Il tuo costo mensile attuale è di <strong>${currentPrice.toFixed(2)} €</strong>.</p>
+        <p>Con l'offerta <strong>${offers[selectedOfferId].name}</strong>, il tuo costo stimato è di <strong>${totalNewOfferCost.toFixed(2)} €</strong>.</p>
+        <p><span style="color: ${savingMonthlyColor};">Il tuo risparmio nel mese di riferimento ammonta a <strong>${savingMonthly.toFixed(2)} €</strong>.</span></p>
+        <p><span style="color: ${savingAnnualColor};">Prospetto di risparmio annuo: <strong>${savingAnnual.toFixed(2)} €</strong></span></p>
+        <p>Costo fisso (OGT) mensile a POD: ${ogtCost.toFixed(2)} €</p>
     `;
+    resultDiv.style.display = 'block';
 });

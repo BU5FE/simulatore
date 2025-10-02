@@ -3,76 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulazione Risparmio Luce</title>
+    <title>Simulatore di Risparmio Energetico</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <main>
-        <h1>Simulazione Risparmio Luce</h1>
-        <form id="simulazioneForm">
-            <h2>Dati Consumi Attuali</h2>
-            
-            <div class="input-group">
-                <label for="tipoCliente">Scegli il tipo di cliente:</label>
-                <select id="tipoCliente" required>
-                    <option value="">Seleziona un tipo</option>
-                    <option value="consumer">Consumer</option>
-                    <option value="business">Business</option>
-                </select>
-            </div>
+    <div class="container">
+        <h1>Simulatore di Risparmio</h1>
+        <form id="calculator-form">
+            <label for="monthSelection">Mese di riferimento</label>
+            <select id="monthSelection" name="monthSelection">
+                <option value="2025-01">Gennaio 2025</option>
+                <option value="2025-02">Febbraio 2025</option>
+                <option value="2025-03">Marzo 2025</option>
+                <option value="2025-04">Aprile 2025</option>
+                <option value="2025-05">Maggio 2025</option>
+                <option value="2025-06">Giugno 2025</option>
+                <option value="2025-07">Luglio 2025</option>
+                <option value="2025-08">Agosto 2025</option>
+            </select>
 
-            <div class="input-group">
-                <label for="meseRiferimento">Mese di Riferimento:</label>
-                <input type="month" id="meseRiferimento" required>
-            </div>
-
-            <div class="input-group">
-                <label for="spesaMateriaEnergia">Spesa Materia Energia (€)</label>
-                <span class="tooltip" title="Inserisci il valore che trovi nella tua bolletta, sezione 'Spesa per la materia energia'.">?</span>
-                <input type="number" id="spesaMateriaEnergia" step="0.01" required>
-            </div>
+            <label for="userType">Scelta tra Consumer e Business</label>
+            <select id="userType" name="userType">
+                <option value="consumer">Consumer (domestico)</option>
+                <option value="business">Business (aziendale)</option>
+            </select>
             
-            <div class="input-group">
-                <label for="consumoLuceAttuale">Consumo Luce del mese di riferimento (kWh)</label>
-                <span class="tooltip" title="Inserisci il valore che trovi in bolletta, sezione 'Consumi' o 'Dati di fornitura'.">?</span>
-                <input type="number" id="consumoLuceAttuale" step="0.01" required>
-            </div>
-
-            <div class="input-group">
-                <label for="consumoAnnuale">Consumo Luce annuale (kWh)</label>
-                <span class="tooltip" title="Consumo annuale come riportato nello storico della tua fattura.">?</span>
-                <input type="number" id="consumoAnnuale" step="0.01" required>
-            </div>
+            <label for="currentConsumption">Consumo del mese di riferimento (kWh)</label>
+            <input type="number" id="currentConsumption" name="currentConsumption">
             
-            <br>
+            <label for="annualConsumption">Consumo annuale in base allo storico della fattura (kWh)</label>
+            <input type="number" id="annualConsumption" name="annualConsumption">
             
-            <h2>Dati Nuova Offerta</h2>
+            <label for="currentPrice">Spesa per la materia energia nel mese di riferimento (€)</label>
+            <input type="number" id="currentPrice" name="currentPrice" required>
             
-            <div class="input-group">
-                <label for="selettoreOfferta">Scegli la nuova offerta:</label>
-                <select id="selettoreOfferta" required>
-                    <option value="">Seleziona un'offerta</option>
-                    <option value="UltraGreenCasa">UltraGreen Casa</option>
-                    <option value="UltraGreenPMI">UltraGreen PMI</option>
-                    <option value="UltraGreenFIX">UltraGreen FIX</option>
-                    <option value="UltraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
-                </select>
-            </div>
+            <label for="selectedOffer">Scelta della nuova offerta</label>
+            <select id="selectedOffer" name="selectedOffer">
+                <option value="ultraGreenCasa">UltraGreen Casa</option>
+                <option value="ultraGreenFix">UltraGreen Fix</option>
+                <option value="ultraGreenPMI">UltraGreen PMI</option>
+                <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
+                <option value="revolutionTax">Revolution Tax</option>
+            </select>
 
-            <div id="OGT-container" class="input-group" style="display: none;">
-                <p>OGT (costo fisso mensile a POD): <span id="OGT-value"></span> €</p>
-            </div>
-
-            <button type="submit">Calcola Risparmio</button>
+            <button type="submit">Calcola il tuo risparmio</button>
         </form>
 
-        <div id="risultati" class="risultati">
-            <h3>Risultati della Simulazione</h3>
-            <p id="spesaSimulata"></p>
-            <p id="risparmioStimato"></p>
-        </div>
-    </main>
+        <div id="result">
+            </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
