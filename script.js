@@ -137,11 +137,11 @@ document.getElementById('calculator-form').addEventListener('submit', async func
     const resultDiv = document.getElementById('result');
     resultDiv.innerHTML = `
         <h3>Risultato della simulazione per ${offers[selectedOfferId].name}</h3>
-        <p>Il tuo costo mensile attuale è di <strong>${currentPrice.toFixed(2)} €</strong>.</p>
-        <p>Con l'offerta <strong>${offers[selectedOfferId].name}</strong>, il tuo costo stimato è di <strong>${totalNewOfferCost.toFixed(2)} €</strong>.</p>
-        <p><span style="color: ${savingMonthlyColor};">Il tuo risparmio nel mese di riferimento ammonta a <strong>${savingMonthly.toFixed(2)} €</strong>.</span></p>
-        <p><span style="color: ${savingAnnualColor};">Prospetto di risparmio annuo: <strong>${savingAnnual.toFixed(2)} €</strong></span></p>
-        <p>Costo fisso (OGT) mensile a POD: ${ogtCost.toFixed(2)} €</p>
+        <p>Il tuo costo mensile attuale e' di <strong>${currentPrice.toFixed(2)} Euro</strong>.</p>
+        <p>Con l'offerta <strong>${offers[selectedOfferId].name}</strong>, il tuo costo stimato e' di <strong>${totalNewOfferCost.toFixed(2)} Euro</strong>.</p>
+        <p><span style="color: ${savingMonthlyColor};">Il tuo risparmio nel mese di riferimento ammonta a <strong>${savingMonthly.toFixed(2)} Euro</strong>.</span></p>
+        <p><span style="color: ${savingAnnualColor};">Prospetto di risparmio annuo: <strong>${savingAnnual.toFixed(2)} Euro</strong></span></p>
+        <p>Ricorda: il Costo fisso (OGT) mensile a POD e' di ${ogtCost.toFixed(2)} Euro</p>
     `;
     resultDiv.style.display = 'block';
 });
