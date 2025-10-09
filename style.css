@@ -5,9 +5,13 @@ body {
     background-color: #e8f5e9;
     display: flex;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
+    /* Modifica qui: Usiamo min-height invece di height per permettere lo scorrimento */
+    min-height: 100vh; 
     margin: 0;
+    /* Aggiungiamo padding per dare spazio attorno al container */
+    padding: 20px 0; 
+    /* Modifica qui: Allineiamo in alto per prevenire il taglio del titolo */
+    align-items: flex-start; 
 }
 
 .container {
