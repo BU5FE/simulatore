@@ -50,36 +50,60 @@ select {
 }
 
 input[type="number"]:focus,
-input[type="text"]:focus,
 select:focus {
     border-color: #4caf50;
-    outline: none;
     box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
+    outline: none;
 }
 
-button {
-    width: 100%;
+button[type="submit"] {
     background-color: #4caf50;
     color: white;
-    padding: 15px;
+    padding: 15px 20px;
     border: none;
     border-radius: 8px;
-    font-size: 18px;
     cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    width: 100%;
     transition: background-color 0.3s ease;
+    margin-top: 10px;
 }
 
-button:hover {
+button[type="submit"]:hover {
     background-color: #388e3c;
 }
 
+/* Stili per l'output dei risultati */
 #result {
-    margin-top: 20px;
-    font-size: 1.2em;
-    color: #333;
-    background-color: #f1f8e9;
-    padding: 15px;
-    border-radius: 8px;
-    display: none;
+    margin-top: 30px;
+    padding: 20px;
+    border: 2px solid #4caf50;
+    border-radius: 10px;
+    background-color: #f7fff7;
     text-align: left;
+    display: none; /* Inizialmente nascosto */
+}
+
+#result h3 {
+    color: #2e7d32;
+    border-bottom: 2px solid #c8e6c9;
+    padding-bottom: 5px;
+    margin-top: 0;
+}
+
+#result h4 {
+    color: #388e3c;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+#result p {
+    margin-bottom: 8px;
+    line-height: 1.4;
+    color: #333;
+}
+
+#result strong {
+    color: #000;
 }
