@@ -118,7 +118,7 @@ function populateMonthSelection2() {
 // Aggiorna le etichette dei campi Luce/Gas con il nome del mese
 function updateMonthLabels() {
     const monthName1 = getSelectedMonthName('monthSelection1');
-    const monthName2 = getSelectedMonthName('monthSelection2');
+    const monthName2 = getSelectedName('monthSelection2');
     const billingFrequency = document.getElementById('billingFrequency').value;
     const isBimonthly = billingFrequency === 'bimonthly';
     const utilityType = document.getElementById('utilityType').value;
@@ -815,9 +815,23 @@ document.getElementById('calculator-form').addEventListener('submit', async func
 
     // ------------------------------------ RIEPILOGO ------------------------------------
     const periodText = isBimonthly ? 'bimestrale' : 'mensile';
+    
+    // Testo per l'intestazione del riepilogo
+    let riepilogoTitleText = 'Riepilogo Totale';
+    if (isBimonthly) {
+        if (utilityType === 'lightAndGas') {
+            riepilogoTitleText += ' (Luce + Gas)';
+        }
+    } else {
+        // Mensile: solo Luce o solo Gas
+        if (utilityType === 'light') riepilogoTitleText += ' Luce';
+        if (utilityType === 'gas') riepilogoTitleText += ' Gas';
+        if (utilityType === 'lightAndGas') riepilogoTitleText += ' (Luce + Gas)';
+    }
+
     const savingMonthlyTextCombined = finalMonthlySaving > 0 
-        ? `Risparmio Mensile Medio: <strong>${finalMonthlySaving.toFixed(2)} Euro</strong>.`
-        : `Non c'e' Risparmio Mensile Medio: <strong>${finalMonthlySaving.toFixed(2)} Euro</strong>.`;
+        ? `Risparmio Mensile: <strong>${finalMonthlySaving.toFixed(2)} Euro</strong>.`
+        : `Non c'e' Risparmio Mensile: <strong>${finalMonthlySaving.toFixed(2)} Euro</strong>.`;
 
     const savingAnnualTextCombined = totalSavingAnnual > 0 
         ? `Prospetto Risparmio Annuo: <strong>${totalSavingAnnual.toFixed(2)} Euro</strong>.`
@@ -825,22 +839,35 @@ document.getElementById('calculator-form').addEventListener('submit', async func
 
     let riepilogo = `
         <hr style="border-top: 2px solid #333; margin: 20px 0;"> 
-        <h3>Riepilogo Totale (${isBimonthly ? 'Luce + Gas' : 'Media Mensile'}${isBimonthly ? '' : (utilityType === 'lightAndGas' ? ' Luce + Gas' : '')})</h3>
-    `;
+        <h3>${riepilogoTitleText}</h3> `;
 
-    if (utilityType === 'lightAndGas' || isBimonthly) {
-        riepilogo += `<p>Il tuo costo ${periodText} totale attuale (Luce + Gas) e' di <strong>${totalCurrentCostCombined.toFixed(2)} Euro</strong>.</p>
-                      <p>Con l'offerta <strong>${offerName}</strong>, il tuo costo ${periodText} totale (Luce + Gas) e' di <strong>${totalNewOfferCostCombined.toFixed(2)} Euro</strong>.</p>`;
-    }
+    // 
+    // MODIFICHE RICHIESTE QUI: Rimuovi "(Luce + Gas)" se non è LightAndGas
+    // 
     
-    // Per Luce o Gas Singolo in Mensile, mostra i dettagli mensili medi
-    if (!isBimonthly && (utilityType === 'light' || utilityType === 'gas')) {
+    const isCombinedSimulation = utilityType === 'lightAndGas';
+    let currentCostText = '';
+    let newOfferCostText = '';
+
+    if (isCombinedSimulation) {
+         // Luce + Gas
+        currentCostText = `<p>Il tuo costo ${periodText} totale attuale (Luce + Gas) e' di <strong>${totalCurrentCostCombined.toFixed(2)} Euro</strong>.</p>`;
+        newOfferCostText = `<p>Con l'offerta <strong>${offerName}</strong>, il tuo costo ${periodText} totale (Luce + Gas) e' di <strong>${totalNewOfferCostCombined.toFixed(2)} Euro</strong>.</p>`;
+    } else if (isBimonthly) {
+        // Solo Luce o Solo Gas in Bimestrale (il costo combinato corrisponde al costo della singola utenza)
+        const utenzaName = utilityType === 'light' ? 'Luce' : 'Gas';
+        currentCostText = `<p>Il tuo costo ${periodText} attuale e' di <strong>${totalCurrentCostCombined.toFixed(2)} Euro</strong>.</p>`;
+        newOfferCostText = `<p>Con l'offerta <strong>${offerName}</strong>, il tuo costo ${periodText} e' di <strong>${totalNewOfferCostCombined.toFixed(2)} Euro</strong>.</p>`;
+    } else {
+        // Solo Luce o Solo Gas in Mensile (logica precedente per mensile)
         const currentCost = utilityType === 'light' ? totalCurrentCostLuce : totalCurrentCostGas;
         const newCost = utilityType === 'light' ? totalNewOfferCostLuce : totalNewOfferCostGas;
-        riepilogo += `<p>Il tuo costo ${periodText} medio attuale e' di <strong>${(currentCost / numMonths).toFixed(2)} Euro</strong>.</p>
-                      <p>Con l'offerta <strong>${offerName}</strong>, il tuo costo ${periodText} medio e' di <strong>${(newCost / numMonths).toFixed(2)} Euro</strong>.</p>`;
+        currentCostText = `<p>Il tuo costo ${periodText} attuale e' di <strong>${(currentCost / numMonths).toFixed(2)} Euro</strong>.</p>`;
+        newOfferCostText = `<p>Con l'offerta <strong>${offerName}</strong>, il tuo costo ${periodText} e' di <strong>${(newCost / numMonths).toFixed(2)} Euro</strong>.</p>`;
     }
 
+    riepilogo += currentCostText;
+    riepilogo += newOfferCostText;
 
     riepilogo += `<p><span style="color: ${savingMonthlyColor}; font-size: 1.1em; font-weight: bold;">${savingMonthlyTextCombined}</span></p>
                   <p><span style="color: ${savingAnnualColor}; font-size: 1.1em; font-weight: bold;">${savingAnnualTextCombined}</span></p>`;
