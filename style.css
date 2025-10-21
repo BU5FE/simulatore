@@ -50,6 +50,7 @@ select {
 }
 
 input[type="number"]:focus,
+input[type="text"]:focus,
 select:focus {
     border-color: #4caf50;
     box-shadow: 0 0 5px rgba(76, 175, 80, 0.5);
@@ -74,36 +75,43 @@ button[type="submit"]:hover {
     background-color: #388e3c;
 }
 
-/* Stili per l'output dei risultati */
+/* NUOVO: Stile per i pulsanti di Esportazione */
+.export-button {
+    background-color: #757575; /* Grigio più neutro */
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: normal;
+    width: 48%; /* Per affiancarli */
+    margin: 1%;
+    transition: background-color 0.3s ease;
+}
+
+.export-button:hover {
+    background-color: #5a5a5a;
+}
+
 #result {
     margin-top: 30px;
     padding: 20px;
     border: 2px solid #4caf50;
     border-radius: 10px;
-    background-color: #f7fff7;
     text-align: left;
-    display: none; /* Inizialmente nascosto */
+    background-color: #f1f8e9;
+    /* Aggiunto per nasconderlo inizialmente */
+    display: none; 
 }
 
 #result h3 {
     color: #2e7d32;
-    border-bottom: 2px solid #c8e6c9;
-    padding-bottom: 5px;
     margin-top: 0;
 }
 
-#result h4 {
-    color: #388e3c;
-    margin-top: 15px;
-    margin-bottom: 5px;
-}
-
 #result p {
-    margin-bottom: 8px;
-    line-height: 1.4;
+    margin: 10px 0;
+    line-height: 1.5;
     color: #333;
-}
-
-#result strong {
-    color: #000;
 }

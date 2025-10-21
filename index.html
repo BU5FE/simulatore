@@ -12,6 +12,8 @@
         <h1>Simulatore di Risparmio<br>Luce e Gas</h1>
         <form id="calculator-form">
             
+            <label for="clientName">Nome Cliente</label>
+            <input type="text" id="clientName" name="clientName" required>
             <label for="billingFrequency">Frequenza di Fatturazione Attuale</label>
             <select id="billingFrequency" name="billingFrequency">
                 <option value="monthly">Attuale Fattura Mensile</option>
@@ -74,7 +76,12 @@
                     <input type="number" id="annualConsumptionLight" name="annualConsumptionLight">
                     
                     <label for="currentPriceLight1">Spesa per la materia luce <span id="monthNameLightPrice1">Mese di Riferimento</span> (Euro)</label>
-                    <input type="number" id="currentPriceLight1" name="currentPriceLight1">
+                    <input type="number" id="currentPriceLight1" name="currentPriceLight1" step="0.01">
+
+                    <div id="pcv-light-m1-container">
+                        <label for="currentPCVLight1">Attuale PCV / Costo Fisso Mensile Luce (Euro)</label>
+                        <input type="number" id="currentPCVLight1" name="currentPCVLight1" step="0.01">
+                    </div>
                 </div>
                 <div id="gas-fields-m1" style="display:none;">
                     <hr style="border-top: 1px solid #c8e6c9;">
@@ -85,7 +92,12 @@
                     <input type="number" id="annualConsumptionGas" name="annualConsumptionGas">
 
                     <label for="currentPriceGas1">Spesa per la materia gas <span id="monthNameGasPrice1">Mese di Riferimento</span> (Euro)</label>
-                    <input type="number" id="currentPriceGas1" name="currentPriceGas1">
+                    <input type="number" id="currentPriceGas1" name="currentPriceGas1" step="0.01">
+
+                    <div id="pcv-gas-m1-container">
+                        <label for="currentPCVGas1">Attuale PCV / Costo Fisso Mensile Gas (Euro)</label>
+                        <input type="number" id="currentPCVGas1" name="currentPCVGas1" step="0.01">
+                    </div>
                 </div>
             </div>
 
@@ -120,7 +132,7 @@
                     
                     <div id="price-light-m2-container">
                         <label for="currentPriceLight2">Spesa per la materia luce <span id="monthNameLightPrice2">Mese di Riferimento 2</span> (Euro)</label>
-                        <input type="number" id="currentPriceLight2" name="currentPriceLight2">
+                        <input type="number" id="currentPriceLight2" name="currentPriceLight2" step="0.01">
                     </div>
                 </div>
                 <div id="gas-fields-m2" style="display:none;">
@@ -130,7 +142,7 @@
 
                     <div id="price-gas-m2-container">
                         <label for="currentPriceGas2">Spesa per la materia gas <span id="monthNameGasPrice2">Mese di Riferimento 2</span> (Euro)</label>
-                        <input type="number" id="currentPriceGas2" name="currentPriceGas2">
+                        <input type="number" id="currentPriceGas2" name="currentPriceGas2" step="0.01">
                     </div>
                 </div>
             </div>
@@ -147,9 +159,16 @@
         </form>
 
         <div id="result">
-            </div>
+        </div>
+
+        <div id="export-actions" style="margin-top: 20px; display: none;">
+            <button id="exportPdfBtn" type="button" class="export-button">Esporta PDF</button>
+            <button id="exportImgBtn" type="button" class="export-button">Esporta Immagine</button>
+        </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
