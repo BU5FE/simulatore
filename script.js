@@ -46,8 +46,8 @@ const monthlyPrices = {
     	'2025-10': 0.353959,
 '2025-11': 0.345300,
         '2025-12': 0.324670
+}
 };
-
 // Funzione per calcolare la componente OGT LUCE (a POD)
 function getOGTLuce(userType, selectedOfferId) {
     if (userType === 'consumer') {
@@ -1082,5 +1082,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
 
 
