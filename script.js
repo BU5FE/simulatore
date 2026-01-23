@@ -15,7 +15,7 @@ const monthlyPrices = {
         '2025-09': 0.109080,
     	'2025-10': 0.111040,
         '2025-11': 0.117090,
-        '2025-12': 0,115490
+        '2025-12': 0.115490
     },
     // PUN a Fasce
     punFasce: {
@@ -30,7 +30,7 @@ const monthlyPrices = {
         '2025-09': { F1: 0.109590, F2: 0.120930, F3: 0.101880 },
     	'2025-10': { F1: 0.117830, F2: 0.121660, F3: 0.099480 },
 '2025-11': { F1: 0.129590, F2: 0.124020, F3: 0.105510 },
-'2025-12': { F1: 0,130090, F2: 0,119980, F3: 0,104520 }
+'2025-12': { F1: 0.130090, F2: 0.119980, F3: 0.104520 }
     },
     // PSV
     psv: {
@@ -45,8 +45,7 @@ const monthlyPrices = {
         '2025-09': 0.369520,
     	'2025-10': 0.353959,
 '2025-11': 0.345300,
-        '2025-12': 0,324670
-    }
+        '2025-12': 0.324670
 };
 
 // Funzione per calcolare la componente OGT LUCE (a POD)
@@ -498,19 +497,19 @@ function calculateMonthlySaving(month, consumptionLight, priceLight, consumption
             
             switch(selectedOfferId) {
                 case 'ultraGreenCasa':
-                    spreadLuce = 0.0651;
+                    spreadLuce = 0.0551;
                     break;
                 case 'ultraGreenGrandiAziende':
-                    spreadLuce = 0.0662;
+                    spreadLuce = 0.0562;
                     break;
                 case 'revolutionTax':
-                    spreadLuce = userType === 'consumer' ? 0.05625 : 0.061;
+                    spreadLuce = userType === 'consumer' ? 0.04625 : 0.061;
                     break;
                 case 'ultraGreenFix':
-                    fixPriceLuce = 0.17;
+                    fixPriceLuce = 0.16;
                     break;
                 case 'ultraGreenPMI':
-                    spreadLuce = 0.0695;
+                    spreadLuce = 0.0595;
                     break;
                 default:
                     spreadLuce = 0;
@@ -567,19 +566,19 @@ function calculateMonthlySaving(month, consumptionLight, priceLight, consumption
 
             switch(selectedOfferId) {
                 case 'ultraGreenCasa':
-                    gasPricePerSmc = psvPrice + 0.315;
+                    gasPricePerSmc = psvPrice + 0.305;
                     break;
                 case 'ultraGreenGrandiAziende':
-                    gasPricePerSmc = psvPrice + 0.167;
+                    gasPricePerSmc = psvPrice + 0.157;
                     break;
                 case 'revolutionTax':
-                    gasPricePerSmc = psvPrice + 0.220;
+                    gasPricePerSmc = psvPrice + 0.210;
                     break;
                 case 'ultraGreenFix':
-                    gasPricePerSmc = 0.617;
+                    gasPricePerSmc = 0.607;
                     break;
                 case 'ultraGreenPMI':
-                    gasPricePerSmc = psvPrice + 0.191;
+                    gasPricePerSmc = psvPrice + 0.181;
                     break;
                 default:
                     gasPricePerSmc = 0;
@@ -1083,4 +1082,5 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
 
