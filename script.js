@@ -10,7 +10,7 @@ const monthlyPrices = {
     	'2025-10': 0.111040,
         '2025-11': 0.117090,
         '2025-12': 0.115490,
-        '2026-01': 0,132660
+        '2026-01': 0.132660
     },
     // PUN a Fasce
     punFasce: {
@@ -1067,6 +1067,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
+
 
 
 
