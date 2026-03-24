@@ -29,12 +29,12 @@
                     <option value="2025-07">Luglio 2025</option>
                     <option value="2025-08">Agosto 2025</option>
                     <option value="2025-09">Settembre 2025</option>
-<option value="2025-10">Ottobre 2025</option> 
-<option value="2025-11">Novembre 2025</option>
+                    <option value="2025-10">Ottobre 2025</option> 
+                    <option value="2025-11">Novembre 2025</option>
                     <option value="2025-12">Dicembre 2025</option>
                     <option value="2026-01">Gennaio 2026</option>
                     <option value="2026-02">Febbraio 2026</option>
-</select>
+                </select>
 
 
                 <label for="userType">Scelta tra Consumer e Business</label>
@@ -106,7 +106,15 @@
                 <hr style="border-top: 2px solid #4caf50; margin: 20px 0;">
                 <label for="monthSelection2">Mese di Riferimento 2</label>
                 <select id="monthSelection2" name="monthSelection2">
-                    </select>
+                    <option value="2025-07">Luglio 2025</option>
+                    <option value="2025-08">Agosto 2025</option>
+                    <option value="2025-09">Settembre 2025</option>
+                    <option value="2025-10">Ottobre 2025</option> 
+                    <option value="2025-11">Novembre 2025</option>
+                    <option value="2025-12">Dicembre 2025</option>
+                    <option value="2026-01">Gennaio 2026</option>
+                    <option value="2026-02">Febbraio 2026</option>
+                </select>
 
                 <div id="light-fields-m2" style="display:none;">
                     <hr style="border-top: 1px solid #c8e6c9;">
@@ -130,50 +138,30 @@
                         <label for="currentConsumptionF3_2">Consumo Luce F3 <span id="monthNameLightConsF3_2">Mese di Riferimento 2</span> (kWh)</label>
                         <input type="number" id="currentConsumptionF3_2" name="currentConsumptionF3_2">
                     </div>
-                    
-                    <div id="price-light-m2-container">
-                        <label for="currentPriceLight2">Spesa per la materia luce <span id="monthNameLightPrice2">Mese di Riferimento 2</span> (Euro)</label>
-                        <input type="number" id="currentPriceLight2" name="currentPriceLight2" step="0.01">
-                    </div>
+
+                    <label for="currentPriceLight2">Spesa per la materia luce <span id="monthNameLightPrice2">Mese di Riferimento 2</span> (Euro)</label>
+                    <input type="number" id="currentPriceLight2" name="currentPriceLight2" step="0.01">
                 </div>
+
                 <div id="gas-fields-m2" style="display:none;">
                     <hr style="border-top: 1px solid #c8e6c9;">
                     <label for="currentConsumptionGas2">Consumo Gas <span id="monthNameGasCons2">Mese di Riferimento 2</span> (smc)</label>
                     <input type="number" id="currentConsumptionGas2" name="currentConsumptionGas2">
-
-                    <div id="price-gas-m2-container">
-                        <label for="currentPriceGas2">Spesa per la materia gas <span id="monthNameGasPrice2">Mese di Riferimento 2</span> (Euro)</label>
-                        <input type="number" id="currentPriceGas2" name="currentPriceGas2" step="0.01">
-                    </div>
+                    
+                    <label for="currentPriceGas2">Spesa per la materia gas <span id="monthNameGasPrice2">Mese di Riferimento 2</span> (Euro)</label>
+                    <input type="number" id="currentPriceGas2" name="currentPriceGas2" step="0.01">
                 </div>
             </div>
-            <label for="selectedOffer">Scelta della nuova offerta</label>
-            <select id="selectedOffer" name="selectedOffer">
-                <option value="ultraGreenCasa">UltraGreen Casa</option>
-                <option value="ultraGreenFix">UltraGreen Fix</option>
-                <option value="ultraGreenPMI">UltraGreen PMI</option>
-                <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
-                <option value="revolutionTax">Revolution Tax</option>
-            </select>
 
-            <button type="submit">Calcola il tuo risparmio</button>
+            <button type="button" id="calculate-btn">Calcola Risparmio</button>
         </form>
 
-        <div id="result">
-        </div>
-
-        <div id="export-actions" style="margin-top: 20px; display: none;">
-            <button id="exportPdfBtn" type="button" class="export-button">Esporta PDF</button>
-            <button id="exportImgBtn" type="button" class="export-button">Esporta Immagine</button>
+        <div id="result"></div>
+        <div id="export-actions" style="display:none;">
+            <button id="export-pdf">Esporta PDF</button>
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="script.js"></script>
 </body>
-
 </html>
-
-
-
