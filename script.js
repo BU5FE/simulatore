@@ -179,7 +179,7 @@ function updateMonthLabels() {
     document.getElementById('monthNameGasPrice2').textContent = monthName2;
 }
 
-// --- Gestione visibilità campi consumo LUCE (Monorario vs Fasce) - RIPRISTINATA ---
+/// --- Gestione visibilità campi consumo LUCE (Monorario vs Fasce) - CORRETTA ---
 function updateLightConsumptionFieldsVisibility(monthIndex) {
     const consumptionType = document.getElementById(`consumptionType${monthIndex}`).value;
     const isMonorario = consumptionType === 'monorario';
@@ -187,12 +187,11 @@ function updateLightConsumptionFieldsVisibility(monthIndex) {
     const monorarioDiv = document.getElementById(`light-monorario-fields-m${monthIndex}`);
     const fasceDiv = document.getElementById(`light-fasce-fields-m${monthIndex}`);
 
-    const monorarioInput = document.getElementById(`currentConsumptionLight${monthIndex}`);
-    const fasceInputs = [
-        document.getElementById(`currentConsumptionF1_${monthIndex}`),
-        document.getElementById(`currentConsumptionF2_${monthIndex}`),
-        document.getElementById(`currentConsumptionF3_${monthIndex}`)
-    ];
+    if (monorarioDiv && fasceDiv) {
+        monorarioDiv.style.display = isMonorario ? 'block' : 'none';
+        fasceDiv.style.display = isMonorario ? 'none' : 'block';
+    }
+}
     
     // Mostra/Nascondi Div
     monorarioDiv.style.display = isMonorario ? 'block' : 'none';
