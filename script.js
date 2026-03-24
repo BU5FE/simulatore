@@ -1,6 +1,4 @@
-// script.js - Simulatore di Risparmio (PARTE 1 di 3)
-
-// Database statico dei prezzi (Aggiornato con Febbraio 2026)
+// script.js - PARTE 1
 const monthlyPrices = {
     pun: {
         '2025-07': 0.165000, '2025-08': 0.170000, '2025-09': 0.109080,
@@ -39,15 +37,14 @@ function getOGTLuce(userType, selectedOfferId) {
 }
 
 function getOGTGas(userType, selectedOfferId) {
-    if (userType === 'consumer') return 8.95; 
+    if (userType === 'consumer' || selectedOfferId === 'ultraGreenCasa') return 8.95; 
     if (userType === 'business') {
         switch (selectedOfferId) {
             case 'ultraGreenFix':
             case 'revolutionTax': return 14.95;
             case 'ultraGreenPMI':
             case 'ultraGreenGrandiAziende': return 19.95;
-            case 'ultraGreenCasa': return 8.95;
-            default: return 0;
+            default: return 8.95;
         }
     }
     return 8.95;
@@ -98,30 +95,34 @@ function updateMonthLabels() {
     
     const ids = ['monthNameConsumptionType1', 'monthNameLightCons1', 'monthNameLightConsF1_1', 'monthNameLightConsF2_1', 'monthNameLightConsF3_1', 'monthNameGasCons1'];
     ids.forEach(id => { if(document.getElementById(id)) document.getElementById(id).textContent = monthName1; });
-    
     const ids2 = ['monthNameConsumptionType2', 'monthNameLightCons2', 'monthNameLightConsF1_2', 'monthNameLightConsF2_2', 'monthNameLightConsF3_2', 'monthNameLightPrice2', 'monthNameGasCons2', 'monthNameGasPrice2'];
     ids2.forEach(id => { if(document.getElementById(id)) document.getElementById(id).textContent = monthName2; });
 }
+// script.js - PARTE 2
 
 function updateLightConsumptionFieldsVisibility(monthIndex) {
     const consumptionType = document.getElementById(`consumptionType${monthIndex}`).value;
     const isMonorario = consumptionType === 'monorario';
+
     const monorarioDiv = document.getElementById(`light-monorario-fields-m${monthIndex}`);
     const fasceDiv = document.getElementById(`light-fasce-fields-m${monthIndex}`);
+
     const monorarioInput = document.getElementById(`currentConsumptionLight${monthIndex}`);
-    const fasceInputs = [document.getElementById(`currentConsumptionF1_${monthIndex}`), document.getElementById(`currentConsumptionF2_${monthIndex}`), document.getElementById(`currentConsumptionF3_${monthIndex}`)];
+    const fasceInputs = [
+        document.getElementById(`currentConsumptionF1_${monthIndex}`),
+        document.getElementById(`currentConsumptionF2_${monthIndex}`),
+        document.getElementById(`currentConsumptionF3_${monthIndex}`)
+    ];
     
     if (monorarioDiv) monorarioDiv.style.display = isMonorario ? 'block' : 'none';
     if (fasceDiv) fasceDiv.style.display = isMonorario ? 'none' : 'block';
     
     if (isMonorario) {
         fasceInputs.forEach(input => { if (input) input.value = ''; }); 
-    } else if (monorarioInput) {
-        monorarioInput.value = '';
+    } else {
+        if (monorarioInput) monorarioInput.value = '';
     }
 }
-// FINE PARTE 1
-// script.js - Simulatore di Risparmio (PARTE 2 di 3)
 
 function updateBimonthlyFieldsVisibility() {
     const billingFrequency = document.getElementById('billingFrequency').value;
@@ -135,6 +136,7 @@ function updateBimonthlyFieldsVisibility() {
         if (dataM2Fields) dataM2Fields.style.display = 'none';
         if (billingNote) billingNote.style.display = 'none';
     }
+    
     updateFieldVisibility(); 
     updateLightConsumptionFieldsVisibility('1');
     updateLightConsumptionFieldsVisibility('2');
@@ -144,6 +146,7 @@ function updateBimonthlyFieldsVisibility() {
 function updateFieldVisibility() {
     const utilityType = document.getElementById('utilityType').value;
     const billingFrequency = document.getElementById('billingFrequency').value;
+
     const isLightSelected = utilityType === 'light' || utilityType === 'lightAndGas';
     const isGasSelected = utilityType === 'gas' || utilityType === 'lightAndGas';
     const isBimonthly = billingFrequency === 'bimonthly';
@@ -157,33 +160,37 @@ function updateFieldVisibility() {
             element.style.display = 'none';
         }
     };
+    
     const showElement = (element) => { if (element) element.style.display = 'block'; };
 
     for (let i = 1; i <= 2; i++) {
         const monthIndex = i.toString();
         const lightFields = document.getElementById(`light-fields-m${monthIndex}`);
         const gasFields = document.getElementById(`gas-fields-m${monthIndex}`);
-        const priceLightContainer = document.getElementById(`price-light-m${monthIndex}-container`);
-        const priceGasContainer = document.getElementById(`price-gas-m${monthIndex}-container`);
+        const currentConsumptionLightInput = document.getElementById(`currentConsumptionLight${monthIndex}`);
+        const currentConsumptionGasInput = document.getElementById(`currentConsumptionGas${monthIndex}`);
+        const currentPriceLightInput = document.getElementById(`currentPriceLight${monthIndex}`);
+        const currentPriceGasInput = document.getElementById(`currentPriceGas${monthIndex}`);
         const isM2 = monthIndex === '2';
 
         if (!isLightSelected || (isM2 && !isBimonthly)) {
             hideAndClearElement(lightFields);
+            if(currentConsumptionLightInput) currentConsumptionLightInput.value = '';
+            if(currentPriceLightInput) currentPriceLightInput.value = '';
+            updateLightConsumptionFieldsVisibility(monthIndex); 
             if (monthIndex === '1') hideAndClearElement(pcvLightContainerM1);
         } else {
             showElement(lightFields);
-            if (isM2 && isBimonthly) hideAndClearElement(priceLightContainer);
-            else showElement(priceLightContainer);
             if (monthIndex === '1') showElement(pcvLightContainerM1);
         }
 
         if (!isGasSelected || (isM2 && !isBimonthly)) {
             hideAndClearElement(gasFields);
+            if(currentConsumptionGasInput) currentConsumptionGasInput.value = '';
+            if(currentPriceGasInput) currentPriceGasInput.value = '';
             if (monthIndex === '1') hideAndClearElement(pcvGasContainerM1);
         } else {
             showElement(gasFields);
-            if (isM2 && isBimonthly) hideAndClearElement(priceGasContainer);
-            else showElement(priceGasContainer);
             if (monthIndex === '1') showElement(pcvGasContainerM1);
         }
     }
@@ -192,14 +199,47 @@ function updateFieldVisibility() {
 function getProposalExpirationDate() {
     const today = new Date();
     const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-    return `${String(lastDayOfMonth.getDate()).padStart(2, '0')}/${String(lastDayOfMonth.getMonth() + 1).padStart(2, '0')}/${lastDayOfMonth.getFullYear()}`;
+    const day = String(lastDayOfMonth.getDate()).padStart(2, '0');
+    const monthStr = String(lastDayOfMonth.getMonth() + 1).padStart(2, '0');
+    return `${day}/${monthStr}/${lastDayOfMonth.getFullYear()}`;
 }
+// script.js - PARTE 3
 
 async function exportResult(type) {
     const resultDiv = document.getElementById('result-content');
-    if (!resultDiv) return showErrorMessage('Contenuto non trovato.');
-    const { jsPDF } = window.jspdf;
-    // Logica di cattura html2canvas e salvataggio (omessa per brevità ma inclusa nel tuo file originale)
+    if (!resultDiv) return showErrorMessage('Contenuto della simulazione non trovato.');
+
+    const clone = resultDiv.cloneNode(true);
+    clone.style.padding = '20px'; 
+    clone.style.backgroundColor = '#fff';
+    
+    const tempContainer = document.createElement('div');
+    tempContainer.style.width = '500px'; 
+    tempContainer.style.position = 'absolute';
+    tempContainer.style.left = '-9999px'; 
+    tempContainer.appendChild(clone);
+    document.body.appendChild(tempContainer);
+
+    try {
+        const canvas = await html2canvas(clone, { scale: 2, useCORS: true, windowWidth: 500 });
+        document.body.removeChild(tempContainer);
+
+        if (type === 'image') {
+            const image = canvas.toDataURL('image/png');
+            const a = document.createElement('a');
+            a.href = image; a.download = 'Simulazione_Risparmio.png';
+            a.click();
+        } else if (type === 'pdf') {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgData = canvas.toDataURL('image/jpeg', 1.0);
+            pdf.addImage(imgData, 'JPEG', 10, 10, 190, (canvas.height * 190 / canvas.width));
+            pdf.save('Simulazione_Risparmio.pdf');
+        }
+    } catch (error) {
+        if (tempContainer.parentNode) document.body.removeChild(tempContainer);
+        showErrorMessage('Errore durante l\'esportazione.');
+    } 
 }
 
 function calculateMonthlySaving(month, consumptionLight, priceLight, consumptionGas, priceGas, annualConsumptionLight, annualConsumptionGas, userType, selectedOfferId, utilityType, isFasce) {
@@ -207,136 +247,140 @@ function calculateMonthlySaving(month, consumptionLight, priceLight, consumption
     const totalConsumptionLight = isFasce ? (consumptionLight.F1 + consumptionLight.F2 + consumptionLight.F3) : consumptionLight;
     let monthlyConsumptionLight = totalConsumptionLight || (annualConsumptionLight / 12);
     let monthlyConsumptionGas = consumptionGas || (annualConsumptionGas / 12);
+    const ogtCostLuce = getOGTLuce(userType, selectedOfferId);
+    const ogtCostGas = getOGTGas(userType, selectedOfferId);
 
     if (utilityType.includes('light') && monthlyConsumptionLight > 0) {
         let spreadLuce = 0, fixPriceLuce = 0;
-        // Switch offerte (come nel tuo originale)
-        if (selectedOfferId === 'ultraGreenFix') fixPriceLuce = 0.16;
-        else if (selectedOfferId === 'ultraGreenPMI') spreadLuce = 0.0595;
-        // ... (altre offerte)
+        // Mappatura Spread Offerte
+        switch(selectedOfferId) {
+            case 'ultraGreenCasa': spreadLuce = 0.0551; break;
+            case 'ultraGreenGrandiAziende': spreadLuce = 0.0562; break;
+            case 'revolutionTax': spreadLuce = userType === 'consumer' ? 0.04625 : 0.061; break;
+            case 'ultraGreenPMI': spreadLuce = 0.0595; break;
+            case 'ultraGreenFix': fixPriceLuce = 0.16; break;
+        }
 
         let energyCostLight = 0;
-        if (fixPriceLuce > 0) energyCostLight = monthlyConsumptionLight * fixPriceLuce;
-        else {
-            const punFasce = monthlyPrices.punFasce[month];
-            const punMono = monthlyPrices.pun[month];
-            if (isFasce && punFasce) {
-                energyCostLight = (consumptionLight.F1 * (punFasce.F1 + spreadLuce)) + (consumptionLight.F2 * (punFasce.F2 + spreadLuce)) + (consumptionLight.F3 * (punFasce.F3 + spreadLuce));
+        if (fixPriceLuce > 0) {
+            energyCostLight = monthlyConsumptionLight * fixPriceLuce;
+        } else {
+            const pF = monthlyPrices.punFasce[month];
+            const pM = monthlyPrices.pun[month];
+            if (isFasce && pF) {
+                energyCostLight = (consumptionLight.F1 * (pF.F1 + spreadLuce)) + (consumptionLight.F2 * (pF.F2 + spreadLuce)) + (consumptionLight.F3 * (pF.F3 + spreadLuce));
             } else {
-                energyCostLight = monthlyConsumptionLight * (punMono + spreadLuce);
+                energyCostLight = monthlyConsumptionLight * (pM + spreadLuce);
             }
         }
-        newOfferCostLuce = energyCostLight + getOGTLuce(userType, selectedOfferId);
+        newOfferCostLuce = energyCostLight + ogtCostLuce;
         savingMonthlyLuce = priceLight - newOfferCostLuce;
     }
 
     if (utilityType.includes('gas') && monthlyConsumptionGas > 0) {
         const psv = monthlyPrices.psv[month];
-        let gasPricePerSmc = psv + 0.15; // Esempio spread
-        newOfferCostGas = (monthlyConsumptionGas * gasPricePerSmc) + getOGTGas(userType, selectedOfferId);
+        let gasPricePerSmc = 0;
+        switch(selectedOfferId) {
+            case 'ultraGreenCasa': gasPricePerSmc = psv + 0.305; break;
+            case 'ultraGreenGrandiAziende': gasPricePerSmc = psv + 0.157; break;
+            case 'revolutionTax': gasPricePerSmc = psv + 0.210; break;
+            case 'ultraGreenFix': gasPricePerSmc = 0.607; break;
+            case 'ultraGreenPMI': gasPricePerSmc = psv + 0.181; break;
+        }
+        newOfferCostGas = (monthlyConsumptionGas * gasPricePerSmc) + ogtCostGas;
         savingMonthlyGas = priceGas - newOfferCostGas;
     }
 
-    return { savingLuce: savingMonthlyLuce, costLuce: newOfferCostLuce, savingGas: savingMonthlyGas, costGas: newOfferCostGas, ogtLuce: getOGTLuce(userType, selectedOfferId), ogtGas: getOGTGas(userType, selectedOfferId), consumptionLuce: monthlyConsumptionLight, consumptionGas: monthlyConsumptionGas, currentPriceLuce: priceLight, currentPriceGas: priceGas };
+    return { 
+        savingLuce: savingMonthlyLuce, costLuce: newOfferCostLuce, ogtLuce: ogtCostLuce,
+        savingGas: savingMonthlyGas, costGas: newOfferCostGas, ogtGas: ogtCostGas,
+        consumptionLuce: monthlyConsumptionLight, consumptionGas: monthlyConsumptionGas,
+        currentPriceLuce: priceLight, currentPriceGas: priceGas
+    };
 }
-// FINE PARTE 2
-// script.js - Simulatore di Risparmio (PARTE 3 di 3)
+// script.js - PARTE 4 (Conclusione)
 
-    // --- LOGICA DI AGGREGAZIONE E OUTPUT FINALE ---
-    document.getElementById('calculator-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
+document.getElementById('calculator-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
 
-        const billingFrequency = document.getElementById('billingFrequency').value;
-        const userType = document.getElementById('userType').value;
-        const utilityType = document.getElementById('utilityType').value;
-        const selectedOfferId = document.getElementById('selectedOffer').value;
-        const isBimonthly = billingFrequency === 'bimonthly';
-        const numMonths = isBimonthly ? 2 : 1;
-        const clientName = document.getElementById('clientName').value.trim();
+    const billingFrequency = document.getElementById('billingFrequency').value;
+    const userType = document.getElementById('userType').value;
+    const utilityType = document.getElementById('utilityType').value;
+    const selectedOfferId = document.getElementById('selectedOffer').value;
+    const isBimonthly = billingFrequency === 'bimonthly';
+    const numMonths = isBimonthly ? 2 : 1;
+    const clientName = document.getElementById('clientName').value.trim();
 
-        if (!clientName) return showErrorMessage('Per favore, inserisci il Nome Cliente.');
+    if (!clientName) return showErrorMessage('Per favore, inserisci il Nome Cliente.');
 
-        let monthlyResults = [];
-        let totalCurrentCostLuce = 0; 
-        let totalCurrentCostGas = 0;
-        let totalNewOfferCostLuce = 0;
-        let totalNewOfferCostGas = 0;
+    let monthlyResults = [];
+    let totalCurrentCostLuce = 0; 
+    let totalCurrentCostGas = 0;
+    let totalNewOfferCostLuce = 0;
+    let totalNewOfferCostGas = 0;
 
-        for (let i = 1; i <= numMonths; i++) {
-            const monthIdx = i.toString();
-            const monthKey = document.getElementById(`monthSelection${monthIdx}`).value;
-            
-            // Acquisizione dati e chiamata a calculateMonthlySaving
-            // (Logica integrale come da tuo originale per recupero consumi e prezzi)
-            const result = calculateMonthlySaving(monthKey, /* ... parametri ... */);
-            monthlyResults.push(result);
-            
-            totalNewOfferCostLuce += result.costLuce;
-            totalNewOfferCostGas += result.costGas;
-            if (!isBimonthly) {
-                totalCurrentCostLuce += result.currentPriceLuce;
-                totalCurrentCostGas += result.currentPriceGas;
-            }
+    for (let i = 1; i <= numMonths; i++) {
+        const mIdx = i.toString();
+        const monthKey = document.getElementById(`monthSelection${mIdx}`).value;
+        const isFasce = document.getElementById(`consumptionType${mIdx}`).value === 'fasce';
+        
+        let cL = 0;
+        if (isFasce) {
+            cL = {
+                F1: parseFloat(document.getElementById(`currentConsumptionF1_${mIdx}`).value) || 0,
+                F2: parseFloat(document.getElementById(`currentConsumptionF2_${mIdx}`).value) || 0,
+                F3: parseFloat(document.getElementById(`currentConsumptionF3_${mIdx}`).value) || 0
+            };
+        } else {
+            cL = parseFloat(document.getElementById(`currentConsumptionLight${mIdx}`).value) || 0;
         }
 
-        if (isBimonthly) {
-            totalCurrentCostLuce = parseFloat(document.getElementById('currentPriceLight1').value) || 0;
-            totalCurrentCostGas = parseFloat(document.getElementById('currentPriceGas1').value) || 0;
-        }
+        const cG = parseFloat(document.getElementById(`currentConsumptionGas${mIdx}`).value) || 0;
+        const pL = parseFloat(document.getElementById(`currentPriceLight${mIdx}`)?.value || 0) + (parseFloat(document.getElementById('currentPCVLight1')?.value) || 0);
+        const pG = parseFloat(document.getElementById(`currentPriceGas${mIdx}`)?.value || 0) + (parseFloat(document.getElementById('currentPCVGas1')?.value) || 0);
 
-        const totalSavingCombined = (totalCurrentCostLuce + totalCurrentCostGas) - (totalNewOfferCostLuce + totalNewOfferCostGas);
-        const finalMonthlySaving = totalSavingCombined / numMonths;
-        const totalSavingAnnual = finalMonthlySaving * 12;
+        const res = calculateMonthlySaving(monthKey, cL, pL, cG, pG, 0, 0, userType, selectedOfferId, utilityType, isFasce);
+        monthlyResults.push(res);
+        
+        totalNewOfferCostLuce += res.costLuce;
+        totalNewOfferCostGas += res.costGas;
+        totalCurrentCostLuce += pL;
+        totalCurrentCostGas += pG;
+    }
 
-        // Generazione HTML Risultati
-        const offers = {
-            ultraGreenCasa: { name: 'UltraGreen Casa' },
-            ultraGreenFix: { name: 'UltraGreen Fix' },
-            ultraGreenPMI: { name: 'UltraGreen PMI' },
-            ultraGreenGrandiAziende: { name: 'UltraGreen Grandi Aziende' },
-            revolutionTax: { name: 'Revolution Tax' }
-        };
+    const totalSaving = (totalCurrentCostLuce + totalCurrentCostGas) - (totalNewOfferCostLuce + totalNewOfferCostGas);
+    const monthlySaving = totalSaving / numMonths;
 
-        const offerName = offers[selectedOfferId] ? offers[selectedOfferId].name : 'Offerta Selezionata';
-        let finalOutput = `<div id="result-content" style="padding: 20px; background: white; border: 1px solid #ddd;">
-            <p style="text-align: right;"><strong>Scadenza Proposta: ${getProposalExpirationDate()}</strong></p>
-            <h2 style="color: #2e7d32; border-bottom: 2px solid #4caf50;">Cliente: ${clientName}</h2>
-            <h3>Simulazione con ${offerName}</h3>
-            <p>Risparmio Mensile Stimato: <strong style="color: green;">${finalMonthlySaving.toFixed(2)} Euro</strong></p>
-            <p>Risparmio Annuo Stimato: <strong style="color: green;">${totalSavingAnnual.toFixed(2)} Euro</strong></p>
+    const offerNames = { ultraGreenCasa: 'UltraGreen Casa', ultraGreenFix: 'UltraGreen Fix', ultraGreenPMI: 'UltraGreen PMI', ultraGreenGrandiAziende: 'UltraGreen Grandi Aziende', revolutionTax: 'Revolution Tax' };
+    
+    let outputHTML = `
+        <div id="result-content" style="padding: 20px; border: 1px solid #4caf50; background: #fff;">
+            <p style="text-align: right;">Scadenza Proposta: ${getProposalExpirationDate()}</p>
+            <h2 style="color: #2e7d32;">Analisi per ${clientName}</h2>
+            <h3>Offerta: ${offerNames[selectedOfferId] || 'Personalizzata'}</h3>
+            <hr>
+            <p>Risparmio Mensile: <strong style="color: ${monthlySaving > 0 ? 'green' : 'red'};">${monthlySaving.toFixed(2)} €</strong></p>
+            <p>Risparmio Annuo: <strong style="color: ${monthlySaving > 0 ? 'green' : 'red'};">${(monthlySaving * 12).toFixed(2)} €</strong></p>
         </div>`;
 
-        const resultDiv = document.getElementById('result');
-        if (resultDiv) {
-            resultDiv.innerHTML = finalOutput;
-            resultDiv.style.display = 'block';
-            const exportActions = document.getElementById('export-actions');
-            if (exportActions) exportActions.style.display = 'block';
-        }
-    });
+    const resultDiv = document.getElementById('result');
+    if (resultDiv) {
+        resultDiv.innerHTML = outputHTML;
+        resultDiv.style.display = 'block';
+        document.getElementById('export-actions').style.display = 'block';
+    }
+});
 
-    // --- LISTENER FINALI E INIZIALIZZAZIONE ---
-    document.addEventListener('DOMContentLoaded', () => {
-        populateMonthSelection2();
-        updateMonthLabels();
-        
-        // Listener per il tipo di utente (Business/Consumer)
-        document.getElementById('userType').addEventListener('change', function() {
-            const ultraOption = document.querySelector('option[value="ultraGreenCasa"]');
-            if (this.value === 'business') {
-                if (ultraOption) ultraOption.style.display = 'none';
-                if (document.getElementById('selectedOffer').value === 'ultraGreenCasa') document.getElementById('selectedOffer').value = 'ultraGreenFix';
-            } else if (ultraOption) {
-                ultraOption.style.display = 'block';
-            }
-        });
+// --- LISTENER DI INIZIALIZZAZIONE ---
+document.addEventListener('DOMContentLoaded', () => {
+    populateMonthSelection2();
+    updateMonthLabels();
+    updateBimonthlyFieldsVisibility();
 
-        // Altri Listener
-        document.getElementById('utilityType').addEventListener('change', () => { updateFieldVisibility(); updateMonthLabels(); });
-        document.getElementById('billingFrequency').addEventListener('change', updateBimonthlyFieldsVisibility);
-        document.getElementById('monthSelection1').addEventListener('change', updateMonthLabels);
-        
-        // Fix esportazione
-        const btnPdf = document.getElementById('exportPdfBtn');
-        if (btnPdf) btnPdf.addEventListener('click', () => exportResult('pdf'));
-    });
+    document.getElementById('monthSelection1').addEventListener('change', updateMonthLabels);
+    document.getElementById('billingFrequency').addEventListener('change', updateBimonthlyFieldsVisibility);
+    document.getElementById('utilityType').addEventListener('change', () => { updateFieldVisibility(); updateMonthLabels(); });
+    
+    const btnPdf = document.getElementById('exportPdfBtn');
+    if (btnPdf) btnPdf.addEventListener('click', () => exportResult('pdf'));
+});
