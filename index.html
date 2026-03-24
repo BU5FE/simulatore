@@ -16,18 +16,18 @@
             <input type="text" id="clientName" name="clientName" required>
 
             <label for="billingFrequency">Frequenza di Fatturazione Attuale</label>
-            <select id="billingFrequency" name="billingFrequency" onchange="updateMonthLabels()">
+            <select id="billingFrequency" name="billingFrequency">
                 <option value="monthly">Attuale Fattura Mensile</option>
                 <option value="bimonthly">Attuale Fattura Bimestrale</option>
             </select>
             
             <div id="billingNote" style="display:none; color: #d32f2f; margin-top: -10px; margin-bottom: 20px; font-size: 0.9em; text-align: left;">
-                Ricordati: la fatturazione con la nuova offerta sarà mensile
+                Ricordati: la fatturazione con la nuova offerta sara' mensile
             </div>
 
             <div id="data-m1-fields">
                 <label for="monthSelection1">Mese di Riferimento</label>
-                <select id="monthSelection1" name="monthSelection1" onchange="updateMonthLabels()">
+                <select id="monthSelection1" name="monthSelection1">
                     <option value="2025-07">Luglio 2025</option>
                     <option value="2025-08">Agosto 2025</option>
                     <option value="2025-09">Settembre 2025</option>
@@ -45,7 +45,7 @@
                 </select>
                 
                 <label for="utilityType">Scelta del tipo di fornitura</label>
-                <select id="utilityType" name="utilityType" onchange="toggleUtilityFields()">
+                <select id="utilityType" name="utilityType">
                     <option value="light">Luce</option>
                     <option value="gas">Gas</option>
                     <option value="lightAndGas">Luce e Gas</option>
@@ -54,7 +54,7 @@
                 <div id="light-fields-m1">
                     <hr style="border-top: 1px solid #c8e6c9;">
                     <label for="consumptionType1">Tipologia Consumo Luce <span id="monthNameConsumptionType1">Mese</span></label>
-                    <select id="consumptionType1" name="consumptionType1" onchange="updateLightConsumptionFieldsVisibility(1)">
+                    <select id="consumptionType1" name="consumptionType1">
                         <option value="monorario">Monorario</option>
                         <option value="fasce">A Fasce (F1, F2, F3)</option>
                     </select>
@@ -73,11 +73,14 @@
                         <input type="number" id="currentConsumptionF3_1">
                     </div>
 
+                    <label for="annualConsumptionLight">Consumo Luce annuale (kWh)</label>
+                    <input type="number" id="annualConsumptionLight">
+                    
                     <label for="currentPriceLight1">Spesa materia luce <span id="monthNameLightPrice1">Mese</span> (Euro)</label>
                     <input type="number" id="currentPriceLight1" step="0.01">
 
                     <div id="pcv-light-m1-container">
-                        <label>PCV Mensile Luce (Euro)</label>
+                        <label>Attuale PCV Luce (Euro)</label>
                         <input type="number" id="currentPCVLight1" step="0.01">
                     </div>
                 </div>
@@ -86,17 +89,46 @@
                     <hr style="border-top: 1px solid #c8e6c9;">
                     <label for="currentConsumptionGas1">Consumo Gas <span id="monthNameGasCons1">Mese</span> (smc)</label>
                     <input type="number" id="currentConsumptionGas1">
+                    <label for="annualConsumptionGas">Consumo Gas annuale (smc)</label>
+                    <input type="number" id="annualConsumptionGas">
                     <label for="currentPriceGas1">Spesa materia gas <span id="monthNameGasPrice1">Mese</span> (Euro)</label>
                     <input type="number" id="currentPriceGas1" step="0.01">
                     <div id="pcv-gas-m1-container">
-                        <label>PCV Mensile Gas (Euro)</label>
+                        <label>Attuale PCV Gas (Euro)</label>
                         <input type="number" id="currentPCVGas1" step="0.01">
                     </div>
                 </div>
             </div>
 
-            <!-- MENU OFFERTE IN FONDO -->
-            <hr style="margin: 20px 0;">
+            <!-- SEZIONE MESE 2 (ID AGGIUNTI PER IL JS) -->
+            <div id="data-m2-fields" style="display:none;">
+                <hr style="border-top: 2px solid #4caf50; margin: 20px 0;">
+                <label for="monthSelection2">Mese di Riferimento 2</label>
+                <select id="monthSelection2" name="monthSelection2">
+                    <option value="2025-07">Luglio 2025</option>
+                    <option value="2025-08">Agosto 2025</option>
+                    <option value="2025-09">Settembre 2025</option>
+                    <option value="2025-10">Ottobre 2025</option> 
+                    <option value="2025-11">Novembre 2025</option>
+                    <option value="2025-12">Dicembre 2025</option>
+                    <option value="2026-01">Gennaio 2026</option>
+                    <option value="2026-02">Febbraio 2026</option>
+                </select>
+
+                <div id="light-fields-m2" style="display:none;">
+                    <label for="consumptionType2">Tipo Luce <span id="monthNameConsumptionType2">M2</span></label>
+                    <select id="consumptionType2"><option value="monorario">Monorario</option><option value="fasce">Fasce</option></select>
+                    <label>Consumo Luce <span id="monthNameLightCons2">M2</span></label>
+                    <input type="number" id="currentConsumptionLight2">
+                    <input type="number" id="currentConsumptionF1_2" style="display:none;">
+                    <input type="number" id="currentConsumptionF2_2" style="display:none;">
+                    <input type="number" id="currentConsumptionF3_2" style="display:none;">
+                    <label>Spesa materia <span id="monthNameLightPrice2">M2</span></label>
+                    <input type="number" id="currentPriceLight2" step="0.01">
+                </div>
+            </div>
+
+            <!-- SCELTA OFFERTA (SPOSTATA IN FONDO) -->
             <label for="selectedOffer">Seleziona la Nuova Offerta</label>
             <select id="selectedOffer" name="selectedOffer">
                 <option value="ultraGreenFix">Ultra Green Fix</option>
@@ -106,12 +138,18 @@
                 <option value="ultraGreenCasa">Ultra Green Casa</option>
             </select>
 
-            <button type="button" onclick="calculateSavings()" style="margin-top: 20px; width: 100%; padding: 15px; background: #4caf50; color: white; border: none; cursor: pointer;">CALCOLA RISPARMIO</button>
+            <button type="submit" id="calculate-btn">CALCOLA RISPARMIO</button>
         </form>
 
-        <div id="result" style="display:none; margin-top: 20px; padding: 20px; border: 2px solid #4caf50; background: #f9f9f9;"></div>
+        <div id="result" style="display:none; margin-top:20px;"></div>
+        <div id="export-actions" style="display:none;">
+            <button type="button" id="exportPdfBtn">Esporta PDF</button>
+            <button type="button" id="exportImgBtn">Esporta Immagine</button>
+        </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com"></script>
+    <script src="https://cdnjs.cloudflare.com"></script>
     <script src="script.js"></script>
 </body>
 </html>
