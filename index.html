@@ -3,27 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulatore Analitico Professionale v4</title>
+    <title>Simulatore Professionale Analitico</title>
     <style>
         :root { --primary: #1b5e20; --secondary: #e65100; --bg: #f1f5f9; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); padding: 20px; color: #1a202c; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 40px; border-radius: 20px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: var(--primary); font-weight: 800; text-transform: uppercase; margin-bottom: 30px; }
-        .section { display: none; padding: 25px; margin-top: 25px; border-radius: 15px; border: 1px solid #e2e8f0; border-top: 6px solid; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; color: #1a202c; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); font-weight: 800; margin-bottom: 25px; }
+        .section { display: none; padding: 25px; margin-top: 20px; border-radius: 15px; border: 1px solid #e2e8f0; border-top: 6px solid; }
         #light-section { border-color: var(--primary); background: #f0fff4; }
         #gas-section { border-color: var(--secondary); background: #fffaf0; }
-        .month-input-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #edf2f7; margin-top: 15px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .month-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #edf2f7; margin-top: 15px; }
         label { display: block; margin-top: 12px; font-weight: 700; font-size: 0.85rem; color: #4a5568; }
         input, select { width: 100%; padding: 12px; margin-top: 6px; border: 2px solid #edf2f7; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
-        input:focus { border-color: var(--primary); outline: none; }
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        button { width: 100%; padding: 20px; margin-top: 40px; border: none; border-radius: 12px; font-size: 1.3rem; font-weight: 800; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        button { width: 100%; padding: 20px; margin-top: 30px; border: none; border-radius: 12px; font-size: 1.3rem; font-weight: 800; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; }
         button:hover { background: #0d3d12; transform: translateY(-2px); }
         #result { margin-top: 40px; display: none; }
-        .report-card { padding: 40px; border-radius: 20px; background: white; border: 1px solid #e2e8f0; }
-        .res-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 1.1rem; }
-        .total-box { background: var(--primary); color: white; padding: 30px; text-align: center; border-radius: 15px; margin-top: 30px; }
+        .report-card { padding: 35px; border-radius: 20px; background: white; border: 1px solid #e2e8f0; }
+        .total-box { background: var(--primary); color: white; padding: 30px; text-align: center; border-radius: 15px; margin-top: 25px; }
     </style>
 </head>
 <body>
@@ -32,41 +30,54 @@
     <h1>Analisi Tecnica Risparmio</h1>
     
     <label>Ragione Sociale / Cliente</label>
-    <input type="text" id="nome" placeholder="Inserisci nome cliente">
+    <input type="text" id="nome" placeholder="Nome Azienda o Cliente">
 
-    <label>Servizio Analizzato</label>
-    <select id="utenza" onchange="renderApp()"><option value="">-- Seleziona --</option><option value="L">Luce</option><option value="G">Gas</option><option value="LG">Luce e Gas</option></select>
+    <div class="grid-2">
+        <div>
+            <label>Servizio</label>
+            <select id="utenza" onchange="renderApp()">
+                <option value="">-- Seleziona --</option>
+                <option value="L">Luce</option>
+                <option value="G">Gas</option>
+                <option value="LG">Luce e Gas</option>
+            </select>
+        </div>
+        <div>
+            <label>Offerta Target (UltraGreen)</label>
+            <select id="offerta">
+                <option value="CASA">UltraGreen CASA (Spread 0.055)</option>
+                <option value="PMI">UltraGreen PMI (Spread 0.035)</option>
+                <option value="REVO">Revolution Tax</option>
+            </select>
+        </div>
+    </div>
 
     <div id="light-section" class="section">
-        <h3>⚡ DETTAGLIO ENERGIA ELETTRICA</h3>
+        <h3>⚡ ENERGIA ELETTRICA</h3>
         <div class="grid-2">
-            <div><label>Frequenza Bolletta</label><select id="freqL" onchange="renderApp()"><option value="1">Mensile</option><option value="2" selected>Bimestrale</option></select></div>
-            <div><label>Configurazione</label><select id="modoL" onchange="renderApp()"><option value="mono">Monoraria</option><option value="fasce">A Fasce (F1-F2-F3)</option></select></div>
+            <div><label>Frequenza</label><select id="freqL" onchange="renderApp()"><option value="1">Mensile</option><option value="2" selected>Bimestrale</option></select></div>
+            <div><label>Tipo Lettura</label><select id="modoL" onchange="renderApp()"><option value="mono">Monoraria</option><option value="fasce">Per Fasce (F1-F2-F3)</option></select></div>
         </div>
-        
         <div id="contMesiL"></div>
-
         <div class="grid-2">
             <div><label>Costo Materia Bolletta (€)</label><input type="number" id="spesaL" step="0.01"></div>
-            <div><label>PCV Attuale del Cliente (€/mese)</label><input type="number" id="pcvL" value="12.00" step="0.01"></div>
+            <div><label>PCV Attuale Cliente (€/mese)</label><input type="number" id="pcvL" value="12.00"></div>
         </div>
-        <label>Consumo Annuo Totale (kWh)</label><input type="number" id="annuoL" placeholder="Dato fondamentale per proiezione">
+        <label>Consumo Annuo Totale (kWh)</label><input type="number" id="annuoL">
     </div>
 
     <div id="gas-section" class="section">
-        <h3>🔥 DETTAGLIO GAS NATURALE</h3>
+        <h3>🔥 GAS NATURALE</h3>
         <div class="grid-2">
-            <div><label>Frequenza Bolletta</label><select id="freqG" onchange="renderApp()"><option value="1">Mensile</option><option value="2" selected>Bimestrale</option></select></div>
-            <div><label>PCV Attuale del Cliente (€/mese)</label><input type="number" id="pcvG" value="12.00" step="0.01"></div>
+            <div><label>Frequenza</label><select id="freqG" onchange="renderApp()"><option value="1">Mensile</option><option value="2" selected>Bimestrale</option></select></div>
+            <div><label>PCV Attuale Cliente (€/mese)</label><input type="number" id="pcvG" value="12.00"></div>
         </div>
-        
         <div id="contMesiG"></div>
-
         <label>Costo Materia Bolletta (€)</label><input type="number" id="spesaG" step="0.01">
         <label>Consumo Annuo Totale (smc)</label><input type="number" id="annuoG">
     </div>
 
-    <button onclick="calcolaRisparmio()">GENERA ANALISI COMPARATIVA</button>
+    <button onclick="calcola()">GENERA REPORT ANALITICO</button>
     <div id="result"></div>
 </div>
 
@@ -86,7 +97,6 @@ function renderApp() {
     const u = document.getElementById('utenza').value;
     document.getElementById('light-section').style.display = u.includes('L') ? 'block' : 'none';
     document.getElementById('gas-section').style.display = u.includes('G') ? 'block' : 'none';
-
     if(u.includes('L')) buildFields('L');
     if(u.includes('G')) buildFields('G');
 }
@@ -96,9 +106,8 @@ function buildFields(tipo) {
     const modo = tipo === 'L' ? document.getElementById('modoL').value : 'mono';
     const cont = document.getElementById(tipo === 'L' ? 'contMesiL' : 'contMesiG');
     cont.innerHTML = "";
-
     for(let i=0; i<freq; i++) {
-        let h = `<div class="month-input-card"><label>Mese ${i+1}</label><select id="m${tipo}${i}">${Object.keys(mesiNomi).map(k=>`<option value="${k}">${mesiNomi[k]}</option>`).join('')}</select>`;
+        let h = `<div class="month-card"><label>Mese ${i+1}</label><select id="m${tipo}${i}">${Object.keys(mesiNomi).map(k=>`<option value="${k}">${mesiNomi[k]}</option>`).join('')}</select>`;
         if(tipo === 'L' && modo === 'fasce') {
             h += `<div class="grid-3">
                 <div><label>F1 (kWh)</label><input type="number" id="v${tipo}${i}f1" value="0"></div>
@@ -113,43 +122,41 @@ function buildFields(tipo) {
     }
 }
 
-function calcolaRisparmio() {
-    let totR = 0, ut = document.getElementById('utenza').value, resH = "";
+function calcola() {
+    let totR = 0, ut = document.getElementById('utenza').value, off = document.getElementById('offerta').value;
+    let resH = "", spreadTargetL = (off === 'PMI') ? 0.035 : 0.055, spreadTargetG = 0.15, ogtTarget = 8.95;
 
     if(ut.includes('L')) {
-        let f = parseInt(document.getElementById('freqL').value), modo = document.getElementById('modoL').value, cBolletta = 0, costoMTarget = 0;
+        let f = parseInt(document.getElementById('freqL').value), modo = document.getElementById('modoL').value, cBoll = 0, costoMTarget = 0;
         for(let i=0; i<f; i++) {
             let m = document.getElementById(`mL${i}`).value;
             if(modo === 'fasce') {
-                let f1=parseFloat(document.getElementById(`vL${i}f1`).value)||0, f2=parseFloat(document.getElementById(`vL${i}f2`).value)||0, f3=parseFloat(document.getElementById(`vL${i}f3`).value)||0;
-                cBolletta += (f1+f2+f3);
-                costoMTarget += (f1*PREZZI.pun[m].f1 + f2*PREZZI.pun[m].f2 + f3*PREZZI.pun[m].f3);
+                let v1=parseFloat(document.getElementById(`vL${i}f1`).value)||0, v2=parseFloat(document.getElementById(`vL${i}f2`).value)||0, v3=parseFloat(document.getElementById(`vL${i}f3`).value)||0;
+                cBoll += (v1+v2+v3); costoMTarget += (v1*PREZZI.pun[m].f1 + v2*PREZZI.pun[m].f2 + v3*PREZZI.pun[m].f3);
             } else {
                 let c = parseFloat(document.getElementById(`vL${i}`).value)||0;
-                cBolletta += c; costoMTarget += (c * PREZZI.pun[m].m);
+                cBoll += c; costoMTarget += (c * PREZZI.pun[m].m);
             }
         }
-        // Formula: Materia PUN + Spread (0.055) + OGT Target (8.95 * mesi)
-        let nuovaL = costoMTarget + (cBolletta * 0.055) + (8.95 * f);
-        let rA = ((parseFloat(document.getElementById('spesaL').value)||0) - nuovaL) / (cBolletta||1) * (parseFloat(document.getElementById('annuoL').value)||0);
-        totR += rA; resH += `<div class="res-row"><span>Risparmio Annuo Luce:</span> <strong style="color:var(--primary)">€ ${rA.toFixed(2)}</strong></div>`;
+        let nuovaL = costoMTarget + (cBoll * spreadTargetL) + (ogtTarget * f);
+        let rA = ((parseFloat(document.getElementById('spesaL').value)||0) - nuovaL) / (cBoll||1) * (parseFloat(document.getElementById('annuoL').value)||0);
+        totR += rA; resH += `<p>Risparmio Luce: <b>€ ${rA.toFixed(2)} / anno</b></p>`;
     }
 
     if(ut.includes('G')) {
-        let f = parseInt(document.getElementById('freqG').value), cBollettaG = 0, costoMTargetG = 0;
+        let f = parseInt(document.getElementById('freqG').value), cBollG = 0, costoMTargetG = 0;
         for(let i=0; i<f; i++) {
             let m = document.getElementById(`mG${i}`).value, c = parseFloat(document.getElementById(`vG${i}`).value)||0;
-            cBollettaG += c; costoMTargetG += (c * PREZZI.psv[m]);
+            cBollG += c; costoMTargetG += (c * PREZZI.psv[m]);
         }
-        let nuovaG = costoMTargetG + (cBollettaG * 0.20) + (8.95 * f);
-        let rAG = ((parseFloat(document.getElementById('spesaG').value)||0) - nuovaG) / (cBollettaG||1) * (parseFloat(document.getElementById('annuoG').value)||0);
-        totR += rAG; resH += `<div class="res-row"><span>Risparmio Annuo Gas:</span> <strong style="color:var(--secondary)">€ ${rAG.toFixed(2)}</strong></div>`;
+        let nuovaG = costoMTargetG + (cBollG * spreadTargetG) + (ogtTarget * f);
+        let rAG = ((parseFloat(document.getElementById('spesaG').value)||0) - nuovaG) / (cBollG||1) * (parseFloat(document.getElementById('annuoG').value)||0);
+        totR += rAG; resH += `<p>Risparmio Gas: <b>€ ${rAG.toFixed(2)} / anno</b></p>`;
     }
 
     const rd = document.getElementById('result');
     rd.innerHTML = `<div class="report-card"><h3>Analisi per ${document.getElementById('nome').value.toUpperCase()}</h3>${resH}<div class="total-box"><span>RISPARMIO TOTALE STIMATO</span><h2>€ ${totR.toFixed(2)} / ANNO</h2></div></div>`;
     rd.style.display = 'block';
-    window.scrollTo({ top: rd.offsetTop, behavior: 'smooth' });
 }
 </script>
 </body>
