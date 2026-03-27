@@ -11,7 +11,7 @@ const monthlyPrices = {
         '2025-11': 0.117090,
         '2025-12': 0.115490,
         '2026-01': 0.132660,
-        '2026-02': 0.142500 // AGGIORNATO FEBBRAIO 2026
+        '2026-02': 0.142500 // VALORE AGGIORNATO FEBBRAIO 2026
     },
     // PUN a Fasce
     punFasce: {
@@ -22,7 +22,7 @@ const monthlyPrices = {
         '2025-11': { F1: 0.129590, F2: 0.124020, F3: 0.105510 },
         '2025-12': { F1: 0.130090, F2: 0.119980, F3: 0.104520 },
         '2026-01': { F1: 0.151261, F2: 0.137405, F3: 0.118292 },
-        '2026-02': { F1: 0.158400, F2: 0.145200, F3: 0.124100 } // AGGIORNATO FEBBRAIO 2026
+        '2026-02': { F1: 0.158400, F2: 0.145200, F3: 0.124100 } // VALORE AGGIORNATO FEBBRAIO 2026
     },
     // PSV
     psv: {
@@ -33,11 +33,11 @@ const monthlyPrices = {
         '2025-11': 0.345300,
         '2025-12': 0.324670,
         '2026-01': 0.404227,
-        '2026-02': 0.395000 // AGGIORNATO FEBBRAIO 2026
+        '2026-02': 0.395000 // VALORE AGGIORNATO FEBBRAIO 2026
     }
 };
 
-// Mappa dei nomi dei mesi per la visualizzazione
+// Mappa dei nomi dei mesi per le etichette dinamiche
 const monthNames = {
     '2025-07': 'Luglio 2025',
     '2025-08': 'Agosto 2025',
@@ -49,12 +49,13 @@ const monthNames = {
     '2026-02': 'Febbraio 2026'
 };
 
-// Funzione per popolare il selettore del secondo mese in base al primo
+// Funzione per popolare automaticamente il secondo mese in caso di fatturazione bimestrale
 function populateMonthSelection2() {
     const month1 = document.getElementById('monthSelection1').value;
     const select2 = document.getElementById('monthSelection2');
+    if (!select2) return;
+    
     select2.innerHTML = '';
-
     const keys = Object.keys(monthlyPrices.pun);
     const index1 = keys.indexOf(month1);
 
@@ -67,7 +68,7 @@ function populateMonthSelection2() {
     }
 }
 
-// Gestione visibilità campi fatturazione bimestrale
+// Gestione visibilità campi in base alla frequenza e al tipo di utenza
 function updateBimonthlyFieldsVisibility() {
     const frequency = document.getElementById('billingFrequency').value;
     const utility = document.getElementById('utilityType').value;
@@ -75,47 +76,60 @@ function updateBimonthlyFieldsVisibility() {
     const note = document.getElementById('billingNote');
 
     if (frequency === 'bimonthly') {
-        m2Container.style.display = 'block';
-        note.style.display = 'block';
+        if (m2Container) m2Container.style.display = 'block';
+        if (note) note.style.display = 'block';
         populateMonthSelection2();
         
-        document.getElementById('light-fields-m2').style.display = (utility === 'light' || utility === 'lightAndGas') ? 'block' : 'none';
-        document.getElementById('gas-fields-m2').style.display = (utility === 'gas' || utility === 'lightAndGas') ? 'block' : 'none';
+        const lightM2 = document.getElementById('light-fields-m2');
+        const gasM2 = document.getElementById('gas-fields-m2');
+        if (lightM2) lightM2.style.display = (utility === 'light' || utility === 'lightAndGas') ? 'block' : 'none';
+        if (gasM2) gasM2.style.display = (utility === 'gas' || utility === 'lightAndGas') ? 'block' : 'none';
     } else {
-        m2Container.style.display = 'none';
-        note.style.display = 'none';
+        if (m2Container) m2Container.style.display = 'none';
+        if (note) note.style.display = 'none';
     }
+
+    const lightM1 = document.getElementById('light-fields-m1');
+    const gasM1 = document.getElementById('gas-fields-m1');
+    if (lightM1) lightM1.style.display = (utility === 'light' || utility === 'lightAndGas') ? 'block' : 'none';
+    if (gasM1) gasM1.style.display = (utility === 'gas' || utility === 'lightAndGas') ? 'block' : 'none';
+
     updateMonthLabels();
 }
 
-// Aggiorna le etichette dinamiche dei mesi nei label
+// Aggiorna dinamicamente i nomi dei mesi nelle label del form
 function updateMonthLabels() {
-    const m1 = monthNames[document.getElementById('monthSelection1').value] || 'Mese 1';
-    const m2 = monthNames[document.getElementById('monthSelection2').value] || 'Mese 2';
+    const m1Val = document.getElementById('monthSelection1').value;
+    const m2Val = document.getElementById('monthSelection2') ? document.getElementById('monthSelection2').value : '';
+    
+    const m1Text = monthNames[m1Val] || 'Mese di Riferimento';
+    const m2Text = monthNames[m2Val] || 'Mese di Riferimento 2';
 
-    const labelsM1 = [
-        'monthNameConsumptionType1', 'monthNameLightCons1', 'monthNameLightConsF1_1', 
-        'monthNameLightConsF2_1', 'monthNameLightConsF3_1', 'monthNameLightPrice1', 
-        'monthNameGasCons1', 'monthNameGasPrice1'
-    ];
-    labelsM1.forEach(id => { if(document.getElementById(id)) document.getElementById(id).textContent = m1; });
+    const idsM1 = ['monthNameConsumptionType1', 'monthNameLightCons1', 'monthNameLightConsF1_1', 'monthNameLightConsF2_1', 'monthNameLightConsF3_1', 'monthNameLightPrice1', 'monthNameGasCons1', 'monthNameGasPrice1'];
+    idsM1.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = m1Text;
+    });
 
-    const labelsM2 = [
-        'monthNameConsumptionType2', 'monthNameLightCons2', 'monthNameLightConsF1_2', 
-        'monthNameLightConsF2_2', 'monthNameLightConsF3_2', 'monthNameLightPrice2', 
-        'monthNameGasCons2', 'monthNameGasPrice2'
-    ];
-    labelsM2.forEach(id => { if(document.getElementById(id)) document.getElementById(id).textContent = m2; });
+    const idsM2 = ['monthNameConsumptionType2', 'monthNameLightCons2', 'monthNameLightConsF1_2', 'monthNameLightConsF2_2', 'monthNameLightConsF3_2', 'monthNameLightPrice2', 'monthNameGasCons2', 'monthNameGasPrice2'];
+    idsM2.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = m2Text;
+    });
 }
 
-// Gestione visibilità campi Monorario/Fasce
+// Gestione visibilità campi tra Monorario e Fasce
 function updateLightConsumptionFieldsVisibility(suffix) {
-    const type = document.getElementById(`consumptionType${suffix}`).value;
-    document.getElementById(`light-monorario-fields-m${suffix}`).style.display = (type === 'monorario') ? 'block' : 'none';
-    document.getElementById(`light-fasce-fields-m${suffix}`).style.display = (type === 'fasce') ? 'block' : 'none';
+    const typeEl = document.getElementById(`consumptionType${suffix}`);
+    if (!typeEl) return;
+    const type = typeEl.value;
+    const mono = document.getElementById(`light-monorario-fields-m${suffix}`);
+    const fasce = document.getElementById(`light-fasce-fields-m${suffix}`);
+    if (mono) mono.style.display = (type === 'monorario') ? 'block' : 'none';
+    if (fasce) fasce.style.display = (type === 'fasce') ? 'block' : 'none';
 }
 
-// Funzione di Calcolo Risparmio
+// Logica di calcolo del risparmio per singolo mese
 function calculateMonthlySaving(monthKey, isLight, isGas, suffix) {
     let currentCost = 0;
     let newCost = 0;
@@ -140,10 +154,10 @@ function calculateMonthlySaving(monthKey, isLight, isGas, suffix) {
             const f3 = parseFloat(document.getElementById(`currentConsumptionF3_${suffix}`).value) || 0;
             consumption = f1 + f2 + f3;
             const punF = monthlyPrices.punFasce[monthKey];
-            punValue = ( (f1 * punF.F1) + (f2 * punF.F2) + (f3 * punF.F3) ) / (consumption || 1);
+            punValue = (consumption > 0) ? ((f1 * punF.F1) + (f2 * punF.F2) + (f3 * punF.F3)) / consumption : 0;
         }
 
-        let spread = 0.0551; // Default UltraGreen Casa
+        let spread = 0.0551; 
         let fixLuce = 12.0;
 
         if (offer === 'ultraGreenFix') { spread = 0.035; fixLuce = 13.0; }
@@ -175,7 +189,7 @@ function calculateMonthlySaving(monthKey, isLight, isGas, suffix) {
     return { current: currentCost, new: newCost };
 }
 
-// Event Listener Form Submit
+// Gestore invio form
 document.getElementById('calculator-form').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -190,13 +204,15 @@ document.getElementById('calculator-form').addEventListener('submit', function(e
 
     if (frequency === 'bimonthly') {
         const m2Key = document.getElementById('monthSelection2').value;
-        let res2 = calculateMonthlySaving(m2Key, isLight, isGas, '2');
-        res.current += res2.current;
-        res.new += res2.new;
+        if (m2Key) {
+            let res2 = calculateMonthlySaving(m2Key, isLight, isGas, '2');
+            res.current += res2.current;
+            res.new += res2.new;
+        }
     }
 
     const saving = res.current - res.new;
-    const savingPercent = (saving / res.current) * 100;
+    const savingPercent = (res.current > 0) ? (saving / res.current) * 100 : 0;
 
     const resultDiv = document.getElementById('result');
     resultDiv.innerHTML = `
@@ -209,44 +225,53 @@ document.getElementById('calculator-form').addEventListener('submit', function(e
     document.getElementById('export-actions').style.display = 'block';
 });
 
-// Funzioni di Esportazione
+// Funzione per l'esportazione (PDF o Immagine)
 async function exportResult(type) {
     const element = document.querySelector('.container');
     const actions = document.getElementById('export-actions');
     actions.style.display = 'none';
 
-    const canvas = await html2canvas(element);
-    
-    if (type === 'pdf') {
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const imgData = canvas.toDataURL('image/png');
-        const imgProps = pdf.getImageProperties(imgData);
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save(`Risparmio_${document.getElementById('clientName').value}.pdf`);
-    } else {
-        const link = document.createElement('a');
-        link.download = `Risparmio_${document.getElementById('clientName').value}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
+    try {
+        const canvas = await html2canvas(element);
+        const clientName = document.getElementById('clientName').value || 'Cliente';
+        
+        if (type === 'pdf') {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            const imgData = canvas.toDataURL('image/png');
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save(`Risparmio_${clientName}.pdf`);
+        } else {
+            const link = document.createElement('a');
+            link.download = `Risparmio_${clientName}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    } catch (err) {
+        console.error("Errore esportazione:", err);
     }
     actions.style.display = 'block';
 }
 
-// Inizializzazione Listeners
-document.getElementById('billingFrequency').addEventListener('change', updateBimonthlyFieldsVisibility);
-document.getElementById('utilityType').addEventListener('change', updateBimonthlyFieldsVisibility);
-document.getElementById('consumptionType1').addEventListener('change', () => updateLightConsumptionFieldsVisibility('1'));
-document.getElementById('consumptionType2').addEventListener('change', () => updateLightConsumptionFieldsVisibility('2'));
-document.getElementById('monthSelection1').addEventListener('change', () => {
-    populateMonthSelection2();
-    updateMonthLabels();
-});
-
+// Inizializzazione Listeners al caricamento della pagina
 document.addEventListener('DOMContentLoaded', () => {
     updateBimonthlyFieldsVisibility();
-    document.getElementById('exportPdfBtn').addEventListener('click', () => exportResult('pdf'));
-    document.getElementById('exportImgBtn').addEventListener('click', () => exportResult('img'));
+
+    document.getElementById('billingFrequency').addEventListener('change', updateBimonthlyFieldsVisibility);
+    document.getElementById('utilityType').addEventListener('change', updateBimonthlyFieldsVisibility);
+    document.getElementById('consumptionType1').addEventListener('change', () => updateLightConsumptionFieldsVisibility('1'));
+    document.getElementById('consumptionType2').addEventListener('change', () => updateLightConsumptionFieldsVisibility('2'));
+    
+    document.getElementById('monthSelection1').addEventListener('change', () => {
+        populateMonthSelection2();
+        updateMonthLabels();
+    });
+
+    const exportPdfBtn = document.getElementById('exportPdfBtn');
+    const exportImgBtn = document.getElementById('exportImgBtn');
+    if (exportPdfBtn) exportPdfBtn.addEventListener('click', () => exportResult('pdf'));
+    if (exportImgBtn) exportImgBtn.addEventListener('click', () => exportResult('img'));
 });
