@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisi Tecnica UltraGreen v7.6</title>
+    <title>Analisi Tecnica UltraGreen v7.7</title>
     <style>
         :root { --primary: #1b5e20; --secondary: #e65100; --bg: #f1f5f9; --red: #d32f2f; --green: #2e7d32; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; color: #1a202c; }
@@ -37,7 +37,7 @@
     <div class="grid-2">
         <div>
             <label>Tipo Cliente</label>
-            <select id="tipoCliente" onchange="filtraOfferte(); renderApp();">
+            <select id="tipoCliente" onchange="renderApp();">
                 <option value="consumer">Privato (Consumer)</option>
                 <option value="business">Azienda (Business)</option>
             </select>
@@ -59,7 +59,15 @@
     <div id="light-section" class="section">
         <h3>⚡ ENERGIA ELETTRICA</h3>
         <div class="grid-2">
-            <div><label>Offerta Luce Target</label><select id="offL"></select></div>
+            <div><label>Offerta Luce Target</label>
+                <select id="offL">
+                    <option value="CASA">UltraGreen CASA</option>
+                    <option value="ULTRAGREEN">UltraGreen</option>
+                    <option value="PMI">UltraGreen PMI</option>
+                    <option value="AZIENDE">UltraGreen Grandi Aziende</option>
+                    <option value="REVO">Revolution Tax</option>
+                </select>
+            </div>
             <div><label>Frequenza</label><select id="freqL" onchange="renderApp()"><option value="1">Mensile</option><option value="2" selected>Bimestrale</option></select></div>
         </div>
         <div class="grid-2">
@@ -76,7 +84,15 @@
     <div id="gas-section" class="section">
         <h3>🔥 GAS NATURALE</h3>
         <div class="grid-2">
-            <div><label>Offerta Gas Target</label><select id="offG"></select></div>
+            <div><label>Offerta Gas Target</label>
+                <select id="offG">
+                    <option value="CASA">UltraGreen CASA</option>
+                    <option value="ULTRAGREEN">UltraGreen</option>
+                    <option value="PMI">UltraGreen PMI</option>
+                    <option value="AZIENDE">UltraGreen Grandi Aziende</option>
+                    <option value="REVO">Revolution Tax</option>
+                </select>
+            </div>
             <div><label>Frequenza</label><select id="freqG" onchange="renderApp()"><option value="1">Mensile</option><option value="2" selected>Bimestrale</option></select></div>
         </div>
         <div id="contMesiG"></div>
@@ -102,28 +118,13 @@ const PREZZI = {
 };
 const mesiNomi = {'09_25':'Settembre 2025','10_25':'Ottobre 2025','11_25':'Novembre 2025','12_25':'Dicembre 2025','01_26':'Gennaio 2026','02_26':'Febbraio 2026'};
 
-// CONFIGURAZIONE COMMERCIALE FINALE
 const CONFIG = {
     'CASA': { sprL: 0.061, sprG: 0.11, ogtC: 8.95, ogtB: 8.95 },
-    'ULTRAGREEN': { sprL: 0.061, sprG: 0.08, ogtC: 8.95, ogtB: 14.95 }, // Corretto Gas a 0.08
+    'ULTRAGREEN': { sprL: 0.061, sprG: 0.08, ogtC: 8.95, ogtB: 14.95 },
     'PMI': { sprL: 0.059, sprG: 0.06, ogtC: 8.95, ogtB: 19.95 },
     'AZIENDE': { sprL: 0.043, sprG: 0.04, ogtC: 8.95, ogtB: 19.95 },
     'REVO': { sprL: 0.061, sprG: 0.08, ogtC: 8.95, ogtB: 14.95 }
 };
-
-function filtraOfferte() {
-    const tipo = document.getElementById('tipoCliente').value;
-    const offL = document.getElementById('offL'); const offG = document.getElementById('offG');
-    let opL = "", opG = "";
-    if(tipo === 'consumer') {
-        opL = `<option value="CASA">UltraGreen CASA</option><option value="REVO">Revolution Tax</option>`;
-        opG = `<option value="CASA">UltraGreen CASA</option><option value="REVO">Revolution Tax</option>`;
-    } else {
-        opL = `<option value="ULTRAGREEN">UltraGreen</option><option value="PMI">UltraGreen PMI</option><option value="AZIENDE">UltraGreen Grandi Aziende</option><option value="REVO">Revolution Tax</option>`;
-        opG = `<option value="ULTRAGREEN">UltraGreen</option><option value="PMI">UltraGreen PMI</option><option value="AZIENDE">UltraGreen Grandi Aziende</option><option value="REVO">Revolution Tax</option>`;
-    }
-    offL.innerHTML = opL; offG.innerHTML = opG;
-}
 
 function renderApp() {
     const u = document.getElementById('utenza').value;
@@ -183,7 +184,6 @@ function calcola() {
     document.getElementById('result').style.display = 'block';
     document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
 }
-window.onload = filtraOfferte;
 </script>
 </body>
 </html>
