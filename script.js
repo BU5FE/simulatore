@@ -1,5 +1,5 @@
-// script.js - Simulatore di Risparmio - VERSIONE RIPRISTINATA ORIGINALE
-// Aggiornamento Prezzi: Febbraio 2026 (Nessuna modifica alla logica o ai nomi dei campi)
+// script.js - Simulatore di Risparmio - VERSIONE INTEGRALE RIPRISTINATA
+// Aggiornamento Prezzi: Febbraio 2026
 
 // Database statico dei prezzi (Aggiornato con Febbraio 2026)
 const monthlyPrices = {
@@ -12,7 +12,7 @@ const monthlyPrices = {
         '2025-11': 0.117090,
         '2025-12': 0.115490,
         '2026-01': 0.132660,
-        '2026-02': 0.142500 // <--- AGGIORNATO
+        '2026-02': 0.142500 // AGGIORNATO FEBBRAIO 2026
     },
     // PUN a Fasce
     punFasce: {
@@ -23,7 +23,7 @@ const monthlyPrices = {
         '2025-11': { F1: 0.129590, F2: 0.124020, F3: 0.105510 },
         '2025-12': { F1: 0.130090, F2: 0.119980, F3: 0.104520 },
         '2026-01': { F1: 0.151261, F2: 0.137405, F3: 0.118292 },
-        '2026-02': { F1: 0.158400, F2: 0.145200, F3: 0.124100 } // <--- AGGIORNATO
+        '2026-02': { F1: 0.158400, F2: 0.145200, F3: 0.124100 } // AGGIORNATO FEBBRAIO 2026
     },
     // PSV
     psv: {
@@ -34,11 +34,9 @@ const monthlyPrices = {
         '2025-11': 0.345300,
         '2025-12': 0.324670,
         '2026-01': 0.404227,
-        '2026-02': 0.395000 // <--- AGGIORNATO
+        '2026-02': 0.395000 // AGGIORNATO FEBBRAIO 2026
     }
 };
-
-// ... DA QUI IN POI IL CODICE SEGUE ESATTAMENTE IL TUO ORIGINALE ...
 
 // Funzione per calcolare la componente OGT LUCE (a POD)
 function getOGTLuce(userType, selectedOfferId) {
@@ -81,6 +79,7 @@ function getOGTGas(userType, selectedOfferId) {
     return 8.95;
 }
 
+// Funzione di utilità per mostrare messaggi di errore nell'output
 function showErrorMessage(message) {
     const resultDiv = document.getElementById('result');
     resultDiv.innerHTML = `<h3 style="color: red;">Errore di Input</h3><p>${message}</p>`;
@@ -89,6 +88,7 @@ function showErrorMessage(message) {
     window.scrollTo(0, 0); 
 }
 
+// Restituisce il testo (nome) del mese selezionato
 function getSelectedMonthName(selectElementId) {
     const select = document.getElementById(selectElementId);
     if (select && select.options[select.selectedIndex]) {
@@ -97,6 +97,7 @@ function getSelectedMonthName(selectElementId) {
     return 'Mese non trovato';
 }
 
+// Popola le opzioni del Mese 2
 function populateMonthSelection2() {
     const monthSelection1 = document.getElementById('monthSelection1');
     const monthSelection2 = document.getElementById('monthSelection2');
@@ -110,6 +111,7 @@ function populateMonthSelection2() {
     }
 }
 
+// Aggiorna le etichette dei campi Luce/Gas con il nome del mese
 function updateMonthLabels() {
     const monthName1 = getSelectedMonthName('monthSelection1');
     const monthName2 = getSelectedMonthName('monthSelection2'); 
@@ -156,6 +158,7 @@ function updateMonthLabels() {
     document.getElementById('monthNameGasPrice2').textContent = monthName2;
 }
 
+// Gestione visibilità campi consumo LUCE (Monorario vs Fasce)
 function updateLightConsumptionFieldsVisibility(monthIndex) {
     const consumptionType = document.getElementById(`consumptionType${monthIndex}`).value;
     const isMonorario = consumptionType === 'monorario';
@@ -176,6 +179,7 @@ function updateLightConsumptionFieldsVisibility(monthIndex) {
     }
 }
 
+// Gestione visibilità campi bimestrali
 function updateBimonthlyFieldsVisibility() {
     const billingFrequency = document.getElementById('billingFrequency').value;
     const dataM2Fields = document.getElementById('data-m2-fields');
@@ -193,6 +197,7 @@ function updateBimonthlyFieldsVisibility() {
     updateMonthLabels();
 }
 
+// Gestione visibilità campi luce/gas
 function updateFieldVisibility() {
     const utilityType = document.getElementById('utilityType').value;
     const billingFrequency = document.getElementById('billingFrequency').value;
@@ -252,6 +257,7 @@ function updateFieldVisibility() {
     }
 }
 
+// Calcola scadenza proposta (fine mese corrente)
 function getProposalExpirationDate() {
     const today = new Date();
     const year = today.getFullYear();
@@ -263,6 +269,7 @@ function getProposalExpirationDate() {
     return `${day}/${monthStr}/${yearStr}`;
 }
 
+// Funzione per l'esportazione PDF/Immagine
 async function exportResult(type) {
     const resultDiv = document.getElementById('result-content');
     if (!resultDiv) return showErrorMessage('Contenuto della simulazione non trovato per l\'esportazione.');
@@ -315,6 +322,7 @@ async function exportResult(type) {
     } 
 }
 
+// Funzione CORE DI CALCOLO
 function calculateMonthlySaving(month, consumptionLight, priceLight, consumptionGas, priceGas, annualConsumptionLight, annualConsumptionGas, userType, selectedOfferId, utilityType, isFasce) {
     let savingMonthlyLuce = 0;
     let newOfferCostLuce = 0;
