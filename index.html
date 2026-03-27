@@ -4,82 +4,162 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulatore Energetico Professionale</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f2f5; padding: 20px; color: #333; }
+        .container { max-width: 700px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2e7d32; margin-bottom: 30px; }
+        label { display: block; margin-top: 15px; font-weight: bold; font-size: 0.9em; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        .section { display: none; padding: 20px; margin-top: 20px; border-radius: 10px; border-left: 5px solid; }
+        #light-section { background: #f1f8e9; border-color: #2e7d32; }
+        #gas-section { background: #fff3e0; border-color: #e65100; }
+        button { width: 100%; padding: 15px; margin-top: 30px; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        #btnCalcola { background: #2e7d32; color: white; }
+        #btnCalcola:hover { background: #1b5e20; }
+        #result { margin-top: 30px; display: none; }
+        .report-card { padding: 25px; border: 2px solid #2e7d32; border-radius: 12px; background: #fff; }
+    </style>
 </head>
 <body>
-    <div class="container" style="max-width: 800px; margin: auto; padding: 20px; font-family: sans-serif;">
-        <h1 style="text-align:center; color:#2e7d32;">Simulatore Professionale</h1>
-        <form id="calculator-form">
-            <label>Nome Cliente</label>
-            <input type="text" id="clientName" required style="width:100%; padding:10px; margin-bottom:15px;">
 
-            <label>Tipologia Cliente</label>
-            <select id="userType" style="width:100%; padding:10px; margin-bottom:15px;">
-                <option value="consumer">Consumer (Domestico)</option>
-                <option value="business">Business (Aziendale)</option>
-            </select>
-            
-            <label>Utenze</label>
-            <select id="utilityType" style="width:100%; padding:10px; margin-bottom:15px;">
-                <option value="light">Solo Luce</option>
-                <option value="gas">Solo Gas</option>
-                <option value="lightAndGas">Luce e Gas</option>
-            </select>
+<div class="container">
+    <h1>Analisi Risparmio Energetico</h1>
+    
+    <form id="calcForm">
+        <label>Nome Cliente</label>
+        <input type="text" id="nome" required placeholder="Es. Mario Rossi">
 
-            <div id="light-section" style="display:none; border-left: 4px solid #2e7d32; padding-left: 15px; background:#f1f8e9; padding:15px; margin-bottom:15px; border-radius:5px;">
-                <h3 style="margin-top:0;">DATI LUCE</h3>
-                <label>Frequenza Luce</label>
-                <select id="freqLuce" style="width:100%; padding:8px; margin-bottom:10px;">
-                    <option value="1">Mensile</option>
-                    <option value="2">Bimestrale</option>
-                </select>
-                <label>Mese Inizio</label>
-                <select id="monthLuce" style="width:100%; padding:8px; margin-bottom:10px;"></select>
-                <label>Consumo Periodo (kWh)</label>
-                <input type="number" id="kWhTot" style="width:100%; padding:8px; margin-bottom:10px;">
-                <label>Spesa Materia Periodo (€)</label>
-                <input type="number" id="costMateriaLuce" step="0.01" style="width:100%; padding:8px; margin-bottom:10px;">
-                <label>Storico Annuo Luce (kWh)</label>
-                <input type="number" id="annuoLuce" style="width:100%; padding:8px;">
-            </div>
+        <label>Tipologia Cliente</label>
+        <select id="tipo">
+            <option value="consumer">Consumer (Casa)</option>
+            <option value="business">Business (Azienda)</option>
+        </select>
 
-            <div id="gas-section" style="display:none; border-left: 4px solid #e65100; padding-left: 15px; background:#fff3e0; padding:15px; margin-bottom:15px; border-radius:5px;">
-                <h3 style="margin-top:0;">DATI GAS</h3>
-                <label>Frequenza Gas</label>
-                <select id="freqGas" style="width:100%; padding:8px; margin-bottom:10px;">
-                    <option value="1">Mensile</option>
-                    <option value="2">Bimestrale</option>
-                </select>
-                <label>Mese Inizio</label>
-                <select id="monthGas" style="width:100%; padding:8px; margin-bottom:10px;"></select>
-                <label>Consumo Periodo (smc)</label>
-                <input type="number" id="smcTot" style="width:100%; padding:8px; margin-bottom:10px;">
-                <label>Spesa Materia Periodo (€)</label>
-                <input type="number" id="costMateriaGas" step="0.01" style="width:100%; padding:8px; margin-bottom:10px;">
-                <label>Storico Annuo Gas (smc)</label>
-                <input type="number" id="annuoGas" style="width:100%; padding:8px;">
-            </div>
+        <label>Cosa analizziamo?</label>
+        <select id="utenza" onchange="mostraSezioni()">
+            <option value="">Seleziona...</option>
+            <option value="L">Solo Luce</option>
+            <option value="G">Solo Gas</option>
+            <option value="LG">Luce e Gas</option>
+        </select>
 
-            <label>Offerta Target</label>
-            <select id="selectedOffer" style="width:100%; padding:10px; margin-bottom:15px;">
-                <option value="ultraGreenCasa">UltraGreen Casa</option>
-                <option value="ultraGreenFix">UltraGreen Fix</option>
-                <option value="ultraGreenPMI">UltraGreen PMI</option>
-                <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
-                <option value="revolutionTax">Revolution Tax</option>
-            </select>
-
-            <button type="submit" style="width:100%; padding:15px; background:#2e7d32; color:white; border:none; font-weight:bold; cursor:pointer; border-radius:5px;">GENERA ANALISI PROFESSIONALE</button>
-        </form>
-
-        <div id="result" style="display:none; margin-top:30px;"></div>
-        <div id="export-actions" style="display:none; text-align:center; margin-top:20px;">
-            <button onclick="exportDoc()" style="background:#d32f2f; color:white; padding:10px 20px; border:none; border-radius:5px; cursor:pointer;">Scarica PDF</button>
+        <div id="light-section" class="section">
+            <h3 style="color:#2e7d32; margin-top:0;">Dati Luce</h3>
+            <label>Fatturazione</label>
+            <select id="freqL"><option value="1">Mensile</option><option value="2">Bimestrale</option></select>
+            <label>Mese di riferimento</label>
+            <select id="meseL"></select>
+            <label>Consumo nel periodo (kWh)</label>
+            <input type="number" id="kWhP" placeholder="Es. 450">
+            <label>Spesa Materia nel periodo (€)</label>
+            <input type="number" id="costoL" step="0.01" placeholder="Es. 85.50">
+            <label>Consumo STORICO Annuo (kWh)</label>
+            <input type="number" id="annuoL" placeholder="Es. 2800">
         </div>
-    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="script.js"></script>
+        <div id="gas-section" class="section">
+            <h3 style="color:#e65100; margin-top:0;">Dati Gas</h3>
+            <label>Fatturazione</label>
+            <select id="freqG"><option value="1">Mensile</option><option value="2">Bimestrale</option></select>
+            <label>Mese di riferimento</label>
+            <select id="meseG"></select>
+            <label>Consumo nel periodo (smc)</label>
+            <input type="number" id="smcP" placeholder="Es. 120">
+            <label>Spesa Materia nel periodo (€)</label>
+            <input type="number" id="costoG" step="0.01" placeholder="Es. 110.00">
+            <label>Consumo STORICO Annuo (smc)</label>
+            <input type="number" id="annuoG" placeholder="Es. 1400">
+        </div>
+
+        <label>Offerta Proposta</label>
+        <select id="offerta">
+            <option value="CASA">UltraGreen Casa</option>
+            <option value="FIX">UltraGreen Fix</option>
+            <option value="PMI">UltraGreen PMI</option>
+            <option value="REVO">Revolution Tax</option>
+        </select>
+
+        <button type="button" id="btnCalcola" onclick="calcola()">GENERA ANALISI</button>
+    </form>
+
+    <div id="result"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+const PREZZI = {
+    pun: {'07':0.112,'08':0.121,'09':0.115,'10':0.108,'11':0.119,'12':0.132,'01':0.124,'02':0.115},
+    psv: {'07':0.36,'08':0.38,'09':0.40,'10':0.42,'11':0.45,'12':0.48,'01':0.45,'02':0.42}
+};
+
+const mesi = [
+    {v:'07',t:'Luglio 2025'},{v:'08',t:'Agosto 2025'},{v:'09',t:'Settembre 2025'},
+    {v:'10',t:'Ottobre 2025'},{v:'11',t:'Novembre 2025'},{v:'12',t:'Dicembre 2025'},
+    {v:'01',t:'Gennaio 2026'},{v:'02',t:'Febbraio 2026'}
+];
+
+// Inizializza mesi
+window.onload = function() {
+    const sL = document.getElementById('meseL');
+    const sG = document.getElementById('meseG');
+    mesi.forEach(m => {
+        sL.add(new Option(m.t, m.v));
+        sG.add(new Option(m.t, m.v));
+    });
+}
+
+function mostraSezioni() {
+    const u = document.getElementById('utenza').value;
+    document.getElementById('light-section').style.display = (u.includes('L')) ? 'block' : 'none';
+    document.getElementById('gas-section').style.display = (u.includes('G')) ? 'block' : 'none';
+}
+
+function calcola() {
+    const nome = document.getElementById('nome').value;
+    const tipo = document.getElementById('tipo').value;
+    const off = document.getElementById('offerta').value;
+    const utenza = document.getElementById('utenza').value;
+    
+    let ogt = (tipo === 'consumer') ? (off === 'FIX' ? 12.0 : 8.95) : (off === 'PMI' ? 19.95 : 14.95);
+    let totAnnuo = 0;
+    let html = `<div class="report-card" id="pdfReport">
+                <h2 style="text-align:center; color:#2e7d32;">Report per ${nome}</h2>`;
+
+    if(utenza.includes('L')) {
+        const f = parseInt(document.getElementById('freqL').value);
+        const cP = parseFloat(document.getElementById('kWhP').value) || 0;
+        const sP = parseFloat(document.getElementById('costoL').value) || 0;
+        const cA = parseFloat(document.getElementById('annuoL').value) || 0;
+        const m = document.getElementById('meseL').value;
+        
+        let nuova = (cP * (PREZZI.pun[m] + 0.055)) + (ogt * f);
+        let rAnnuo = ((sP - nuova) / (cP || 1)) * cA;
+        totAnnuo += rAnnuo;
+        html += `<p>Luce: <b>€ ${rAnnuo.toFixed(2)}</b> risparmio annuo (Periodo: ${f} mesi)</p>`;
+    }
+
+    if(utenza.includes('G')) {
+        const f = parseInt(document.getElementById('freqG').value);
+        const cP = parseFloat(document.getElementById('smcP').value) || 0;
+        const sP = parseFloat(document.getElementById('costoG').value) || 0;
+        const cA = parseFloat(document.getElementById('annuoG').value) || 0;
+        const m = document.getElementById('meseG').value;
+        
+        let nuova = (cP * (PREZZI.psv[m] + 0.20)) + (ogt * f);
+        let rAnnuo = ((sP - nuova) / (cP || 1)) * cA;
+        totAnnuo += rAnnuo;
+        html += `<p>Gas: <b>€ ${rAnnuo.toFixed(2)}</b> risparmio annuo (Periodo: ${f} mesi)</p>`;
+    }
+
+    html += `<div style="background:#2e7d32; color:white; padding:15px; text-align:center; border-radius:8px; margin-top:15px;">
+             <h3>TOTALE RISPARMIO: € ${totAnnuo.toFixed(2)} / anno</h3></div></div>`;
+    
+    document.getElementById('result').innerHTML = html;
+    document.getElementById('result').style.display = 'block';
+}
+</script>
+
 </body>
 </html>
