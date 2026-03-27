@@ -3,65 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulatore Energetico Professionale</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Simulatore Energetico</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f4f4; padding: 20px; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; shadow: 0 0 10px rgba(0,0,0,0.1); }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 15px; margin-top: 20px; cursor: pointer; border-radius: 5px; border: none; font-weight: bold; }
+        #btnCalcola { background: #2e7d32; color: white; }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Simulatore Professionale<br>Luce e Gas</h1>
+        <h1>Simulatore Energetico</h1>
         <form id="calculator-form">
             <label>Nome Cliente</label>
-            <input type="text" id="clientName" required placeholder="Inserisci nome">
+            <input type="text" id="clientName" required>
 
             <label>Tipologia Cliente</label>
             <select id="userType">
-                <option value="consumer">Consumer (Domestico)</option>
-                <option value="business">Business (Aziendale)</option>
+                <option value="consumer">Consumer</option>
+                <option value="business">Business</option>
             </select>
             
-            <label>Utenze da Analizzare</label>
+            <label>Utenze</label>
             <select id="utilityType">
                 <option value="light">Solo Luce</option>
                 <option value="gas">Solo Gas</option>
                 <option value="lightAndGas">Luce e Gas</option>
             </select>
 
-            <div id="light-section" style="display:none; border-left: 4px solid #2e7d32; padding-left: 15px; margin-top: 20px;">
-                <h3>DATI LUCE</h3>
-                <label>Frequenza Fatturazione Luce</label>
-                <select id="freqLuce">
-                    <option value="1">Mensile</option>
-                    <option value="2">Bimestrale</option>
-                </select>
-                <label>Mese di Riferimento</label>
+            <div id="light-section" style="display:none; border-left: 4px solid #2e7d32; padding-left: 15px;">
+                <h3>LUCE</h3>
+                <label>Frequenza</label>
+                <select id="freqLuce"><option value="1">Mensile</option><option value="2">Bimestrale</option></select>
+                <label>Mese</label>
                 <select id="monthLuce"></select>
                 <label>Consumo Periodo (kWh)</label>
                 <input type="number" id="kWhTot">
-                <label>Spesa Materia Energia Periodo (€)</label>
+                <label>Spesa Materia (€)</label>
                 <input type="number" id="costMateriaLuce" step="0.01">
-                <label>Consumo STORICO Annuo Luce (kWh)</label>
+                <label>Storico Annuo (kWh)</label>
                 <input type="number" id="annuoLuce">
             </div>
 
-            <div id="gas-section" style="display:none; border-left: 4px solid #e65100; padding-left: 15px; margin-top: 20px;">
-                <h3>DATI GAS</h3>
-                <label>Frequenza Fatturazione Gas</label>
-                <select id="freqGas">
-                    <option value="1">Mensile</option>
-                    <option value="2">Bimestrale</option>
-                </select>
-                <label>Mese di Riferimento</label>
+            <div id="gas-section" style="display:none; border-left: 4px solid #e65100; padding-left: 15px;">
+                <h3>GAS</h3>
+                <label>Frequenza</label>
+                <select id="freqGas"><option value="1">Mensile</option><option value="2">Bimestrale</option></select>
+                <label>Mese</label>
                 <select id="monthGas"></select>
-                <label>Consumo Gas Periodo (smc)</label>
+                <label>Consumo Periodo (smc)</label>
                 <input type="number" id="smcTot">
-                <label>Spesa Materia Gas Periodo (€)</label>
+                <label>Spesa Materia (€)</label>
                 <input type="number" id="costMateriaGas" step="0.01">
-                <label>Consumo STORICO Annuo Gas (smc)</label>
+                <label>Storico Annuo (smc)</label>
                 <input type="number" id="annuoGas">
             </div>
 
-            <hr style="margin:20px 0;">
-            <label>Offerta da Proporre</label>
+            <label>Offerta</label>
             <select id="selectedOffer">
                 <option value="ultraGreenCasa">UltraGreen Casa</option>
                 <option value="ultraGreenFix">UltraGreen Fix</option>
@@ -70,13 +70,12 @@
                 <option value="revolutionTax">Revolution Tax</option>
             </select>
 
-            <button type="submit" id="btnCalcola" style="margin-top:20px; background:#2e7d32; color:#fff; padding:15px; border:none; width:100%; cursor:pointer; font-weight:bold; border-radius:5px;">GENERA ANALISI</button>
+            <button type="submit" id="btnCalcola">CALCOLA RISPARMIO</button>
         </form>
 
         <div id="result" style="display:none; margin-top:30px;"></div>
-        
-        <div id="export-actions" style="display:none; text-align:center; margin-top:20px; padding-bottom:50px;">
-            <button onclick="exportDoc('pdf')" style="background:#d32f2f; color:#fff; padding:10px 20px; border:none; border-radius:5px; cursor:pointer;">Scarica Report PDF</button>
+        <div id="export-actions" style="display:none; text-align:center; margin-top:20px;">
+            <button onclick="exportDoc()" style="background:#d32f2f; color:white;">Scarica PDF</button>
         </div>
     </div>
 
