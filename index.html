@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisi Tecnica UltraGreen v7.2</title>
+    <title>Analisi Tecnica UltraGreen v7.3</title>
     <style>
         :root { --primary: #1b5e20; --secondary: #e65100; --bg: #f1f5f9; --red: #d32f2f; --green: #2e7d32; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; color: #1a202c; }
@@ -18,14 +18,12 @@
         .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         button { width: 100%; padding: 20px; margin-top: 30px; border: none; border-radius: 12px; font-size: 1.3rem; font-weight: 800; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; }
-        button:hover { background: #0d3d12; transform: translateY(-2px); }
         
         #result { margin-top: 40px; display: none; }
         .report-card { padding: 35px; border-radius: 20px; background: white; border: 1px solid #e2e8f0; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
         .res-row { padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
         .save-pos { color: var(--green); font-weight: 800; font-size: 1.4rem; }
         .save-neg { color: var(--red); font-weight: 800; font-size: 1.4rem; }
-        .period-info { font-size: 0.85rem; color: #718096; margin-top: 5px; }
         .total-banner { margin-top: 25px; padding: 25px; border-radius: 15px; text-align: center; }
         .bg-green { background: #e8f5e9; border: 2px solid var(--green); }
         .bg-red { background: #ffebee; border: 2px solid var(--red); }
@@ -94,36 +92,35 @@
 </div>
 
 <script>
-// Database Prezzi Analitici
 const PREZZI = {
     pun: {'09_25':{f1:0.128,f2:0.122,f3:0.108,m:0.115},'10_25':{f1:0.118,f2:0.112,f3:0.101,m:0.108},'11_25':{f1:0.132,f2:0.125,f3:0.114,m:0.119},'12_25':{f1:0.145,f2:0.138,f3:0.125,m:0.132},'01_26':{f1:0.138,f2:0.131,f3:0.118,m:0.124},'02_26':{f1:0.128,f2:0.121,f3:0.109,m:0.115}},
     psv: {'09_25':0.40, '10_25':0.42, '11_25':0.45, '12_25':0.48, '01_26':0.45, '02_26':0.42}
 };
 const mesiNomi = {'09_25':'Settembre 2025','10_25':'Ottobre 2025','11_25':'Novembre 2025','12_25':'Dicembre 2025','01_26':'Gennaio 2026','02_26':'Febbraio 2026'};
 
+// CONFIGURAZIONE COMMERCIALE LUCE
+const DATA_LUCE = {
+    'CASA': { spread: 0.061, ogt: 8.95 },
+    'ULTRAGREEN': { spread: 0.061, ogt: 14.95 },
+    'PMI': { spread: 0.059, ogt: 19.95 },
+    'AZIENDE': { spread: 0.043, ogt: 19.95 },
+    'REVO': { spread: 0.061, ogt: 14.95 }
+};
+
 function filtraOfferte() {
     const tipo = document.getElementById('tipoCliente').value;
     const offL = document.getElementById('offL');
     const offG = document.getElementById('offG');
+    
     let opL = "", opG = "";
-
     if(tipo === 'consumer') {
-        opL = `<option value="CASA">UltraGreen CASA</option><option value="FIX">UltraGreen FIX</option><option value="REVO">Revolution Tax</option>`;
-        opG = `<option value="CASA">UltraGreen CASA</option><option value="FIX">UltraGreen FIX</option><option value="REVO">Revolution Tax</option>`;
+        opL = `<option value="CASA">UltraGreen CASA</option><option value="REVO">Revolution Tax</option>`;
+        opG = `<option value="CASA">UltraGreen CASA</option><option value="REVO">Revolution Tax</option>`;
     } else {
-        opL = `<option value="PMI">UltraGreen PMI</option><option value="AZIENDE">UltraGreen Grandi Aziende</option><option value="REVO">Revolution Tax</option>`;
-        opG = `<option value="PMI">UltraGreen PMI</option><option value="AZIENDE">UltraGreen Grandi Aziende</option><option value="REVO">Revolution Tax</option>`;
+        opL = `<option value="ULTRAGREEN">UltraGreen</option><option value="PMI">UltraGreen PMI</option><option value="AZIENDE">UltraGreen Grandi Aziende</option><option value="REVO">Revolution Tax</option>`;
+        opG = `<option value="ULTRAGREEN">UltraGreen</option><option value="PMI">UltraGreen PMI</option><option value="AZIENDE">UltraGreen Grandi Aziende</option><option value="REVO">Revolution Tax</option>`;
     }
     offL.innerHTML = opL; offG.innerHTML = opG;
-}
-
-// LOGICA OGT (PCV TARGET) RICHIESTA
-function getOGT(offerta, tipoCliente) {
-    if(tipoCliente === 'consumer') {
-        return (offerta === 'FIX') ? 12.00 : 8.95;
-    } else {
-        return (offerta === 'REVO') ? 14.95 : 19.95;
-    }
 }
 
 function renderApp() {
@@ -155,9 +152,10 @@ function calcola() {
     let resH = "";
 
     if(ut.includes('L')) {
-        let f = parseInt(document.getElementById('freqL').value), offL = document.getElementById('offL').value, cB = 0, cMT = 0;
-        let ogt = getOGT(offL, tipo);
-        let spreadL = (offL === 'PMI') ? 0.035 : (offL === 'AZIENDE' ? 0.025 : 0.055); // Spread Provvisori
+        let f = parseInt(document.getElementById('freqL').value), offL = document.getElementById('offL').value;
+        let cB = 0, cMT = 0;
+        let spreadL = DATA_LUCE[offL].spread;
+        let ogtL = DATA_LUCE[offL].ogt;
         
         for(let i=0; i<f; i++) {
             let m = document.getElementById(`mL${i}`).value;
@@ -166,17 +164,17 @@ function calcola() {
                 cB += (v1+v2+v3); cMT += (v1*PREZZI.pun[m].f1 + v2*PREZZI.pun[m].f2 + v3*PREZZI.pun[m].f3);
             } else { let c = parseFloat(document.getElementById(`vL${i}`).value)||0; cB += c; cMT += (c * PREZZI.pun[m].m); }
         }
-        let nL = cMT + (cB * spreadL) + (ogt * f);
+        let nL = cMT + (cB * spreadL) + (ogtL * f);
         let rP = nL - (parseFloat(document.getElementById('spesaL').value)||0);
         let rA = rP / (cB||1) * (parseFloat(document.getElementById('annuoL').value)||0);
         totR += rA;
-        resH += `<div class="res-row"><div><b>LUCE: ${offL}</b></div><div class="${rA < 0 ? 'save-pos':'save-neg'}">${rA < 0 ? '' : 'Non c\'è risparmio: +'} € ${Math.abs(rA).toFixed(2)} / anno</div><div class="period-info">Risp. nel periodo analizzato: € ${Math.abs(rP).toFixed(2)}</div></div>`;
+        resH += `<div class="res-row"><div><b>LUCE (${offL})</b></div><div class="${rA < 0 ? 'save-pos':'save-neg'}">${rA < 0 ? '-' : '+'} € ${Math.abs(rA).toFixed(2)} / anno</div></div>`;
     }
 
     if(ut.includes('G')) {
-        let f = parseInt(document.getElementById('freqG').value), offG = document.getElementById('offG').value, cBG = 0, cMTG = 0;
-        let ogtG = getOGT(offG, tipo);
-        let spreadG = (offG === 'AZIENDE' ? 0.10 : 0.15); // Spread Provvisori
+        let f = parseInt(document.getElementById('freqG').value), offG = document.getElementById('offG').value;
+        let cBG = 0, cMTG = 0, ogtG = (tipo==='consumer') ? 8.95 : (offG==='REVO'? 14.95 : 19.95);
+        let spreadG = 0.15; // Placeholder Gas
 
         for(let i=0; i<f; i++) {
             let m = document.getElementById(`mG${i}`).value, c = parseFloat(document.getElementById(`vG${i}`).value)||0;
@@ -186,12 +184,11 @@ function calcola() {
         let rPG = nG - (parseFloat(document.getElementById('spesaG').value)||0);
         let rAG = rPG / (cBG||1) * (parseFloat(document.getElementById('annuoG').value)||0);
         totR += rAG;
-        resH += `<div class="res-row"><div><b>GAS: ${offG}</b></div><div class="${rAG < 0 ? 'save-pos':'save-neg'}">${rAG < 0 ? '' : 'Non c\'è risparmio: +'} € ${Math.abs(rAG).toFixed(2)} / anno</div><div class="period-info">Risp. nel periodo analizzato: € ${Math.abs(rPG).toFixed(2)}</div></div>`;
+        resH += `<div class="res-row"><div><b>GAS (${offG})</b></div><div class="${rAG < 0 ? 'save-pos':'save-neg'}">${rAG < 0 ? '-' : '+'} € ${Math.abs(rAG).toFixed(2)} / anno</div></div>`;
     }
 
     const rd = document.getElementById('result');
-    const isTotSave = totR < 0;
-    rd.innerHTML = `<div class="report-card"><h3>Analisi ${tipo.toUpperCase()} - ${document.getElementById('nome').value.toUpperCase()}</h3>${resH}<div class="total-banner ${isTotSave ? 'bg-green' : 'bg-red'}"><span>RISPARMIO TOTALE ANNUO STIMATO</span><h2>${isTotSave ? '-' : ''} € ${Math.abs(totR).toFixed(2)}</h2></div></div>`;
+    rd.innerHTML = `<div class="report-card"><h3>Analisi ${tipo.toUpperCase()} - ${document.getElementById('nome').value.toUpperCase()}</h3>${resH}<div class="total-banner ${totR < 0 ? 'bg-green' : 'bg-red'}"><span>RISPARMIO TOTALE ANNUO STIMATO</span><h2>${totR < 0 ? '-' : '+'} € ${Math.abs(totR).toFixed(2)}</h2></div></div>`;
     rd.style.display = 'block';
     rd.scrollIntoView({ behavior: 'smooth' });
 }
