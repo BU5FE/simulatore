@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisi Tecnica UltraGreen v7.3</title>
+    <title>Analisi Tecnica UltraGreen v7.6</title>
     <style>
         :root { --primary: #1b5e20; --secondary: #e65100; --bg: #f1f5f9; --red: #d32f2f; --green: #2e7d32; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; color: #1a202c; }
@@ -15,18 +15,18 @@
         .month-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #edf2f7; margin-top: 15px; }
         label { display: block; margin-top: 12px; font-weight: 700; font-size: 0.85rem; color: #4a5568; }
         input, select { width: 100%; padding: 12px; margin-top: 6px; border: 2px solid #edf2f7; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
-        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         button { width: 100%; padding: 20px; margin-top: 30px; border: none; border-radius: 12px; font-size: 1.3rem; font-weight: 800; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; }
-        
+        button:hover { background: #0d3d12; transform: translateY(-2px); }
         #result { margin-top: 40px; display: none; }
         .report-card { padding: 35px; border-radius: 20px; background: white; border: 1px solid #e2e8f0; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .res-row { padding: 15px 0; border-bottom: 1px solid #f1f5f9; }
-        .save-pos { color: var(--green); font-weight: 800; font-size: 1.4rem; }
-        .save-neg { color: var(--red); font-weight: 800; font-size: 1.4rem; }
+        .res-row { padding: 15px 0; border-bottom: 1px solid #f1f5f9; font-size: 1.1rem; }
+        .save-pos { color: var(--green); font-weight: 800; }
+        .save-neg { color: var(--red); font-weight: 800; }
         .total-banner { margin-top: 25px; padding: 25px; border-radius: 15px; text-align: center; }
         .bg-green { background: #e8f5e9; border: 2px solid var(--green); }
         .bg-red { background: #ffebee; border: 2px solid var(--red); }
+        .print-btn { background: #4a5568; margin-top: 10px; font-size: 1rem; padding: 10px; }
     </style>
 </head>
 <body>
@@ -69,7 +69,7 @@
         <div id="contMesiL"></div>
         <div class="grid-2">
             <div><label>Spesa Materia Bolletta (€)</label><input type="number" id="spesaL" step="0.01"></div>
-            <div><label>PCV Attuale Cliente (€/mese)</label><input type="number" id="pcvL" value="12.00"></div>
+            <div><label>PCV/OGT Attuale Cliente (€/mese)</label><input type="number" id="pcvL" value="12.00"></div>
         </div>
     </div>
 
@@ -82,13 +82,17 @@
         <div id="contMesiG"></div>
         <div class="grid-2">
             <div><label>Spesa Materia Bolletta (€)</label><input type="number" id="spesaG" step="0.01"></div>
-            <div><label>PCV Attuale Cliente (€/mese)</label><input type="number" id="pcvG" value="12.00"></div>
+            <div><label>PCV/OGT Attuale Cliente (€/mese)</label><input type="number" id="pcvG" value="12.00"></div>
         </div>
         <label>Consumo Annuo (smc)</label><input type="number" id="annuoG">
     </div>
 
     <button onclick="calcola()">GENERA ANALISI</button>
-    <div id="result"></div>
+    
+    <div id="result">
+        <div id="report-content"></div>
+        <button class="print-btn" onclick="window.print()">STAMPA REPORT O SALVA PDF</button>
+    </div>
 </div>
 
 <script>
@@ -98,20 +102,18 @@ const PREZZI = {
 };
 const mesiNomi = {'09_25':'Settembre 2025','10_25':'Ottobre 2025','11_25':'Novembre 2025','12_25':'Dicembre 2025','01_26':'Gennaio 2026','02_26':'Febbraio 2026'};
 
-// CONFIGURAZIONE COMMERCIALE LUCE
-const DATA_LUCE = {
-    'CASA': { spread: 0.061, ogt: 8.95 },
-    'ULTRAGREEN': { spread: 0.061, ogt: 14.95 },
-    'PMI': { spread: 0.059, ogt: 19.95 },
-    'AZIENDE': { spread: 0.043, ogt: 19.95 },
-    'REVO': { spread: 0.061, ogt: 14.95 }
+// CONFIGURAZIONE COMMERCIALE FINALE
+const CONFIG = {
+    'CASA': { sprL: 0.061, sprG: 0.11, ogtC: 8.95, ogtB: 8.95 },
+    'ULTRAGREEN': { sprL: 0.061, sprG: 0.08, ogtC: 8.95, ogtB: 14.95 }, // Corretto Gas a 0.08
+    'PMI': { sprL: 0.059, sprG: 0.06, ogtC: 8.95, ogtB: 19.95 },
+    'AZIENDE': { sprL: 0.043, sprG: 0.04, ogtC: 8.95, ogtB: 19.95 },
+    'REVO': { sprL: 0.061, sprG: 0.08, ogtC: 8.95, ogtB: 14.95 }
 };
 
 function filtraOfferte() {
     const tipo = document.getElementById('tipoCliente').value;
-    const offL = document.getElementById('offL');
-    const offG = document.getElementById('offG');
-    
+    const offL = document.getElementById('offL'); const offG = document.getElementById('offG');
     let opL = "", opG = "";
     if(tipo === 'consumer') {
         opL = `<option value="CASA">UltraGreen CASA</option><option value="REVO">Revolution Tax</option>`;
@@ -127,70 +129,59 @@ function renderApp() {
     const u = document.getElementById('utenza').value;
     document.getElementById('light-section').style.display = u.includes('L') ? 'block' : 'none';
     document.getElementById('gas-section').style.display = u.includes('G') ? 'block' : 'none';
-    if(u.includes('L')) buildFields('L');
-    if(u.includes('G')) buildFields('G');
+    if(u.includes('L')) buildFields('L'); if(u.includes('G')) buildFields('G');
     document.getElementById('result').style.display = 'none';
 }
 
 function buildFields(tipo) {
     const freq = document.getElementById('freq'+tipo).value;
-    const modo = tipo === 'L' ? document.getElementById('modoL').value : 'mono';
     const cont = document.getElementById(tipo === 'L' ? 'contMesiL' : 'contMesiG');
     cont.innerHTML = "";
     for(let i=0; i<freq; i++) {
         let h = `<div class="month-card"><label>Mese ${i+1}</label><select id="m${tipo}${i}">${Object.keys(mesiNomi).map(k=>`<option value="${k}">${mesiNomi[k]}</option>`).join('')}</select>`;
-        if(tipo === 'L' && modo === 'fasce') {
-            h += `<div class="grid-3"><div><label>F1 (kWh)</label><input type="number" id="v${tipo}${i}f1" value="0"></div><div><label>F2 (kWh)</label><input type="number" id="v${tipo}${i}f2" value="0"></div><div><label>F3 (kWh)</label><input type="number" id="v${tipo}${i}f3" value="0"></div></div>`;
+        if(tipo === 'L' && document.getElementById('modoL').value === 'fasce') {
+            h += `<div class="grid-2"><div><label>F1 (kWh)</label><input type="number" id="v${tipo}${i}f1" value="0"></div><div><label>F2/F3 (kWh)</label><input type="number" id="v${tipo}${i}f23" value="0"></div></div>`;
         } else { h += `<label>Consumo ${tipo==='L'?'kWh':'smc'}</label><input type="number" id="v${tipo}${i}" value="0">`; }
-        h += `</div>`;
-        cont.innerHTML += h;
+        cont.innerHTML += h + `</div>`;
     }
 }
 
 function calcola() {
-    let totR = 0, ut = document.getElementById('utenza').value, tipo = document.getElementById('tipoCliente').value;
-    let resH = "";
+    let totR = 0, ut = document.getElementById('utenza').value, tipo = document.getElementById('tipoCliente').value, resH = "";
 
     if(ut.includes('L')) {
-        let f = parseInt(document.getElementById('freqL').value), offL = document.getElementById('offL').value;
-        let cB = 0, cMT = 0;
-        let spreadL = DATA_LUCE[offL].spread;
-        let ogtL = DATA_LUCE[offL].ogt;
-        
+        let f = parseInt(document.getElementById('freqL').value), off = document.getElementById('offL').value, cB = 0, cMT = 0;
+        let ogt = (tipo === 'consumer') ? CONFIG[off].ogtC : CONFIG[off].ogtB;
         for(let i=0; i<f; i++) {
             let m = document.getElementById(`mL${i}`).value;
             if(document.getElementById('modoL').value === 'fasce') {
-                let v1=parseFloat(document.getElementById(`vL${i}f1`).value)||0, v2=parseFloat(document.getElementById(`vL${i}f2`).value)||0, v3=parseFloat(document.getElementById(`vL${i}f3`).value)||0;
-                cB += (v1+v2+v3); cMT += (v1*PREZZI.pun[m].f1 + v2*PREZZI.pun[m].f2 + v3*PREZZI.pun[m].f3);
+                let v1=parseFloat(document.getElementById(`vL${i}f1`).value)||0, v23=parseFloat(document.getElementById(`vL${i}f23`).value)||0;
+                cB += (v1+v23); cMT += (v1*PREZZI.pun[m].f1 + v23*((PREZZI.pun[m].f2+PREZZI.pun[m].f3)/2));
             } else { let c = parseFloat(document.getElementById(`vL${i}`).value)||0; cB += c; cMT += (c * PREZZI.pun[m].m); }
         }
-        let nL = cMT + (cB * spreadL) + (ogtL * f);
-        let rP = nL - (parseFloat(document.getElementById('spesaL').value)||0);
-        let rA = rP / (cB||1) * (parseFloat(document.getElementById('annuoL').value)||0);
+        let nL = cMT + (cB * CONFIG[off].sprL) + (ogt * f);
+        let rA = (nL - (parseFloat(document.getElementById('spesaL').value)||0)) / (cB||1) * (parseFloat(document.getElementById('annuoL').value)||0);
         totR += rA;
-        resH += `<div class="res-row"><div><b>LUCE (${offL})</b></div><div class="${rA < 0 ? 'save-pos':'save-neg'}">${rA < 0 ? '-' : '+'} € ${Math.abs(rA).toFixed(2)} / anno</div></div>`;
+        resH += `<div class="res-row"><b>LUCE (${off})</b>: <span class="${rA<0?'save-pos':'save-neg'}">${rA<0?'-':'+'} € ${Math.abs(rA).toFixed(2)}/anno</span></div>`;
     }
 
     if(ut.includes('G')) {
-        let f = parseInt(document.getElementById('freqG').value), offG = document.getElementById('offG').value;
-        let cBG = 0, cMTG = 0, ogtG = (tipo==='consumer') ? 8.95 : (offG==='REVO'? 14.95 : 19.95);
-        let spreadG = 0.15; // Placeholder Gas
-
+        let f = parseInt(document.getElementById('freqG').value), off = document.getElementById('offG').value, cBG = 0, cMTG = 0;
+        let ogt = (tipo === 'consumer') ? CONFIG[off].ogtC : CONFIG[off].ogtB;
         for(let i=0; i<f; i++) {
             let m = document.getElementById(`mG${i}`).value, c = parseFloat(document.getElementById(`vG${i}`).value)||0;
-            cBG += c; cMTG += (c * PREZZI.psv[m]);
+            cBG += c; cMTG += (c * (PREZZI.psv[m] + CONFIG[off].sprG));
         }
-        let nG = cMTG + (cBG * spreadG) + (ogtG * f);
-        let rPG = nG - (parseFloat(document.getElementById('spesaG').value)||0);
-        let rAG = rPG / (cBG||1) * (parseFloat(document.getElementById('annuoG').value)||0);
+        let nG = cMTG + (ogt * f);
+        let rAG = (nG - (parseFloat(document.getElementById('spesaG').value)||0)) / (cBG||1) * (parseFloat(document.getElementById('annuoG').value)||0);
         totR += rAG;
-        resH += `<div class="res-row"><div><b>GAS (${offG})</b></div><div class="${rAG < 0 ? 'save-pos':'save-neg'}">${rAG < 0 ? '-' : '+'} € ${Math.abs(rAG).toFixed(2)} / anno</div></div>`;
+        resH += `<div class="res-row"><b>GAS (${off})</b>: <span class="${rAG<0?'save-pos':'save-neg'}">${rAG<0?'-':'+'} € ${Math.abs(rAG).toFixed(2)}/anno</span></div>`;
     }
 
-    const rd = document.getElementById('result');
-    rd.innerHTML = `<div class="report-card"><h3>Analisi ${tipo.toUpperCase()} - ${document.getElementById('nome').value.toUpperCase()}</h3>${resH}<div class="total-banner ${totR < 0 ? 'bg-green' : 'bg-red'}"><span>RISPARMIO TOTALE ANNUO STIMATO</span><h2>${totR < 0 ? '-' : '+'} € ${Math.abs(totR).toFixed(2)}</h2></div></div>`;
-    rd.style.display = 'block';
-    rd.scrollIntoView({ behavior: 'smooth' });
+    const rd = document.getElementById('report-content');
+    rd.innerHTML = `<div class="report-card"><h3>Analisi ${tipo.toUpperCase()} - ${document.getElementById('nome').value.toUpperCase()}</h3>${resH}<div class="total-banner ${totR<0?'bg-green':'bg-red'}"><span>RISPARMIO TOTALE ANNUO STIMATO</span><h2>${totR<0?'-':'+'} € ${Math.abs(totR).toFixed(2)}</h2></div></div>`;
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
 }
 window.onload = filtraOfferte;
 </script>
