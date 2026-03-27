@@ -1,6 +1,6 @@
-﻿// script.js - Simulatore di Risparmio
+// script.js - Simulatore di Risparmio
 
-// Database statico dei prezzi (Aggiornato con Ottobre 2025)
+// Database statico dei prezzi (Aggiornato con Febbraio 2026)
 const monthlyPrices = {
     // PUN Monorario
     pun: {
@@ -10,7 +10,8 @@ const monthlyPrices = {
     	'2025-10': 0.111040,
         '2025-11': 0.117090,
         '2025-12': 0.115490,
-        '2026-01': 0.132660
+        '2026-01': 0.132660,
+        '2026-02': 0.142500
     },
     // PUN a Fasce
     punFasce: {
@@ -18,9 +19,10 @@ const monthlyPrices = {
         '2025-08': { F1: 0.105580, F2: 0.117970, F3: 0.106040 },
         '2025-09': { F1: 0.109590, F2: 0.120930, F3: 0.101880 },
     	'2025-10': { F1: 0.117830, F2: 0.121660, F3: 0.099480 },
-'2025-11': { F1: 0.129590, F2: 0.124020, F3: 0.105510 },
-'2025-12': { F1: 0.130090, F2: 0.119980, F3: 0.104520 },
-        '2026-01': { F1: 0.151261, F2: 0.137405, F3: 0.118292 }
+        '2025-11': { F1: 0.129590, F2: 0.124020, F3: 0.105510 },
+        '2025-12': { F1: 0.130090, F2: 0.119980, F3: 0.104520 },
+        '2026-01': { F1: 0.151261, F2: 0.137405, F3: 0.118292 },
+        '2026-02': { F1: 0.158400, F2: 0.145200, F3: 0.124100 }
     },
     // PSV
     psv: {
@@ -28,10 +30,11 @@ const monthlyPrices = {
         '2025-08': 0.377180,
         '2025-09': 0.369520,
     	'2025-10': 0.353959,
-'2025-11': 0.345300,
+        '2025-11': 0.345300,
         '2025-12': 0.324670,
-        '2026-01': 0.404227
-}
+        '2026-01': 0.404227,
+        '2026-02': 0.395000
+    }
 };
 // Funzione per calcolare la componente OGT LUCE (a POD)
 function getOGTLuce(userType, selectedOfferId) {
@@ -295,8 +298,8 @@ function updateFieldVisibility() {
             }
         } else {
             showElement(lightFields);
-
-            // Logica specifica per M2: in Bimestrale, il prezzo M2 è NASCOSTO e INCLUSO in M1
+            
+            / Logica specifica per M2: in Bimestrale, il prezzo M2 è NASCOSTO e INCLUSO in M1
             if (isM2 && isBimonthly) {
                 hideAndClearElement(priceLightContainer);
                 if (currentPriceLightInput) currentPriceLightInput.value = ''; // Pulisci il campo nascosto
@@ -441,7 +444,6 @@ async function exportResult(type) {
     } 
 }
 // --------------------------------------------------------------------------------------
-
 
 // Funzione CORE DI CALCOLO PER UN SINGOLO MESE
 function calculateMonthlySaving(month, consumptionLight, priceLight, consumptionGas, priceGas, annualConsumptionLight, annualConsumptionGas, userType, selectedOfferId, utilityType, isFasce) {
@@ -701,9 +703,9 @@ document.getElementById('calculator-form').addEventListener('submit', async func
                  // Prezzo per Mese 2 in fatturazione Mensile
                  currentPriceLightRaw = parseFloat(document.getElementById(`currentPriceLight${monthIndex}`).value) || 0;
                  if (currentPriceLightRaw === 0) {
-                     showErrorMessage(`Per favore, inserisci la Spesa per la materia luce di ${monthName}.`);
-                     return;
-                }
+                      showErrorMessage(`Per favore, inserisci la Spesa per la materia luce di ${monthName}.`);
+                      return;
+                 }
                  // Per Mese 2 Mensile, il costo fisso (PCV) è dato dal PCV M1 diviso 2
                  currentPriceLight = currentPriceLightRaw + (currentPCVLight1 / 2);
             }
@@ -737,9 +739,9 @@ document.getElementById('calculator-form').addEventListener('submit', async func
                  // Prezzo per Mese 2 in fatturazione Mensile
                  currentPriceGasRaw = parseFloat(document.getElementById(`currentPriceGas${monthIndex}`).value) || 0;
                  if (currentPriceGasRaw === 0) {
-                     showErrorMessage(`Per favore, inserisci la Spesa per la materia gas di ${monthName}.`);
-                     return;
-                }
+                      showErrorMessage(`Per favore, inserisci la Spesa per la materia gas di ${monthName}.`);
+                      return;
+                 }
                 // Per Mese 2 Mensile, il costo fisso (PCV) è dato dal PCV M1 diviso 2
                  currentPriceGas = currentPriceGasRaw + (currentPCVGas1 / 2);
             }
@@ -790,8 +792,8 @@ document.getElementById('calculator-form').addEventListener('submit', async func
         const monthName = getSelectedMonthName(`monthSelection${monthIndex}`);
         const savingMonthlyColorLight = result.savingLuce > 0 ? 'green' : 'red';
         const savingMonthlyColorGas = result.savingGas > 0 ? 'green' : 'red';
-
-        // Luce Details
+        
+// Luce Details
         if (utilityType === 'light' || utilityType === 'lightAndGas') {
             // Accumula solo i prezzi correnti totali del mese (se mensile)
             if (!isBimonthly) totalCurrentCostLuce += result.currentPriceLuce;
@@ -887,13 +889,12 @@ document.getElementById('calculator-form').addEventListener('submit', async func
         // Dettagli Luce Bimestrale
         if (utilityType === 'light' || utilityType === 'lightAndGas') {
             const savingBimonthlyLuce = totalCurrentCostLuce - totalNewOfferCostLuce;
-            // Colore specifico per il risparmio Luce Bimestrale
             const savingColorLuce = savingBimonthlyLuce > 0 ? 'green' : 'red';
             const savingLuceText = savingBimonthlyLuce > 0 
                 ? `Risparmio Luce: <strong>${savingBimonthlyLuce.toFixed(2)} Euro</strong>.`
                 : `Non c'e' Risparmio Luce: <strong>${savingBimonthlyLuce.toFixed(2)} Euro</strong>.`;
             
-            const ogtLuceMonthly = monthlyResults[0].ogtLuce; // OGT Mese 1
+            const ogtLuceMonthly = monthlyResults[0].ogtLuce; 
             
             finalOutput += `
                 <h3 style="margin-top: 30px;">Dettagli LUCE</h3>
@@ -910,13 +911,12 @@ document.getElementById('calculator-form').addEventListener('submit', async func
         // Dettagli Gas Bimestrale
         if (utilityType === 'gas' || utilityType === 'lightAndGas') {
             const savingBimonthlyGas = totalCurrentCostGas - totalNewOfferCostGas;
-            // Colore specifico per il risparmio Gas Bimestrale
             const savingColorGas = savingBimonthlyGas > 0 ? 'green' : 'red';
             const savingGasText = savingBimonthlyGas > 0 
                 ? `Risparmio Gas: <strong>${savingBimonthlyGas.toFixed(2)} Euro</strong>.`
                 : `Non c'e' Risparmio Gas: <strong>${savingBimonthlyGas.toFixed(2)} Euro</strong>.`;
                 
-            const ogtGasMonthly = monthlyResults[0].ogtGas; // OGT Mese 1
+            const ogtGasMonthly = monthlyResults[0].ogtGas;
 
             finalOutput += `
                 <h3 style="margin-top: 30px;">Dettagli GAS</h3>
@@ -929,7 +929,6 @@ document.getElementById('calculator-form').addEventListener('submit', async func
             `;
         }
 
-    // ------------------------------------ MENSILE - DETTAGLI SEPARATI (o UNICO MESE) ------------------------------------
     } else {
         if (utilityType === 'light' || utilityType === 'lightAndGas') {
             finalOutput += `<h3 style="margin-top: 30px;">Dettagli LUCE</h3>${allCalculationDetailsLuce}${revolutionTaxNote}`;
@@ -940,18 +939,13 @@ document.getElementById('calculator-form').addEventListener('submit', async func
         }
     }
 
-
     // ------------------------------------ RIEPILOGO ------------------------------------
     const periodText = isBimonthly ? 'bimestrale' : 'mensile';
-    
-    // Testo per l'intestazione del riepilogo
     let riepilogoTitleText = 'Riepilogo Totale';
+    
     if (isBimonthly) {
-        if (utilityType === 'lightAndGas') {
-            riepilogoTitleText += ' (Luce + Gas)';
-        }
+        if (utilityType === 'lightAndGas') riepilogoTitleText += ' (Luce + Gas)';
     } else {
-        // Mensile: solo Luce o solo Gas
         if (utilityType === 'light') riepilogoTitleText += ' Luce';
         if (utilityType === 'gas') riepilogoTitleText += ' Gas';
         if (utilityType === 'lightAndGas') riepilogoTitleText += ' (Luce + Gas)';
@@ -969,107 +963,53 @@ document.getElementById('calculator-form').addEventListener('submit', async func
         <hr style="border-top: 2px solid #333; margin: 20px 0;"> 
         <h3>${riepilogoTitleText}</h3> `;
 
-    
-    const isCombinedSimulation = utilityType === 'lightAndGas';
-    let currentCostText = '';
-    let newOfferCostText = '';
-
-    if (isCombinedSimulation) {
-         // Luce + Gas
-        currentCostText = `<p>Il tuo costo ${periodText} totale attuale (Luce + Gas) e' di <strong>${totalCurrentCostCombined.toFixed(2)} Euro</strong>.</p>`;
-        newOfferCostText = `<p>Con l'offerta <strong>${offerName}</strong>, il tuo costo ${periodText} totale (Luce + Gas) e' di <strong>${totalNewOfferCostCombined.toFixed(2)} Euro</strong>.</p>`;
-    } else if (isBimonthly) {
-        // Solo Luce o Solo Gas in Bimestrale (il costo combinato corrisponde al costo della singola utenza)
-        currentCostText = `<p>Il tuo costo ${periodText} attuale e' di <strong>${totalCurrentCostCombined.toFixed(2)} Euro</strong>.</p>`;
-        newOfferCostText = `<p>Con l'offerta <strong>${offerName}</strong>, il tuo costo ${periodText} e' di <strong>${totalNewOfferCostCombined.toFixed(2)} Euro</strong>.</p>`;
+    if (utilityType === 'lightAndGas') {
+        riepilogo += `<p>Il tuo costo ${periodText} totale attuale (Luce + Gas) e' di <strong>${totalCurrentCostCombined.toFixed(2)} Euro</strong>.</p>`;
+        riepilogo += `<p>Con l'offerta <strong>${offerName}</strong>, il tuo costo ${periodText} totale (Luce + Gas) e' di <strong>${totalNewOfferCostCombined.toFixed(2)} Euro</strong>.</p>`;
     } else {
-        // Solo Luce o Solo Gas in Mensile (logica precedente per mensile)
-        const currentCost = utilityType === 'light' ? totalCurrentCostLuce : totalCurrentCostGas;
-        const newCost = utilityType === 'light' ? totalNewOfferCostLuce : totalNewOfferCostGas;
-        currentCostText = `<p>Il tuo costo ${periodText} attuale e' di <strong>${(currentCost / numMonths).toFixed(2)} Euro</strong>.</p>`;
-        newOfferCostText = `<p>Con l'offerta <strong>${offerName}</strong>, il tuo costo ${periodText} e' di <strong>${(newCost / numMonths).toFixed(2)} Euro</strong>.</p>`;
+        riepilogo += `<p>Il tuo costo ${periodText} attuale e' di <strong>${totalCurrentCostCombined.toFixed(2)} Euro</strong>.</p>`;
+        riepilogo += `<p>Con l'offerta <strong>${offerName}</strong>, il tuo costo ${periodText} e' di <strong>${totalNewOfferCostCombined.toFixed(2)} Euro</strong>.</p>`;
     }
-
-    riepilogo += currentCostText;
-    riepilogo += newOfferCostText;
 
     riepilogo += `<p><span style="color: ${savingMonthlyColor}; font-size: 1.1em; font-weight: bold;">${savingMonthlyTextCombined}</span></p>
                   <p><span style="color: ${savingAnnualColor}; font-size: 1.1em; font-weight: bold;">${savingAnnualTextCombined}</span></p>`;
     
     finalOutput += riepilogo;
-
-    finalOutput += `</div>`; // Chiusura di result-content
+    finalOutput += `</div>`; 
 
     const resultDiv = document.getElementById('result');
     resultDiv.innerHTML = finalOutput;
     resultDiv.style.display = 'block';
 
-    // NUOVO: Mostra i pulsanti di esportazione
     document.getElementById('export-actions').style.display = 'block';
-
     window.scrollTo(0, 0);
 });
 
-// Logica per nascondere/mostrare l'offerta UltraGreen Casa in base al tipo di utente
+// EVENT LISTENERS FINALI
 document.getElementById('userType').addEventListener('change', function() {
     const userType = this.value;
     const offerSelect = document.getElementById('selectedOffer');
     const ultraGreenCasaOption = offerSelect.querySelector('option[value="ultraGreenCasa"]');
-
     if (userType === 'business') {
         ultraGreenCasaOption.style.display = 'none';
-        if (offerSelect.value === 'ultraGreenCasa') {
-            offerSelect.value = '';
-        }
+        if (offerSelect.value === 'ultraGreenCasa') offerSelect.value = '';
     } else {
         ultraGreenCasaOption.style.display = 'block';
     }
 });
 
-// Listener per mostrare/nascondere i campi Gas e Luce in base al tipo di fornitura
-document.getElementById('utilityType').addEventListener('change', updateFieldVisibility);
-document.getElementById('utilityType').addEventListener('change', updateMonthLabels);
-
-// Listener per mostrare/nascondere i campi del secondo mese e la nota
-document.getElementById('billingFrequency').addEventListener('change', () => {
-    updateBimonthlyFieldsVisibility();
-});
-
-// Listener per il cambio Monorario/Fasce (Mese 1) - RIPRISTINATO
-document.getElementById('consumptionType1').addEventListener('change', () => {
-    updateLightConsumptionFieldsVisibility('1');
-});
-
-// Listener per il cambio Monorario/Fasce (Mese 2) - RIPRISTINATO
-document.getElementById('consumptionType2').addEventListener('change', () => {
-    updateLightConsumptionFieldsVisibility('2');
-});
-
-// Listener: Aggiorna le etichette quando il mese cambia
+document.getElementById('utilityType').addEventListener('change', () => { updateFieldVisibility(); updateMonthLabels(); });
+document.getElementById('billingFrequency').addEventListener('change', updateBimonthlyFieldsVisibility);
+document.getElementById('consumptionType1').addEventListener('change', () => updateLightConsumptionFieldsVisibility('1'));
+document.getElementById('consumptionType2').addEventListener('change', () => updateLightConsumptionFieldsVisibility('2'));
 document.getElementById('monthSelection1').addEventListener('change', updateMonthLabels);
 document.getElementById('monthSelection2').addEventListener('change', updateMonthLabels);
 
-
-// Chiamata all'avvio per assicurare che la visibilità sia corretta
 document.addEventListener('DOMContentLoaded', () => {
     populateMonthSelection2();
     updateBimonthlyFieldsVisibility();
-    
-    // NUOVO: Listener per i pulsanti di esportazione
     const exportPdfBtn = document.getElementById('exportPdfBtn');
     const exportImgBtn = document.getElementById('exportImgBtn');
-    
-    if (exportPdfBtn) {
-        exportPdfBtn.addEventListener('click', () => exportResult('pdf'));
-    }
-    if (exportImgBtn) {
-        exportImgBtn.addEventListener('click', () => exportResult('image'));
-    }
-
+    if (exportPdfBtn) exportPdfBtn.addEventListener('click', () => exportResult('pdf'));
+    if (exportImgBtn) exportImgBtn.addEventListener('click', () => exportResult('image'));
 });
-
-
-
-
-
-
