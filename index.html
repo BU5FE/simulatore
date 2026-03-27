@@ -3,157 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulatore di Risparmio Energetico</title>
+    <title>Simulatore Risparmio Energetico Professionale</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
     <div class="container">
-        <h1>Simulatore di Risparmio<br>Luce e Gas</h1>
+        <h1>Simulatore Professionale<br>Luce e Gas</h1>
         <form id="calculator-form">
-            
-            <label for="clientName">Nome Cliente</label>
-            <input type="text" id="clientName" name="clientName" required placeholder="Inserisci il nome del cliente">
+            <label>Nome Cliente</label>
+            <input type="text" id="clientName" required>
 
-            <label for="billingFrequency">Frequenza di Fatturazione Attuale</label>
-            <select id="billingFrequency" name="billingFrequency">
-                <option value="monthly">Attuale Fattura Mensile</option>
-                <option value="bimonthly">Attuale Fattura Bimestrale</option>
+            <label>Tipologia Cliente</label>
+            <select id="userType">
+                <option value="consumer">Consumer (Domestico)</option>
+                <option value="business">Business (Aziendale)</option>
             </select>
             
-            <div id="billingNote" style="display:none; color: #d32f2f; margin-bottom: 20px; font-size: 0.9em; font-weight: bold;">
-                Nota: La simulazione calcolerà il risparmio sul periodo selezionato (2 mesi).
-            </div>
-
-            <label for="userType">Tipologia Cliente</label>
-            <select id="userType" name="userType">
-                <option value="consumer">Consumer (domestico)</option>
-                <option value="business">Business (aziendale)</option>
-            </select>
-            
-            <label for="utilityType">Tipo di fornitura</label>
-            <select id="utilityType" name="utilityType">
-                <option value="light">Luce</option>
-                <option value="gas">Gas</option>
+            <label>Utenze da Analizzare</label>
+            <select id="utilityType">
+                <option value="light">Solo Luce</option>
+                <option value="gas">Solo Gas</option>
                 <option value="lightAndGas">Luce e Gas</option>
             </select>
 
-            <hr style="border: 1px solid #eee; margin: 20px 0;">
-
-            <div id="data-m1-fields">
-                <h3 style="color: #2e7d32;">Dati Primo Mese</h3>
-                <label for="monthSelection1">Mese di Riferimento</label>
-                <select id="monthSelection1" name="monthSelection1">
-                    <option value="2025-07">Luglio 2025</option>
-                    <option value="2025-08">Agosto 2025</option>
-                    <option value="2025-09">Settembre 2025</option>
-                    <option value="2025-10">Ottobre 2025</option> 
-                    <option value="2025-11">Novembre 2025</option>
-                    <option value="2025-12">Dicembre 2025</option>
-                    <option value="2026-01">Gennaio 2026</option>
-                    <option value="2026-02">Febbraio 2026</option>
+            <div id="light-section" style="display:none; border-left: 4px solid #4caf50; padding-left: 15px; margin-top: 20px;">
+                <h3>DATI LUCE</h3>
+                <label>Frequenza Fatturazione Luce</label>
+                <select id="freqLuce">
+                    <option value="1">Mensile</option>
+                    <option value="2">Bimestrale</option>
                 </select>
 
-                <div id="light-fields-m1">
-                    <label for="consumptionType1">Tariffa Luce <span id="monthNameConsumptionType1"></span></label>
-                    <select id="consumptionType1" name="consumptionType1">
-                        <option value="monorario">Monorario</option>
-                        <option value="fasce">A Fasce (F1, F2, F3)</option>
-                    </select>
+                <label>Mese di Riferimento (Inizio periodo)</label>
+                <select id="monthLuce"></select>
 
-                    <div id="light-monorario-fields-m1">
-                        <label for="currentConsumptionLight1">Consumo Luce (kWh) <span id="monthNameLightCons1"></span></label>
-                        <input type="number" id="currentConsumptionLight1" name="currentConsumptionLight1" step="0.01">
-                    </div>
+                <label>Tipologia Consumo</label>
+                <select id="consTypeLuce">
+                    <option value="mono">Monorario</option>
+                    <option value="fasce">Ripartito F1-F2-F3</option>
+                </select>
 
-                    <div id="light-fasce-fields-m1" style="display:none;">
-                        <label>Consumo F1 (kWh)</label>
-                        <input type="number" id="currentConsumptionF1_1" step="0.01">
-                        <label>Consumo F2 (kWh)</label>
-                        <input type="number" id="currentConsumptionF2_1" step="0.01">
-                        <label>Consumo F3 (kWh)</label>
-                        <input type="number" id="currentConsumptionF3_1" step="0.01">
-                    </div>
-
-                    <label for="currentPriceLight1">Spesa Materia Energia (€) <span id="monthNameLightPrice1"></span></label>
-                    <input type="number" id="currentPriceLight1" step="0.01">
-
-                    <label for="currentPCVLight1">Quota Fissa Mensile Luce (€)</label>
-                    <input type="number" id="currentPCVLight1" step="0.01" value="12.00">
+                <div id="input-luce-mono">
+                    <label>Consumo Totale Periodo (kWh)</label>
+                    <input type="number" id="kWhTot">
+                </div>
+                <div id="input-luce-fasce" style="display:none;">
+                    <input type="number" id="kWhF1" placeholder="F1">
+                    <input type="number" id="kWhF2" placeholder="F2">
+                    <input type="number" id="kWhF3" placeholder="F3">
                 </div>
 
-                <div id="gas-fields-m1" style="display:none;">
-                    <label for="currentConsumptionGas1">Consumo Gas (smc) <span id="monthNameGasCons1"></span></label>
-                    <input type="number" id="currentConsumptionGas1" step="0.01">
-                    
-                    <label for="currentPriceGas1">Spesa Materia Gas (€) <span id="monthNameGasPrice1"></span></label>
-                    <input type="number" id="currentPriceGas1" step="0.01">
-
-                    <label for="currentPCVGas1">Quota Fissa Mensile Gas (€)</label>
-                    <input type="number" id="currentPCVGas1" step="0.01" value="10.00">
-                </div>
+                <label>Spesa Materia Energia nel Periodo (€)</label>
+                <input type="number" id="costMateriaLuce" step="0.01">
+                
+                <label>Consumo Storico Annuo Luce (kWh)</label>
+                <input type="number" id="annuoLuce" required>
             </div>
 
-            <div id="data-m2-fields" style="display:none;">
-                <hr style="border-top: 2px solid #4caf50; margin: 30px 0;">
-                <h3 style="color: #2e7d32;">Dati Secondo Mese</h3>
-                <label for="monthSelection2">Mese di Riferimento 2</label>
-                <select id="monthSelection2" name="monthSelection2"></select>
+            <div id="gas-section" style="display:none; border-left: 4px solid #ff9800; padding-left: 15px; margin-top: 20px;">
+                <h3>DATI GAS</h3>
+                <label>Frequenza Fatturazione Gas</label>
+                <select id="freqGas">
+                    <option value="1">Mensile</option>
+                    <option value="2">Bimestrale</option>
+                </select>
 
-                <div id="light-fields-m2" style="display:none;">
-                    <label for="consumptionType2">Tariffa Luce <span id="monthNameConsumptionType2"></span></label>
-                    <select id="consumptionType2" name="consumptionType2">
-                        <option value="monorario">Monorario</option>
-                        <option value="fasce">A Fasce (F1, F2, F3)</option>
-                    </select>
-                    <div id="light-monorario-fields-m2">
-                        <label>Consumo Luce (kWh) <span id="monthNameLightCons2"></span></label>
-                        <input type="number" id="currentConsumptionLight2" step="0.01">
-                    </div>
-                    <div id="light-fasce-fields-m2" style="display:none;">
-                        <label>Consumo F1 (kWh)</label>
-                        <input type="number" id="currentConsumptionF1_2" step="0.01">
-                        <label>Consumo F2 (kWh)</label>
-                        <input type="number" id="currentConsumptionF2_2" step="0.01">
-                        <label>Consumo F3 (kWh)</label>
-                        <input type="number" id="currentConsumptionF3_2" step="0.01">
-                    </div>
-                    <label>Spesa Materia Energia (€) <span id="monthNameLightPrice2"></span></label>
-                    <input type="number" id="currentPriceLight2" step="0.01">
-                </div>
+                <label>Mese di Riferimento (Inizio periodo)</label>
+                <select id="monthGas"></select>
 
-                <div id="gas-fields-m2" style="display:none;">
-                    <label>Consumo Gas (smc) <span id="monthNameGasCons2"></span></label>
-                    <input type="number" id="currentConsumptionGas2" step="0.01">
-                    <label>Spesa Materia Gas (€) <span id="monthNameGasPrice2"></span></label>
-                    <input type="number" id="currentPriceGas2" step="0.01">
-                </div>
+                <label>Consumo Gas Periodo (smc)</label>
+                <input type="number" id="smcTot">
+
+                <label>Spesa Materia Gas nel Periodo (€)</label>
+                <input type="number" id="costMateriaGas" step="0.01">
+
+                <label>Consumo Storico Annuo Gas (smc)</label>
+                <input type="number" id="annuoGas" required>
             </div>
 
-            <hr style="border: 1px solid #eee; margin: 20px 0;">
-
-            <label>Consumo Annuo Stimato Luce (kWh)</label>
-            <input type="number" id="annualConsumptionLight" placeholder="Opzionale">
-            <label>Consumo Annuo Stimato Gas (smc)</label>
-            <input type="number" id="annualConsumptionGas" placeholder="Opzionale">
-
-            <label for="selectedOffer">Nuova Offerta da Proporre</label>
-            <select id="selectedOffer" name="selectedOffer">
+            <hr>
+            <label>Offerta Target</label>
+            <select id="selectedOffer">
                 <option value="ultraGreenCasa">UltraGreen Casa</option>
                 <option value="ultraGreenFix">UltraGreen Fix</option>
                 <option value="ultraGreenPMI">UltraGreen PMI</option>
-                <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
                 <option value="revolutionTax">Revolution Tax</option>
             </select>
 
-            <button type="submit" style="margin-top: 20px; background-color: #2e7d32; color: white; padding: 15px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 1.1em;">Calcola il tuo risparmio</button>
+            <button type="submit" id="btnCalcola">GENERA ANALISI PROFESSIONALE</button>
         </form>
 
-        <div id="result" style="display:none; margin-top: 30px;"></div>
-
-        <div id="export-actions" style="margin-top: 20px; display: none; text-align: center;">
-            <button id="exportPdfBtn" type="button" style="background: #d32f2f; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 5px; cursor: pointer;">Esporta PDF</button>
-            <button id="exportImgBtn" type="button" style="background: #1976d2; color: white; padding: 10px 20px; border: none; border-radius: 5px; margin: 5px; cursor: pointer;">Esporta Immagine</button>
+        <div id="result" style="display:none;"></div>
+        <div id="export-actions" style="display:none; text-align:center; margin-top:20px;">
+            <button onclick="exportDoc('pdf')">Download PDF Report</button>
         </div>
     </div>
 
@@ -162,3 +104,127 @@
     <script src="script.js"></script>
 </body>
 </html>
+2. JavaScript (Sostituisci tutto script.js)
+Questo script rispetta i bimestri, calcola il costo corretto e genera un output serio.
+
+JavaScript
+const DB_PRICES = {
+    pun: { '07': 0.112, '08': 0.121, '09': 0.115, '10': 0.108, '11': 0.119, '12': 0.132, '01': 0.124, '02': 0.115 },
+    psv: { '07': 0.36, '08': 0.38, '09': 0.40, '10': 0.42, '11': 0.45, '12': 0.48, '01': 0.45, '02': 0.42 }
+};
+
+const months = [
+    {v:'07', t:'Luglio 2025'}, {v:'08', t:'Agosto 2025'}, {v:'09', t:'Settembre 2025'},
+    {v:'10', t:'Ottobre 2025'}, {v:'11', t:'Novembre 2025'}, {v:'12', t:'Dicembre 2025'},
+    {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}
+];
+
+// Inizializzazione
+document.addEventListener('DOMContentLoaded', () => {
+    const mSelL = document.getElementById('monthLuce');
+    const mSelG = document.getElementById('monthGas');
+    months.forEach(m => {
+        mSelL.add(new Option(m.t, m.v));
+        mSelG.add(new Option(m.t, m.v));
+    });
+
+    document.getElementById('utilityType').onchange = toggleSections;
+    document.getElementById('consTypeLuce').onchange = toggleLuceInputs;
+    toggleSections();
+});
+
+function toggleSections() {
+    const val = document.getElementById('utilityType').value;
+    document.getElementById('light-section').style.display = val.includes('light') ? 'block' : 'none';
+    document.getElementById('gas-section').style.display = val.includes('gas') ? 'block' : 'none';
+}
+
+function toggleLuceInputs() {
+    const isFasce = document.getElementById('consTypeLuce').value === 'fasce';
+    document.getElementById('input-luce-mono').style.display = isFasce ? 'none' : 'block';
+    document.getElementById('input-luce-fasce').style.display = isFasce ? 'block' : 'none';
+}
+
+document.getElementById('calculator-form').onsubmit = function(e) {
+    e.preventDefault();
+    
+    const offer = document.getElementById('selectedOffer').value;
+    const userType = document.getElementById('userType').value;
+    const utente = document.getElementById('clientName').value;
+    
+    let reportHtml = `<div id="report-box" style="padding:25px; border:3px solid #2e7d32; background:#fff; font-family:Arial;">
+        <h2 style="text-align:center; color:#2e7d32; border-bottom:2px solid #2e7d32; padding-bottom:10px;">PROPOSTA DI RISPARMIO ENERGETICO</h2>
+        <p><strong>Cliente:</strong> ${utente} <span style="float:right">Data: ${new Date().toLocaleDateString()}</span></p>`;
+
+    let totalSaveAnnuo = 0;
+
+    // --- LOGICA LUCE ---
+    if (document.getElementById('utilityType').value.includes('light')) {
+        const freq = parseInt(document.getElementById('freqLuce').value);
+        const consAnnuo = parseFloat(document.getElementById('annuoLuce').value);
+        const spesaPeriodo = parseFloat(document.getElementById('costMateriaLuce').value);
+        const mKey = document.getElementById('monthLuce').value;
+        const consPeriodo = parseFloat(document.getElementById('kWhTot').value) || 0;
+        
+        let spreadL = 0.055; // Default media
+        let pcvMensile = (userType === 'consumer' ? 9 : 12.5);
+        
+        // Calcolo nuova spesa nel periodo (PUN + Spread + PCV)
+        let costoEnergiaUnitario = DB_PRICES.pun[mKey] + spreadL;
+        let nuovaSpesaMateriaLuce = (consPeriodo * costoEnergiaUnitario) + (pcvMensile * freq);
+        let risparmioPeriodoLuce = spesaPeriodo - nuovaSpesaMateriaLuce;
+        let saveAnnuoLuce = (risparmioPeriodoLuce / (consPeriodo || 1)) * consAnnuo;
+        totalSaveAnnuo += saveAnnuoLuce;
+
+        reportHtml += `<h3>Dettaglio Fornitura Elettrica</h3>
+            <p>Periodo analizzato: ${freq} mese/i | Consumo Periodo: ${consPeriodo} kWh</p>
+            <table style="width:100%; border-collapse:collapse;">
+                <tr style="background:#f2f2f2;"><td>Spesa Attuale Materia</td><td>€ ${spesaPeriodo.toFixed(2)}</td></tr>
+                <tr><td>Nuova Spesa Stimata</td><td>€ ${nuovaSpesaMateriaLuce.toFixed(2)}</td></tr>
+                <tr style="color:green; font-weight:bold;"><td>Risparmio nel Periodo</td><td>€ ${risparmioPeriodoLuce.toFixed(2)}</td></tr>
+            </table>`;
+    }
+
+    // --- LOGICA GAS ---
+    if (document.getElementById('utilityType').value.includes('gas')) {
+        const freqG = parseInt(document.getElementById('freqGas').value);
+        const consAnnuoG = parseFloat(document.getElementById('annuoGas').value);
+        const spesaPeriodoG = parseFloat(document.getElementById('costMateriaGas').value);
+        const mKeyG = document.getElementById('monthGas').value;
+        const consPeriodoG = parseFloat(document.getElementById('smcTot').value) || 0;
+
+        let spreadG = 0.20;
+        let pcvMensileG = (userType === 'consumer' ? 9 : 13);
+        
+        let nuovaSpesaGas = (consPeriodoG * (DB_PRICES.psv[mKeyG] + spreadG)) + (pcvMensileG * freqG);
+        let risparmioPeriodoGas = spesaPeriodoG - nuovaSpesaGas;
+        let saveAnnuoGas = (risparmioPeriodoGas / (consPeriodoG || 1)) * consAnnuoG;
+        totalSaveAnnuo += saveAnnuoGas;
+
+        reportHtml += `<h3>Dettaglio Fornitura Gas</h3>
+            <p>Periodo analizzato: ${freqG} mese/i | Consumo Periodo: ${consPeriodoG} smc</p>
+            <table style="width:100%; border-collapse:collapse;">
+                <tr style="background:#f2f2f2;"><td>Spesa Attuale Materia</td><td>€ ${spesaPeriodoG.toFixed(2)}</td></tr>
+                <tr><td>Nuova Spesa Stimata</td><td>€ ${nuovaSpesaGas.toFixed(2)}</td></tr>
+                <tr style="color:green; font-weight:bold;"><td>Risparmio nel Periodo</td><td>€ ${risparmioPeriodoGas.toFixed(2)}</td></tr>
+            </table>`;
+    }
+
+    reportHtml += `<div style="margin-top:20px; padding:15px; background:#e8f5e9; border:2px solid #2e7d32;">
+        <h2 style="margin:0; text-align:center;">RISPARMIO ANNUO TOTALE: € ${totalSaveAnnuo.toFixed(2)}</h2>
+    </div></div>`;
+
+    document.getElementById('result').innerHTML = reportHtml;
+    document.getElementById('result').style.display = 'block';
+    document.getElementById('export-actions').style.display = 'block';
+};
+
+function exportDoc(type) {
+    const el = document.getElementById('report-box');
+    html2canvas(el).then(canvas => {
+        const img = canvas.toDataURL('image/png');
+        const pdf = new jspdf.jsPDF();
+        pdf.addImage(img, 'PNG', 10, 10, 190, 0);
+        pdf.save('Analisi_Risparmio.pdf');
+    });
+}
