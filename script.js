@@ -9,22 +9,28 @@ const months = [
     {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}
 ];
 
+// Funzione per mostrare/nascondere sezioni
+function toggleSections() {
+    const val = document.getElementById('utilityType').value;
+    document.getElementById('light-section').style.display = (val === 'light' || val === 'lightAndGas') ? 'block' : 'none';
+    document.getElementById('gas-section').style.display = (val === 'gas' || val === 'lightAndGas') ? 'block' : 'none';
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    // Popola mesi
     const mSelL = document.getElementById('monthLuce');
     const mSelG = document.getElementById('monthGas');
     months.forEach(m => {
         if(mSelL) mSelL.add(new Option(m.t, m.v));
         if(mSelG) mSelG.add(new Option(m.t, m.v));
     });
-    document.getElementById('utilityType').onchange = toggleSections;
+
+    // Attiva i sensori di cambio
+    document.getElementById('utilityType').addEventListener('change', toggleSections);
+    
+    // Esegui subito per impostare lo stato iniziale
     toggleSections();
 });
-
-function toggleSections() {
-    const val = document.getElementById('utilityType').value;
-    document.getElementById('light-section').style.display = val.includes('light') ? 'block' : 'none';
-    document.getElementById('gas-section').style.display = val.includes('gas') ? 'block' : 'none';
-}
 
 document.getElementById('calculator-form').onsubmit = function(e) {
     e.preventDefault();
@@ -36,10 +42,10 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     let ogt = (userType === 'consumer') ? (offer === 'ultraGreenFix' ? 12.00 : 8.95) : (offer === 'ultraGreenPMI' || offer === 'ultraGreenGrandiAziende' ? 19.95 : 14.95);
 
     let totalSaveAnnuo = 0;
-    let reportHtml = `<div id="report-box" style="padding:20px; border:2px solid #2e7d32; background:white;">
-        <h2 style="color:#2e7d32; text-align:center;">Analisi per ${utente}</h2>`;
+    let reportHtml = `<div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px;">
+        <h2 style="color:#2e7d32; text-align:center; border-bottom:2px solid #eee; padding-bottom:10px;">Analisi per ${utente}</h2>`;
 
-    if (utility.includes('light')) {
+    if (utility === 'light' || utility === 'lightAndGas') {
         const freq = parseInt(document.getElementById('freqLuce').value);
         const annuo = parseFloat(document.getElementById('annuoLuce').value) || 0;
         const spesaP = parseFloat(document.getElementById('costMateriaLuce').value) || 0;
@@ -48,10 +54,10 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         let nuovaSpesa = (consP * (DB_PRICES.pun[mKey] + 0.055)) + (ogt * freq);
         let saveA = ((spesaP - nuovaSpesa) / (consP || 1)) * annuo;
         totalSaveAnnuo += saveA;
-        reportHtml += `<p>Risparmio Luce: <strong>€ ${saveA.toFixed(2)}/anno</strong></p>`;
+        reportHtml += `<p style="font-size:1.1em;">Risparmio Annuo Luce: <strong style="color:green;">€ ${saveA.toFixed(2)}</strong></p>`;
     }
 
-    if (utility.includes('gas')) {
+    if (utility === 'gas' || utility === 'lightAndGas') {
         const freq = parseInt(document.getElementById('freqGas').value);
         const annuo = parseFloat(document.getElementById('annuoGas').value) || 0;
         const spesaP = parseFloat(document.getElementById('costMateriaGas').value) || 0;
@@ -60,19 +66,27 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         let nuovaSpesa = (consP * (DB_PRICES.psv[mKey] + 0.20)) + (ogt * freq);
         let saveA = ((spesaP - nuovaSpesa) / (consP || 1)) * annuo;
         totalSaveAnnuo += saveA;
-        reportHtml += `<p>Risparmio Gas: <strong>€ ${saveA.toFixed(2)}/anno</strong></p>`;
+        reportHtml += `<p style="font-size:1.1em;">Risparmio Annuo Gas: <strong style="color:green;">€ ${saveA.toFixed(2)}</strong></p>`;
     }
 
-    reportHtml += `<h2 style="background:#2e7d32; color:white; padding:15px; text-align:center;">TOTALE ANNUO: € ${totalSaveAnnuo.toFixed(2)}</h2></div>`;
+    reportHtml += `
+        <div style="background:#2e7d32; color:white; padding:20px; text-align:center; border-radius:8px; margin-top:20px;">
+            <span style="text-transform:uppercase; font-size:0.9em;">Risparmio Totale Annuo</span><br>
+            <span style="font-size:2.5em; font-weight:bold;">€ ${totalSaveAnnuo.toFixed(2)}</span>
+        </div>
+    </div>`;
+
     document.getElementById('result').innerHTML = reportHtml;
     document.getElementById('result').style.display = 'block';
     document.getElementById('export-actions').style.display = 'block';
 };
 
 window.exportDoc = function() {
-    html2canvas(document.getElementById('report-box')).then(canvas => {
+    const el = document.getElementById('report-box');
+    html2canvas(el, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
         const pdf = new jspdf.jsPDF();
-        pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 10, 10, 190, 0);
-        pdf.save('Risparmio.pdf');
+        pdf.addImage(imgData, 'PNG', 10, 10, 190, 0);
+        pdf.save('Report_Risparmio.pdf');
     });
 };
