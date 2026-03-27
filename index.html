@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisi Tecnica UltraGreen v7.7</title>
+    <title>Analisi Tecnica UltraGreen v7.9</title>
     <style>
         :root { --primary: #1b5e20; --secondary: #e65100; --bg: #f1f5f9; --red: #d32f2f; --green: #2e7d32; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; color: #1a202c; }
@@ -37,7 +37,7 @@
     <div class="grid-2">
         <div>
             <label>Tipo Cliente</label>
-            <select id="tipoCliente" onchange="renderApp();">
+            <select id="tipoCliente" onchange="filtraOfferte(); renderApp();">
                 <option value="consumer">Privato (Consumer)</option>
                 <option value="business">Azienda (Business)</option>
             </select>
@@ -59,15 +59,7 @@
     <div id="light-section" class="section">
         <h3>⚡ ENERGIA ELETTRICA</h3>
         <div class="grid-2">
-            <div><label>Offerta Luce Target</label>
-                <select id="offL">
-                    <option value="CASA">UltraGreen CASA</option>
-                    <option value="ULTRAGREEN">UltraGreen</option>
-                    <option value="PMI">UltraGreen PMI</option>
-                    <option value="AZIENDE">UltraGreen Grandi Aziende</option>
-                    <option value="REVO">Revolution Tax</option>
-                </select>
-            </div>
+            <div><label>Offerta Luce Target</label><select id="offL"></select></div>
             <div><label>Frequenza</label><select id="freqL" onchange="renderApp()"><option value="1">Mensile</option><option value="2" selected>Bimestrale</option></select></div>
         </div>
         <div class="grid-2">
@@ -84,15 +76,7 @@
     <div id="gas-section" class="section">
         <h3>🔥 GAS NATURALE</h3>
         <div class="grid-2">
-            <div><label>Offerta Gas Target</label>
-                <select id="offG">
-                    <option value="CASA">UltraGreen CASA</option>
-                    <option value="ULTRAGREEN">UltraGreen</option>
-                    <option value="PMI">UltraGreen PMI</option>
-                    <option value="AZIENDE">UltraGreen Grandi Aziende</option>
-                    <option value="REVO">Revolution Tax</option>
-                </select>
-            </div>
+            <div><label>Offerta Gas Target</label><select id="offG"></select></div>
             <div><label>Frequenza</label><select id="freqG" onchange="renderApp()"><option value="1">Mensile</option><option value="2" selected>Bimestrale</option></select></div>
         </div>
         <div id="contMesiG"></div>
@@ -126,11 +110,24 @@ const CONFIG = {
     'REVO': { sprL: 0.061, sprG: 0.08, ogtC: 8.95, ogtB: 14.95 }
 };
 
+function filtraOfferte() {
+    const tipo = document.getElementById('tipoCliente').value;
+    const offL = document.getElementById('offL');
+    const offG = document.getElementById('offG');
+    let opzioni = `<option value="ULTRAGREEN">UltraGreen</option><option value="PMI">UltraGreen PMI</option><option value="AZIENDE">UltraGreen Grandi Aziende</option><option value="REVO">Revolution Tax</option>`;
+    
+    if(tipo === 'consumer') {
+        opzioni = `<option value="CASA">UltraGreen CASA</option>` + opzioni;
+    }
+    offL.innerHTML = opzioni; offG.innerHTML = opzioni;
+}
+
 function renderApp() {
     const u = document.getElementById('utenza').value;
     document.getElementById('light-section').style.display = u.includes('L') ? 'block' : 'none';
     document.getElementById('gas-section').style.display = u.includes('G') ? 'block' : 'none';
-    if(u.includes('L')) buildFields('L'); if(u.includes('G')) buildFields('G');
+    if(u.includes('L')) buildFields('L');
+    if(u.includes('G')) buildFields('G');
     document.getElementById('result').style.display = 'none';
 }
 
@@ -149,7 +146,6 @@ function buildFields(tipo) {
 
 function calcola() {
     let totR = 0, ut = document.getElementById('utenza').value, tipo = document.getElementById('tipoCliente').value, resH = "";
-
     if(ut.includes('L')) {
         let f = parseInt(document.getElementById('freqL').value), off = document.getElementById('offL').value, cB = 0, cMT = 0;
         let ogt = (tipo === 'consumer') ? CONFIG[off].ogtC : CONFIG[off].ogtB;
@@ -165,7 +161,6 @@ function calcola() {
         totR += rA;
         resH += `<div class="res-row"><b>LUCE (${off})</b>: <span class="${rA<0?'save-pos':'save-neg'}">${rA<0?'-':'+'} € ${Math.abs(rA).toFixed(2)}/anno</span></div>`;
     }
-
     if(ut.includes('G')) {
         let f = parseInt(document.getElementById('freqG').value), off = document.getElementById('offG').value, cBG = 0, cMTG = 0;
         let ogt = (tipo === 'consumer') ? CONFIG[off].ogtC : CONFIG[off].ogtB;
@@ -178,12 +173,11 @@ function calcola() {
         totR += rAG;
         resH += `<div class="res-row"><b>GAS (${off})</b>: <span class="${rAG<0?'save-pos':'save-neg'}">${rAG<0?'-':'+'} € ${Math.abs(rAG).toFixed(2)}/anno</span></div>`;
     }
-
     const rd = document.getElementById('report-content');
     rd.innerHTML = `<div class="report-card"><h3>Analisi ${tipo.toUpperCase()} - ${document.getElementById('nome').value.toUpperCase()}</h3>${resH}<div class="total-banner ${totR<0?'bg-green':'bg-red'}"><span>RISPARMIO TOTALE ANNUO STIMATO</span><h2>${totR<0?'-':'+'} € ${Math.abs(totR).toFixed(2)}</h2></div></div>`;
     document.getElementById('result').style.display = 'block';
-    document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
 }
+window.onload = filtraOfferte;
 </script>
 </body>
 </html>
