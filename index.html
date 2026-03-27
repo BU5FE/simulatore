@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulatore Professionale Analitico</title>
+    <title>Analisi Tecnica Energetica</title>
     <style>
         :root { --primary: #1b5e20; --secondary: #e65100; --bg: #f1f5f9; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; color: #1a202c; }
         .container { max-width: 900px; margin: auto; background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: var(--primary); font-weight: 800; margin-bottom: 25px; }
+        h1 { text-align: center; color: var(--primary); font-weight: 800; margin-bottom: 25px; text-transform: uppercase; }
         .section { display: none; padding: 25px; margin-top: 20px; border-radius: 15px; border: 1px solid #e2e8f0; border-top: 6px solid; }
         #light-section { border-color: var(--primary); background: #f0fff4; }
         #gas-section { border-color: var(--secondary); background: #fffaf0; }
@@ -19,22 +19,25 @@
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
         button { width: 100%; padding: 20px; margin-top: 30px; border: none; border-radius: 12px; font-size: 1.3rem; font-weight: 800; cursor: pointer; background: var(--primary); color: white; transition: 0.2s; }
         button:hover { background: #0d3d12; transform: translateY(-2px); }
+        
+        /* OUTPUT BOX */
         #result { margin-top: 40px; display: none; }
-        .report-card { padding: 35px; border-radius: 20px; background: white; border: 1px solid #e2e8f0; }
+        .report-card { padding: 35px; border-radius: 20px; background: white; border: 1px solid #e2e8f0; position: relative; }
         .total-box { background: var(--primary); color: white; padding: 30px; text-align: center; border-radius: 15px; margin-top: 25px; }
+        .res-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f1f5f9; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Analisi Tecnica Risparmio</h1>
+    <h1>Analisi Risparmio Energetico</h1>
     
     <label>Ragione Sociale / Cliente</label>
-    <input type="text" id="nome" placeholder="Nome Azienda o Cliente">
+    <input type="text" id="nome" placeholder="Inserisci nome cliente">
 
     <div class="grid-2">
         <div>
-            <label>Servizio</label>
+            <label>Utenze</label>
             <select id="utenza" onchange="renderApp()">
                 <option value="">-- Seleziona --</option>
                 <option value="L">Luce</option>
@@ -43,10 +46,11 @@
             </select>
         </div>
         <div>
-            <label>Offerta Target (UltraGreen)</label>
+            <label>Offerta Target</label>
             <select id="offerta">
-                <option value="CASA">UltraGreen CASA (Spread 0.055)</option>
-                <option value="PMI">UltraGreen PMI (Spread 0.035)</option>
+                <option value="CASA">UltraGreen CASA</option>
+                <option value="PMI">UltraGreen PMI</option>
+                <option value="FIX">UltraGreen FIX</option>
                 <option value="REVO">Revolution Tax</option>
             </select>
         </div>
@@ -70,28 +74,37 @@
         <h3>🔥 GAS NATURALE</h3>
         <div class="grid-2">
             <div><label>Frequenza</label><select id="freqG" onchange="renderApp()"><option value="1">Mensile</option><option value="2" selected>Bimestrale</option></select></div>
-            <div><label>PCV Attuale Cliente (€/mese)</label><input type="number" id="pcvG" value="12.00"></div>
+            <div><label>PCV Attuale Cliente (€/mese)</label><input type="number" id="pcvG" value="12.00" step="0.01"></div>
         </div>
         <div id="contMesiG"></div>
         <label>Costo Materia Bolletta (€)</label><input type="number" id="spesaG" step="0.01">
         <label>Consumo Annuo Totale (smc)</label><input type="number" id="annuoG">
     </div>
 
-    <button onclick="calcola()">GENERA REPORT ANALITICO</button>
+    <button onclick="calcola()">GENERA ANALISI PROFESSIONALE</button>
     <div id="result"></div>
 </div>
 
 <script>
+// Tabella Prezzi Consolidata
 const PREZZI = {
     pun: {
-        '07':{f1:0.125,f2:0.118,f3:0.105,m:0.112}, '08':{f1:0.135,f2:0.128,f3:0.112,m:0.121},
-        '09':{f1:0.128,f2:0.122,f3:0.108,m:0.115}, '10':{f1:0.118,f2:0.112,f3:0.101,m:0.108},
-        '11':{f1:0.132,f2:0.125,f3:0.114,m:0.119}, '12':{f1:0.145,f2:0.138,f3:0.125,m:0.132},
-        '01':{f1:0.138,f2:0.131,f3:0.118,m:0.124}, '02':{f1:0.128,f2:0.121,f3:0.109,m:0.115}
+        '09_25':{f1:0.128,f2:0.122,f3:0.108,m:0.115},
+        '10_25':{f1:0.118,f2:0.112,f3:0.101,m:0.108},
+        '11_25':{f1:0.132,f2:0.125,f3:0.114,m:0.119},
+        '12_25':{f1:0.145,f2:0.138,f3:0.125,m:0.132},
+        '01_26':{f1:0.138,f2:0.131,f3:0.118,m:0.124},
+        '02_26':{f1:0.128,f2:0.121,f3:0.109,m:0.115}
     },
-    psv: {'07':0.36,'08':0.38,'09':0.40,'10':0.42,'11':0.45,'12':0.48,'01':0.45,'02':0.42}
+    psv: {
+        '09_25':0.40, '10_25':0.42, '11_25':0.45, '12_25':0.48, '01_26':0.45, '02_26':0.42
+    }
 };
-const mesiNomi = {'07':'Luglio','08':'Agosto','09':'Settembre','10':'Ottobre','11':'Novembre','12':'Dicembre','01':'Gennaio','02':'Febbraio'};
+
+const mesiNomi = {
+    '09_25':'Settembre 2025','10_25':'Ottobre 2025','11_25':'Novembre 2025',
+    '12_25':'Dicembre 2025','01_26':'Gennaio 2026','02_26':'Febbraio 2026'
+};
 
 function renderApp() {
     const u = document.getElementById('utenza').value;
@@ -124,7 +137,10 @@ function buildFields(tipo) {
 
 function calcola() {
     let totR = 0, ut = document.getElementById('utenza').value, off = document.getElementById('offerta').value;
-    let resH = "", spreadTargetL = (off === 'PMI') ? 0.035 : 0.055, spreadTargetG = 0.15, ogtTarget = 8.95;
+    let resH = "", spreadL = 0.055, spreadG = 0.15, pcvTarget = 8.95;
+
+    // Placeholder logica offerte (da rifinire con i tuoi dati reali)
+    if(off === 'PMI') { spreadL = 0.035; pcvTarget = 12.00; }
 
     if(ut.includes('L')) {
         let f = parseInt(document.getElementById('freqL').value), modo = document.getElementById('modoL').value, cBoll = 0, costoMTarget = 0;
@@ -138,9 +154,9 @@ function calcola() {
                 cBoll += c; costoMTarget += (c * PREZZI.pun[m].m);
             }
         }
-        let nuovaL = costoMTarget + (cBoll * spreadTargetL) + (ogtTarget * f);
+        let nuovaL = costoMTarget + (cBoll * spreadL) + (pcvTarget * f);
         let rA = ((parseFloat(document.getElementById('spesaL').value)||0) - nuovaL) / (cBoll||1) * (parseFloat(document.getElementById('annuoL').value)||0);
-        totR += rA; resH += `<p>Risparmio Luce: <b>€ ${rA.toFixed(2)} / anno</b></p>`;
+        totR += rA; resH += `<div class="res-row"><span>Risparmio Annuo Luce:</span> <b>€ ${rA.toFixed(2)}</b></div>`;
     }
 
     if(ut.includes('G')) {
@@ -149,13 +165,13 @@ function calcola() {
             let m = document.getElementById(`mG${i}`).value, c = parseFloat(document.getElementById(`vG${i}`).value)||0;
             cBollG += c; costoMTargetG += (c * PREZZI.psv[m]);
         }
-        let nuovaG = costoMTargetG + (cBollG * spreadTargetG) + (ogtTarget * f);
+        let nuovaG = costoMTargetG + (cBollG * spreadG) + (pcvTarget * f);
         let rAG = ((parseFloat(document.getElementById('spesaG').value)||0) - nuovaG) / (cBollG||1) * (parseFloat(document.getElementById('annuoG').value)||0);
-        totR += rAG; resH += `<p>Risparmio Gas: <b>€ ${rAG.toFixed(2)} / anno</b></p>`;
+        totR += rAG; resH += `<div class="res-row"><span>Risparmio Annuo Gas:</span> <b>€ ${rAG.toFixed(2)}</b></div>`;
     }
 
     const rd = document.getElementById('result');
-    rd.innerHTML = `<div class="report-card"><h3>Analisi per ${document.getElementById('nome').value.toUpperCase()}</h3>${resH}<div class="total-box"><span>RISPARMIO TOTALE STIMATO</span><h2>€ ${totR.toFixed(2)} / ANNO</h2></div></div>`;
+    rd.innerHTML = `<div class="report-card"><h3>Analisi ${off} - ${document.getElementById('nome').value.toUpperCase()}</h3>${resH}<div class="total-box"><span>RISPARMIO TOTALE STIMATO</span><h2>€ ${totR.toFixed(2)} / ANNO</h2></div></div>`;
     rd.style.display = 'block';
 }
 </script>
