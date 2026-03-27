@@ -1,4 +1,5 @@
-// script.js - VERSIONE DEFINITIVA (Febbraio 2026) con correzione visibilità Luce e Gas
+// script.js - VERSIONE DEFINITIVA FEBBRAIO 2026
+// Include: Grafica originale, Prezzi aggiornati e Fix visibilità Luce+Gas
 
 const monthlyPrices = {
     pun: {
@@ -21,19 +22,20 @@ const monthlyPrices = {
     }
 };
 
-// --- GESTIONE VISIBILITÀ CAMPI ---
+// --- FUNZIONI DI VISIBILITÀ ---
 function updateFieldVisibility() {
-    const utility = document.getElementById('utilityType').value; // 'light', 'gas' o 'lightAndGas'
-    
+    const utility = document.getElementById('utilityType').value;
     const showLight = (utility === 'light' || utility === 'lightAndGas');
     const showGas = (utility === 'gas' || utility === 'lightAndGas');
 
     document.getElementById('light-fields-m1').style.display = showLight ? 'block' : 'none';
     document.getElementById('gas-fields-m1').style.display = showGas ? 'block' : 'none';
     
-    // PCV/Costi Fissi
-    document.getElementById('pcv-light-m1-container').style.display = showLight ? 'block' : 'none';
-    document.getElementById('pcv-gas-m1-container').style.display = showGas ? 'block' : 'none';
+    // Mostra/Nascondi PCV
+    if(document.getElementById('pcv-light-m1-container')) 
+        document.getElementById('pcv-light-m1-container').style.display = showLight ? 'block' : 'none';
+    if(document.getElementById('pcv-gas-m1-container')) 
+        document.getElementById('pcv-gas-m1-container').style.display = showGas ? 'block' : 'none';
 }
 
 function getOGTLuce(u, o) { 
@@ -48,7 +50,7 @@ function getOGTGas(u, o) {
     return r[o] || 8.95; 
 }
 
-// --- CALCOLO ---
+// --- LOGICA DI CALCOLO ---
 document.getElementById('calculator-form').addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -57,61 +59,75 @@ document.getElementById('calculator-form').addEventListener('submit', function(e
     const offerId = document.getElementById('selectedOffer').value;
     const userType = document.getElementById('userType').value;
     const m1Value = document.getElementById('monthSelection1').value;
+    const m1Name = document.getElementById('monthSelection1').options[document.getElementById('monthSelection1').selectedIndex].text;
 
     let totalCurrent = 0, totalNew = 0, detailHTML = "";
 
+    // LUCE
     if (utility === 'light' || utility === 'lightAndGas') {
         const pcvL = parseFloat(document.getElementById('currentPCVLight1').value) || 0;
-        const spesaMateriaL = parseFloat(document.getElementById('currentPriceLight1').value) || 0;
+        const spesaL = parseFloat(document.getElementById('currentPriceLight1').value) || 0;
         const consL = parseFloat(document.getElementById('currentConsumptionLight1').value) || 0;
         const ogtL = getOGTLuce(userType, offerId);
         
-        const currentTotalL = spesaMateriaL + pcvL;
+        const currentL = spesaL + pcvL;
         const pun = monthlyPrices.pun[m1Value];
-        const newTotalL = (consL * (pun + 0.0551)) + ogtL;
+        let newL = (consL * (pun + 0.0551)) + ogtL;
+        if(offerId === 'ultraGreenFix') newL = (consL * 0.16) + ogtL;
 
         detailHTML += `
-            <h3>Dettagli LUCE</h3>
-            <p>Consumo: <strong>${consL} kWh</strong></p>
-            <p>Costo Attuale: <strong>${currentTotalL.toFixed(2)} €</strong></p>
-            <p>Nuova Offerta: <strong>${newTotalL.toFixed(2)} €</strong></p>
-            <p style="color:green;">Risparmio: <strong>${(currentTotalL - newTotalL).toFixed(2)} €</strong></p>
-            <hr>`;
-        totalCurrent += currentTotalL; totalNew += newTotalL;
+            <h3 style="margin-top:20px;">Dettagli LUCE</h3>
+            <p>Dettagli Luce Mensile (${m1Name})</p>
+            <p>Consumo Luce: <strong>${consL} kWh</strong></p>
+            <p>Costo Attuale (Materia + PCV): <strong>${currentL.toFixed(2)} Euro</strong></p>
+            <p>Nuova Offerta: <strong>${newL.toFixed(2)} Euro</strong></p>
+            <p style="color:green;">Risparmio Luce: <strong>${(currentL - newL).toFixed(2)} Euro</strong></p>
+            <p style="font-style:italic; font-size:0.9em;">N.B. Inclusi OGT di ${ogtL} Euro/Mese</p><hr>`;
+        totalCurrent += currentL; totalNew += newL;
     }
 
+    // GAS
     if (utility === 'gas' || utility === 'lightAndGas') {
         const pcvG = parseFloat(document.getElementById('currentPCVGas1').value) || 0;
-        const spesaMateriaG = parseFloat(document.getElementById('currentPriceGas1').value) || 0;
+        const spesaG = parseFloat(document.getElementById('currentPriceGas1').value) || 0;
         const consG = parseFloat(document.getElementById('currentConsumptionGas1').value) || 0;
         const ogtG = getOGTGas(userType, offerId);
 
-        const currentTotalG = spesaMateriaG + pcvG;
+        const currentG = spesaG + pcvG;
         const psv = monthlyPrices.psv[m1Value];
-        const newTotalG = (consG * (psv + 0.305)) + ogtG;
+        let newG = (consG * (psv + 0.305)) + ogtG;
+        if(offerId === 'ultraGreenFix') newG = (consG * 0.607) + ogtG;
 
         detailHTML += `
-            <h3>Dettagli GAS</h3>
-            <p>Consumo: <strong>${consG} smc</strong></p>
-            <p>Costo Attuale: <strong>${currentTotalG.toFixed(2)} €</strong></p>
-            <p>Nuova Offerta: <strong>${newTotalG.toFixed(2)} €</strong></p>
-            <p style="color:green;">Risparmio: <strong>${(currentTotalG - newTotalG).toFixed(2)} €</strong></p>
-            <hr>`;
-        totalCurrent += currentTotalG; totalNew += newTotalG;
+            <h3 style="margin-top:20px;">Dettagli GAS</h3>
+            <p>Dettagli Gas Mensile (${m1Name})</p>
+            <p>Consumo Gas: <strong>${consG} smc</strong></p>
+            <p>Costo Attuale (Materia + PCV): <strong>${currentG.toFixed(2)} Euro</strong></p>
+            <p>Nuova Offerta: <strong>${newG.toFixed(2)} Euro</strong></p>
+            <p style="color:green;">Risparmio Gas: <strong>${(currentG - newG).toFixed(2)} Euro</strong></p>
+            <p style="font-style:italic; font-size:0.9em;">N.B. Inclusi OGT di ${ogtG} Euro/Mese</p><hr>`;
+        totalCurrent += currentG; totalNew += newG;
     }
 
+    // OUTPUT FINALE
+    const finalSaving = totalCurrent - totalNew;
     document.getElementById('result').innerHTML = `
-        <div style="padding:20px; background:white; border:1px solid #ddd; border-radius:8px;">
-            <h2 style="color:#2e7d32;">Cliente: ${clientName}</h2>
+        <div id="result-content" style="padding:20px; font-family:Arial; background:white; border:1px solid #ddd; border-radius:8px;">
+            <p style="text-align:right;"><strong>Scadenza Proposta: 31/03/2026</strong></p>
+            <h2 style="color:#2e7d32; border-bottom:2px solid #4caf50; padding-bottom:10px;">Cliente: ${clientName}</h2>
             ${detailHTML}
-            <div style="margin-top:15px; font-size:1.2em;">
-                <p>Risparmio Mensile: <strong style="color:green;">${(totalCurrent - totalNew).toFixed(2)} €</strong></p>
-                <p>Risparmio Annuo: <strong style="color:green;">${((totalCurrent - totalNew) * 12).toFixed(2)} €</strong></p>
+            <div style="margin-top:20px;">
+                <h3>Riepilogo Totale</h3>
+                <p>Costo attuale: <strong>${totalCurrent.toFixed(2)} Euro</strong></p>
+                <p>Nuova offerta: <strong>${totalNew.toFixed(2)} Euro</strong></p>
+                <p style="color:green; font-size:1.2em;"><strong>Risparmio Mensile: ${finalSaving.toFixed(2)} Euro</strong></p>
+                <p style="color:green; font-size:1.2em;"><strong>Risparmio Annuo: ${(finalSaving * 12).toFixed(2)} Euro</strong></p>
             </div>
         </div>`;
     document.getElementById('result').style.display = 'block';
+    document.getElementById('export-actions').style.display = 'block';
 });
 
-// Listener per la visibilità iniziale e al cambio
+// Event Listeners
 document.getElementById('utilityType').addEventListener('change', updateFieldVisibility);
 document.addEventListener('DOMContentLoaded', updateFieldVisibility);
