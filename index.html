@@ -14,6 +14,7 @@
             
             <label for="clientName">Nome Cliente</label>
             <input type="text" id="clientName" name="clientName" required>
+
             <label for="billingFrequency">Frequenza di Fatturazione Attuale</label>
             <select id="billingFrequency" name="billingFrequency">
                 <option value="monthly">Attuale Fattura Mensile</option>
@@ -21,20 +22,21 @@
             </select>
             
             <div id="billingNote" style="display:none; color: #d32f2f; margin-top: -10px; margin-bottom: 20px; font-size: 0.9em; text-align: left;">
-                Ricordati: la fatturazione con la nuova offerta sara' mensile
+                Ricordati: la fatturazione con la nuova offerta sarà mensile
             </div>
+
             <div id="data-m1-fields">
                 <label for="monthSelection1">Mese di Riferimento</label>
                 <select id="monthSelection1" name="monthSelection1">
                     <option value="2025-07">Luglio 2025</option>
                     <option value="2025-08">Agosto 2025</option>
                     <option value="2025-09">Settembre 2025</option>
-<option value="2025-10">Ottobre 2025</option> 
-<option value="2025-11">Novembre 2025</option>
+                    <option value="2025-10">Ottobre 2025</option> 
+                    <option value="2025-11">Novembre 2025</option>
                     <option value="2025-12">Dicembre 2025</option>
-                    <option value="2026-01">Gennaio 2026</option>option>
-</select>
-
+                    <option value="2026-01">Gennaio 2026</option>
+                    <option value="2026-02">Febbraio 2026</option>
+                </select>
 
                 <label for="userType">Scelta tra Consumer e Business</label>
                 <select id="userType" name="userType">
@@ -51,7 +53,6 @@
                 
                 <div id="light-fields-m1">
                     <hr style="border-top: 1px solid #c8e6c9;">
-                    
                     <label for="consumptionType1">Tipologia Consumo Luce <span id="monthNameConsumptionType1">Mese di Riferimento</span></label>
                     <select id="consumptionType1" name="consumptionType1">
                         <option value="monorario">Monorario</option>
@@ -72,7 +73,7 @@
                         <input type="number" id="currentConsumptionF3_1" name="currentConsumptionF3_1">
                     </div>
 
-                    <label for="annualConsumptionLight">Consumo Luce annuale in base allo storico della fattura (kWh)</label>
+                    <label for="annualConsumptionLight">Consumo Luce annuale (kWh)</label>
                     <input type="number" id="annualConsumptionLight" name="annualConsumptionLight">
                     
                     <label for="currentPriceLight1">Spesa per la materia luce <span id="monthNameLightPrice1">Mese di Riferimento</span> (Euro)</label>
@@ -83,12 +84,13 @@
                         <input type="number" id="currentPCVLight1" name="currentPCVLight1" step="0.01">
                     </div>
                 </div>
+
                 <div id="gas-fields-m1" style="display:none;">
                     <hr style="border-top: 1px solid #c8e6c9;">
                     <label for="currentConsumptionGas1">Consumo Gas <span id="monthNameGasCons1">Mese di Riferimento</span> (smc)</label>
                     <input type="number" id="currentConsumptionGas1" name="currentConsumptionGas1">
                     
-                    <label for="annualConsumptionGas">Consumo Gas annuale in base allo storico della fattura (smc)</label>
+                    <label for="annualConsumptionGas">Consumo Gas annuale (smc)</label>
                     <input type="number" id="annualConsumptionGas" name="annualConsumptionGas">
 
                     <label for="currentPriceGas1">Spesa per la materia gas <span id="monthNameGasPrice1">Mese di Riferimento</span> (Euro)</label>
@@ -104,48 +106,40 @@
             <div id="data-m2-fields" style="display:none;">
                 <hr style="border-top: 2px solid #4caf50; margin: 20px 0;">
                 <label for="monthSelection2">Mese di Riferimento 2</label>
-                <select id="monthSelection2" name="monthSelection2">
-                    </select>
+                <select id="monthSelection2" name="monthSelection2"></select>
 
                 <div id="light-fields-m2" style="display:none;">
                     <hr style="border-top: 1px solid #c8e6c9;">
-                    
-                    <label for="consumptionType2">Tipologia Consumo Luce <span id="monthNameConsumptionType2">Mese di Riferimento 2</span></label>
+                    <label for="consumptionType2">Tipologia Consumo Luce <span id="monthNameConsumptionType2">Mese 2</span></label>
                     <select id="consumptionType2" name="consumptionType2">
                         <option value="monorario">Monorario</option>
                         <option value="fasce">A Fasce (F1, F2, F3)</option>
                     </select>
-                    
                     <div id="light-monorario-fields-m2">
-                        <label for="currentConsumptionLight2">Consumo Luce Totale <span id="monthNameLightCons2">Mese di Riferimento 2</span> (kWh)</label>
+                        <label for="currentConsumptionLight2">Consumo Luce Totale <span id="monthNameLightCons2">Mese 2</span> (kWh)</label>
                         <input type="number" id="currentConsumptionLight2" name="currentConsumptionLight2">
                     </div>
-
                     <div id="light-fasce-fields-m2" style="display:none;">
-                        <label for="currentConsumptionF1_2">Consumo Luce F1 <span id="monthNameLightConsF1_2">Mese di Riferimento 2</span> (kWh)</label>
+                        <label for="currentConsumptionF1_2">Consumo Luce F1 <span id="monthNameLightConsF1_2">Mese 2</span> (kWh)</label>
                         <input type="number" id="currentConsumptionF1_2" name="currentConsumptionF1_2">
-                        <label for="currentConsumptionF2_2">Consumo Luce F2 <span id="monthNameLightConsF2_2">Mese di Riferimento 2</span> (kWh)</label>
+                        <label for="currentConsumptionF2_2">Consumo Luce F2 <span id="monthNameLightConsF2_2">Mese 2</span> (kWh)</label>
                         <input type="number" id="currentConsumptionF2_2" name="currentConsumptionF2_2">
-                        <label for="currentConsumptionF3_2">Consumo Luce F3 <span id="monthNameLightConsF3_2">Mese di Riferimento 2</span> (kWh)</label>
+                        <label for="currentConsumptionF3_2">Consumo Luce F3 <span id="monthNameLightConsF3_2">Mese 2</span> (kWh)</label>
                         <input type="number" id="currentConsumptionF3_2" name="currentConsumptionF3_2">
                     </div>
-                    
-                    <div id="price-light-m2-container">
-                        <label for="currentPriceLight2">Spesa per la materia luce <span id="monthNameLightPrice2">Mese di Riferimento 2</span> (Euro)</label>
-                        <input type="number" id="currentPriceLight2" name="currentPriceLight2" step="0.01">
-                    </div>
+                    <label for="currentPriceLight2">Spesa materia luce <span id="monthNameLightPrice2">Mese 2</span> (Euro)</label>
+                    <input type="number" id="currentPriceLight2" name="currentPriceLight2" step="0.01">
                 </div>
+
                 <div id="gas-fields-m2" style="display:none;">
                     <hr style="border-top: 1px solid #c8e6c9;">
-                    <label for="currentConsumptionGas2">Consumo Gas <span id="monthNameGasCons2">Mese di Riferimento 2</span> (smc)</label>
+                    <label for="currentConsumptionGas2">Consumo Gas <span id="monthNameGasCons2">Mese 2</span> (smc)</label>
                     <input type="number" id="currentConsumptionGas2" name="currentConsumptionGas2">
-
-                    <div id="price-gas-m2-container">
-                        <label for="currentPriceGas2">Spesa per la materia gas <span id="monthNameGasPrice2">Mese di Riferimento 2</span> (Euro)</label>
-                        <input type="number" id="currentPriceGas2" name="currentPriceGas2" step="0.01">
-                    </div>
+                    <label for="currentPriceGas2">Spesa materia gas <span id="monthNameGasPrice2">Mese 2</span> (Euro)</label>
+                    <input type="number" id="currentPriceGas2" name="currentPriceGas2" step="0.01">
                 </div>
             </div>
+
             <label for="selectedOffer">Scelta della nuova offerta</label>
             <select id="selectedOffer" name="selectedOffer">
                 <option value="ultraGreenCasa">UltraGreen Casa</option>
@@ -158,8 +152,7 @@
             <button type="submit">Calcola il tuo risparmio</button>
         </form>
 
-        <div id="result">
-        </div>
+        <div id="result"></div>
 
         <div id="export-actions" style="margin-top: 20px; display: none;">
             <button id="exportPdfBtn" type="button" class="export-button">Esporta PDF</button>
@@ -171,7 +164,4 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="script.js"></script>
 </body>
-
 </html>
-
-
