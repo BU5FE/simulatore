@@ -1,22 +1,19 @@
 // ==========================================
 // DATABASE PREZZI UFFICIALI (GME / ARERA)
-// I valori del PUN sono espressi in €/kWh
-// I valori del PSV sono espressi in €/SMC
 // ==========================================
 const DB_PRICES = {
     pun: { 
-        '07': { mono: 0.113, f1: 0.125, f2: 0.118, f3: 0.098 }, 
-        '08': { mono: 0.121, f1: 0.135, f2: 0.128, f3: 0.105 }, 
         '09': { mono: 0.109, f1: 0.128, f2: 0.122, f3: 0.100 }, 
         '10': { mono: 0.107, f1: 0.118, f2: 0.112, f3: 0.095 }, 
         '11': { mono: 0.117, f1: 0.130, f2: 0.124, f3: 0.108 }, 
         '12': { mono: 0.124, f1: 0.145, f2: 0.138, f3: 0.115 }, 
         '01': { mono: 0.133, f1: 0.151, f2: 0.137, f3: 0.118 },
-        '02': { mono: 0.114, f1: 0.122, f2: 0.120, f3: 0.105 }
+        '02': { mono: 0.114, f1: 0.122, f2: 0.120, f3: 0.105 },
+        '03': { mono: 0.293, f1: 0.314, f2: 0.297, f3: 0.253 } // Stima chiusura Marzo 2026
     },
     psv: { 
-        '07': 0.36, '08': 0.38, '09': 0.40, '10': 0.42, 
-        '11': 0.45, '12': 0.48, '01': 0.45, '02': 0.42 
+        '09': 0.40, '10': 0.42, '11': 0.45, '12': 0.48, 
+        '01': 0.45, '02': 0.377, '03': 0.610 // Stima chiusura Marzo 2026
     }
 };
 
@@ -29,9 +26,9 @@ const OFFERTE_SPREAD = {
 };
 
 const months = [
-    {v:'07', t:'Luglio 2025'}, {v:'08', t:'Agosto 2025'}, {v:'09', t:'Settembre 2025'},
-    {v:'10', t:'Ottobre 2025'}, {v:'11', t:'Novembre 2025'}, {v:'12', t:'Dicembre 2025'},
-    {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}
+    {v:'09', t:'Settembre 2025'}, {v:'10', t:'Ottobre 2025'}, {v:'11', t:'Novembre 2025'}, 
+    {v:'12', t:'Dicembre 2025'}, {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'},
+    {v:'03', t:'Marzo 2026'}
 ];
 
 // Mostra/nasconde i campi a seconda delle scelte
@@ -43,6 +40,10 @@ function toggleSections() {
 
     document.getElementById('light-section').style.display = (utility === 'light' || utility === 'lightAndGas') ? 'block' : 'none';
     document.getElementById('gas-section').style.display = (utility === 'gas' || utility === 'lightAndGas') ? 'block' : 'none';
+
+    // Gestione visibilità selettori offerte nel Blocco 4
+    document.getElementById('offer-light-row').style.display = (utility === 'light' || utility === 'lightAndGas') ? 'flex' : 'none';
+    document.getElementById('offer-gas-row').style.display = (utility === 'gas' || utility === 'lightAndGas') ? 'flex' : 'none';
 
     const lightM2 = document.getElementById('light-mese2');
     if (freqLuce === "2" && (utility === 'light' || utility === 'lightAndGas')) {
@@ -82,16 +83,21 @@ function toggleSections() {
 // Nasconde l'offerta "Casa" se l'utente è Business
 function updateOffersDropdown() {
     const userType = document.getElementById('userType').value;
-    const optionCasa = document.getElementById('opt-casa');
-    const selectedOffer = document.getElementById('selectedOffer');
-
-    if (!optionCasa) return;
+    
+    const optCasaLuce = document.getElementById('opt-casa-luce');
+    const optCasaGas = document.getElementById('opt-casa-gas');
+    const selLuce = document.getElementById('selectedOfferLuce');
+    const selGas = document.getElementById('selectedOfferGas');
 
     if (userType === 'business') {
-        optionCasa.style.display = 'none';
-        if (selectedOffer.value === 'ultraGreenCasa') selectedOffer.value = '';
+        if (optCasaLuce) optCasaLuce.style.display = 'none';
+        if (optCasaGas) optCasaGas.style.display = 'none';
+        
+        if (selLuce.value === 'ultraGreenCasa') selLuce.value = '';
+        if (selGas.value === 'ultraGreenCasa') selGas.value = '';
     } else {
-        optionCasa.style.display = 'block';
+        if (optCasaLuce) optCasaLuce.style.display = 'block';
+        if (optCasaGas) optCasaGas.style.display = 'block';
     }
 }
 
@@ -116,44 +122,35 @@ document.addEventListener('DOMContentLoaded', () => {
 document.getElementById('calculator-form').onsubmit = function(e) {
     e.preventDefault();
     
-    const offer = document.getElementById('selectedOffer').value;
     const userType = document.getElementById('userType').value;
     const utente = document.getElementById('clientName').value;
     const utility = document.getElementById('utilityType').value;
-    const hasCap = document.getElementById('hasCap').value === 'si';
 
-    // ---- CONFIGURAZIONE TETTI CAP (Inseriti dall'utente) ----
-    const LIMITE_CAP_LUCE = 0.175; // max 0.175 €/kWh
-    const LIMITE_CAP_GAS = 0.650;  // max 0.650 €/SMC
-    // --------------------------------------------------------
+    const offerLuce = document.getElementById('selectedOfferLuce').value;
+    const hasCapLuce = document.getElementById('hasCapLuce').value === 'si';
 
-    // Calcolo data scadenza (ultimo giorno del mese corrente)
+    const offerGas = document.getElementById('selectedOfferGas').value;
+    const hasCapGas = document.getElementById('hasCapGas').value === 'si';
+
+    // ---- CONFIGURAZIONE TETTI CAP ----
+    const LIMITE_CAP_LUCE = 0.199; // max 0.199 €/kWh
+    const LIMITE_CAP_GAS = 0.800;  // max 0.800 €/SMC
+    // ----------------------------------
+
     const oggi = new Date();
     const ultimoGiorno = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0);
-    
-    const giorno = String(ultimoGiorno.getDate()).padStart(2, '0');
-    const mese = String(ultimoGiorno.getMonth() + 1).padStart(2, '0');
-    const anno = ultimoGiorno.getFullYear();
-    const dataScadenza = `${giorno}/${mese}/${anno}`;
-
-    let ogtUltraGreen = (userType === 'consumer') ? 8.95 : 
-                        (offer === 'ultraGreenPMI' || offer === 'ultraGreenGrandiAziende' ? 19.95 : 14.95);
-                        
-    let spreadAttuale = OFFERTE_SPREAD[offer] || { luce: 0.055, gas: 0.20 };
-
-    // --- LOGICA MAGGIORAZIONE SPREAD PER OPZIONE CAP ---
-    let spreadLuceEffettivo = spreadAttuale.luce;
-    let spreadGasEffettivo = spreadAttuale.gas;
-
-    if (hasCap) {
-        spreadLuceEffettivo += 0.009; // +0.009 €/kWh
-        spreadGasEffettivo += 0.09;   // +0.09 €/SMC
-    }
-    // --------------------------------------------------
+    const dataScadenza = `${String(ultimoGiorno.getDate()).padStart(2, '0')}/${String(ultimoGiorno.getMonth() + 1).padStart(2, '0')}/${ultimoGiorno.getFullYear()}`;
 
     let totalSaveAnnuo = 0;
     
-    let dicituraCap = hasCap ? `<p style="font-size:0.9em; color:#1b5e20;">🛡️ <strong>Opzione CAP Attiva</strong> (Tetto Luce: € ${LIMITE_CAP_LUCE.toFixed(3)} | Tetto Gas: € ${LIMITE_CAP_GAS.toFixed(3)})</p>` : '';
+    // Generazione dinamica della dicitura CAP sul report
+    let dicituraCap = '';
+    if (utility === 'light' || utility === 'lightAndGas') {
+        if (hasCapLuce) dicituraCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Luce Attivo</strong> (Tetto: € ${LIMITE_CAP_LUCE.toFixed(3)})</p>`;
+    }
+    if (utility === 'gas' || utility === 'lightAndGas') {
+        if (hasCapGas) dicituraCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Gas Attivo</strong> (Tetto: € ${LIMITE_CAP_GAS.toFixed(3)})</p>`;
+    }
 
     let reportHtml = `
     <div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px; font-family:'Roboto', sans-serif;">
@@ -166,24 +163,19 @@ document.getElementById('calculator-form').onsubmit = function(e) {
 
     function formatRisparmio(valoreAnnuo, etichetta) {
         const valoreMensile = valoreAnnuo / 12;
-
         if (valoreAnnuo > 0) {
-            const valNegativoAnnuale = -Math.abs(valoreAnnuo);
-            const valNegativoMensile = -Math.abs(valoreMensile);
             return `
                 <div style="margin-bottom: 15px; padding: 15px; border-left: 4px solid green; background: #f1f8e9; border-radius: 0 5px 5px 0;">
                     <p style="font-size:1.15em; margin: 5px 0; color: #1b5e20;"><strong>${etichetta}</strong></p>
-                    <p style="font-size:1.05em; margin: 5px 0;">Risparmio Annuale: <strong style="color:green;">€ ${valNegativoAnnuale.toFixed(2)}</strong></p>
-                    <p style="font-size:1.05em; margin: 5px 0;">Risparmio Mensile: <strong style="color:green;">€ ${valNegativoMensile.toFixed(2)}</strong></p>
+                    <p style="font-size:1.05em; margin: 5px 0;">Risparmio Annuale: <strong style="color:green;">€ -${Math.abs(valoreAnnuo).toFixed(2)}</strong></p>
+                    <p style="font-size:1.05em; margin: 5px 0;">Risparmio Mensile: <strong style="color:green;">€ -${Math.abs(valoreMensile).toFixed(2)}</strong></p>
                 </div>`;
         } else if (valoreAnnuo < 0) {
-            const valPositivoAnnuale = Math.abs(valoreAnnuo);
-            const valPositivoMensile = Math.abs(valoreMensile);
             return `
                 <div style="margin-bottom: 15px; padding: 15px; border-left: 4px solid red; background: #ffebee; border-radius: 0 5px 5px 0;">
                     <p style="font-size:1.15em; margin: 5px 0; color: #b71c1c;"><strong>${etichetta}</strong></p>
-                    <p style="font-size:1.05em; margin: 5px 0;">Risparmio Annuale: <strong style="color:red;">Non C'è Risparmio +€ ${valPositivoAnnuale.toFixed(2)}</strong></p>
-                    <p style="font-size:1.05em; margin: 5px 0;">Differenza Mensile: <strong style="color:red;">+€ ${valPositivoMensile.toFixed(2)}</strong></p>
+                    <p style="font-size:1.05em; margin: 5px 0;">Risparmio Annuale: <strong style="color:red;">Non C'è Risparmio +€ ${Math.abs(valoreAnnuo).toFixed(2)}</strong></p>
+                    <p style="font-size:1.05em; margin: 5px 0;">Differenza Mensile: <strong style="color:red;">+€ ${Math.abs(valoreMensile).toFixed(2)}</strong></p>
                 </div>`;
         } else {
             return `
@@ -202,16 +194,22 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         const pcvAttualeP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0;
         const tipoLettura = document.getElementById('tipoLettura').value;
 
+        const spreadLuceBase = OFFERTE_SPREAD[offerLuce]?.luce || 0.055;
+        const spreadLuceEffettivo = hasCapLuce ? (spreadLuceBase + 0.009) : spreadLuceBase;
+
+        const ogtUltraGreenLuce = (userType === 'consumer') ? 8.95 : 
+                                  (offerLuce === 'ultraGreenPMI' || offerLuce === 'ultraGreenGrandiAziende' ? 19.95 : 14.95);
+
         let consTotale = 0;
         let costoEnergiaPura = 0;
 
         const m1 = document.getElementById('monthLuce1').value;
         const pun1 = DB_PRICES.pun[m1];
         
-        let f1_m1 = hasCap ? Math.min(pun1.f1, LIMITE_CAP_LUCE) : pun1.f1;
-        let f2_m1 = hasCap ? Math.min(pun1.f2, LIMITE_CAP_LUCE) : pun1.f2;
-        let f3_m1 = hasCap ? Math.min(pun1.f3, LIMITE_CAP_LUCE) : pun1.f3;
-        let mono_m1 = hasCap ? Math.min(pun1.mono, LIMITE_CAP_LUCE) : pun1.mono;
+        let f1_m1 = hasCapLuce ? Math.min(pun1.f1, LIMITE_CAP_LUCE) : pun1.f1;
+        let f2_m1 = hasCapLuce ? Math.min(pun1.f2, LIMITE_CAP_LUCE) : pun1.f2;
+        let f3_m1 = hasCapLuce ? Math.min(pun1.f3, LIMITE_CAP_LUCE) : pun1.f3;
+        let mono_m1 = hasCapLuce ? Math.min(pun1.mono, LIMITE_CAP_LUCE) : pun1.mono;
 
         if (tipoLettura === 'fasce') {
             const f1 = parseFloat(document.getElementById('kWhF1_M1').value) || 0;
@@ -229,10 +227,10 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             const m2 = document.getElementById('monthLuce2').value;
             const pun2 = DB_PRICES.pun[m2];
             
-            let f1_m2 = hasCap ? Math.min(pun2.f1, LIMITE_CAP_LUCE) : pun2.f1;
-            let f2_m2 = hasCap ? Math.min(pun2.f2, LIMITE_CAP_LUCE) : pun2.f2;
-            let f3_m2 = hasCap ? Math.min(pun2.f3, LIMITE_CAP_LUCE) : pun2.f3;
-            let mono_m2 = hasCap ? Math.min(pun2.mono, LIMITE_CAP_LUCE) : pun2.mono;
+            let f1_m2 = hasCapLuce ? Math.min(pun2.f1, LIMITE_CAP_LUCE) : pun2.f1;
+            let f2_m2 = hasCapLuce ? Math.min(pun2.f2, LIMITE_CAP_LUCE) : pun2.f2;
+            let f3_m2 = hasCapLuce ? Math.min(pun2.f3, LIMITE_CAP_LUCE) : pun2.f3;
+            let mono_m2 = hasCapLuce ? Math.min(pun2.mono, LIMITE_CAP_LUCE) : pun2.mono;
 
             if (tipoLettura === 'fasce') {
                 const f1 = parseFloat(document.getElementById('kWhF1_M2').value) || 0;
@@ -248,7 +246,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         }
 
         let spesaAttualePeriodo = spesaPuraP + (pcvAttualeP * freq);
-        let spesaUltraGreenPeriodo = costoEnergiaPura + (consTotale * spreadLuceEffettivo) + (ogtUltraGreen * freq);
+        let spesaUltraGreenPeriodo = costoEnergiaPura + (consTotale * spreadLuceEffettivo) + (ogtUltraGreenLuce * freq);
         
         let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
@@ -263,6 +261,12 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         const spesaPuraP = parseFloat(document.getElementById('costMateriaGas').value) || 0;
         const pcvAttualeP = parseFloat(document.getElementById('pcvAttualeGas').value) || 0;
 
+        const spreadGasBase = OFFERTE_SPREAD[offerGas]?.gas || 0.20;
+        const spreadGasEffettivo = hasCapGas ? (spreadGasBase + 0.09) : spreadGasBase;
+
+        const ogtUltraGreenGas = (userType === 'consumer') ? 8.95 : 
+                                 (offerGas === 'ultraGreenPMI' || offerGas === 'ultraGreenGrandiAziende' ? 19.95 : 14.95);
+
         let consTotale = 0;
         let costoGasPuro = 0;
 
@@ -270,7 +274,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         const cons1 = parseFloat(document.getElementById('smcTot1').value) || 0;
         consTotale += cons1;
         
-        let psv_m1 = hasCap ? Math.min(DB_PRICES.psv[m1], LIMITE_CAP_GAS) : DB_PRICES.psv[m1];
+        let psv_m1 = hasCapGas ? Math.min(DB_PRICES.psv[m1], LIMITE_CAP_GAS) : DB_PRICES.psv[m1];
         costoGasPuro += cons1 * psv_m1;
 
         if (freq === 2) {
@@ -278,12 +282,12 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             const cons2 = parseFloat(document.getElementById('smcTot2').value) || 0;
             consTotale += cons2;
             
-            let psv_m2 = hasCap ? Math.min(DB_PRICES.psv[m2], LIMITE_CAP_GAS) : DB_PRICES.psv[m2];
+            let psv_m2 = hasCapGas ? Math.min(DB_PRICES.psv[m2], LIMITE_CAP_GAS) : DB_PRICES.psv[m2];
             costoGasPuro += cons2 * psv_m2;
         }
 
         let spesaAttualePeriodo = spesaPuraP + (pcvAttualeP * freq);
-        let spesaUltraGreenPeriodo = costoGasPuro + (consTotale * spreadGasEffettivo) + (ogtUltraGreen * freq);
+        let spesaUltraGreenPeriodo = costoGasPuro + (consTotale * spreadGasEffettivo) + (ogtUltraGreenGas * freq);
         
         let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
@@ -320,26 +324,22 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     exportSec.style.display = 'block';
 };
 
-// ESPORTAZIONE IN PDF O PNG
+// ESPORTAZIONE
 window.exportDoc = function(tipo) {
     const el = document.getElementById('report-box');
-    
     html2canvas(el, { scale: 2 }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
-        
         if (tipo === 'png') {
             canvas.toBlob(function(blob) {
                 const link = document.createElement('a');
                 link.download = 'Report_Risparmio_UltraGreen.png';
                 link.href = URL.createObjectURL(blob);
-                
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(link.href);
             }, 'image/png');
-            
         } else if (tipo === 'pdf') {
+            const imgData = canvas.toDataURL('image/png');
             const pdf = new jspdf.jsPDF();
             pdf.addImage(imgData, 'PNG', 10, 10, 190, 0);
             pdf.save('Report_Risparmio_UltraGreen.pdf');
