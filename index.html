@@ -18,23 +18,23 @@
         label { font-weight: bold; display: block; margin-top: 15px; font-size: 0.85em; color: #444; text-transform: uppercase; }
         input, select { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #eee; border-radius: 8px; box-sizing: border-box; font-size: 1em; transition: 0.3s; }
         input:focus, select:focus { border-color: #2e7d32; outline: none; background: #f1f8e9; }
-        .btn-calculate { background: linear-gradient(135deg, #2e7d32, #1b5e20); color: white; padding: 18px; border: none; width: 100%; border-radius: 8px; font-size: 1.3em; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .btn-calculate { background: linear-gradient(135deg, #2e7d32, #1b5e20); color: white; padding: 18px; border: none; width: 100%; border-radius: 8px; font-size: 1.3em; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); transition: 0.2s; }
         .btn-calculate:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.3); }
         .btn-export { background-color: #0277bd; color: white; padding: 14px 28px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1em; }
         .row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; }
         .col { flex: 1; min-width: 180px; }
-        .hidden { display: none; }
+        .hidden { display: none !important; }
         #result { margin-top: 30px; }
     </style>
 </head>
+<body>
 
-    <body>
 <div class="container">
     <h1>Analisi Tecnica UltraGreen</h1>
     
     <form id="calculator-form">
         <div class="section-box">
-            <h3>Dati Anagrafici e Offerta</h3>
+            <h3>Dati Anagrafici</h3>
             <div class="row">
                 <div class="col">
                     <label for="userType">Segmento Cliente</label>
@@ -49,28 +49,13 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col">
-                    <label for="selectedOffer">Offerta da Proporre</label>
-                    <select id="selectedOffer" required>
-                        <option value="">-- Seleziona --</option>
-                        <option id="opt-casa" value="ultraGreenCasa">UltraGreen Casa</option>
-                        <option value="ultraGreen">UltraGreen</option>
-                        <option value="ultraGreenPMI">UltraGreen PMI</option>
-                        <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
-                        <option value="revolutionTax">Revolution Tax</option>
-                    </select>
-                </div>
-                <div class="col">
-                    <label for="utilityType">Tipo di Analisi</label>
-                    <select id="utilityType" required>
-                        <option value="">-- Scegli Fornitura --</option>
-                        <option value="light">Luce (Energia Elettrica)</option>
-                        <option value="gas">Gas (Gas Naturale)</option>
-                        <option value="lightAndGas">Luce e Gas (Dual)</option>
-                    </select>
-                </div>
-            </div>
+            <label for="utilityType">Tipo di Analisi</label>
+            <select id="utilityType" required>
+                <option value="">-- Scegli Fornitura --</option>
+                <option value="light">Luce (Energia Elettrica)</option>
+                <option value="gas">Gas (Gas Naturale)</option>
+                <option value="lightAndGas">Luce e Gas (Dual)</option>
+            </select>
         </div>
 
         <div id="light-section" class="section-box" style="display:none;">
@@ -162,6 +147,19 @@
             </div>
         </div>
 
+        <div class="section-box" style="border: 2px solid #2e7d32; background: #f1f8e9;">
+            <h3>🎯 SCELTA OFFERTA</h3>
+            <label for="selectedOffer">Offerta da Proporre</label>
+            <select id="selectedOffer" required>
+                <option value="">-- Seleziona l'offerta per calcolare il risparmio --</option>
+                <option id="opt-casa" value="ultraGreenCasa">UltraGreen Casa</option>
+                <option value="ultraGreen">UltraGreen</option>
+                <option value="ultraGreenPMI">UltraGreen PMI</option>
+                <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
+                <option value="revolutionTax">Revolution Tax</option>
+            </select>
+        </div>
+
         <button type="submit" class="btn-calculate">GENERA ANALISI COMPARATIVA</button>
     </form>
 
@@ -174,5 +172,6 @@
 </div>
 
 <script src="script.js"></script>
+
 </body>
 </html>
