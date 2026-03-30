@@ -190,13 +190,14 @@
         </div>
 
         <div class="section-box" style="border: 2px solid #2e7d32; background: #f1f8e9;">
-            <h3>🎯 SCELTA OFFERTA</h3>
-            <div class="row">
+            <h3>🎯 SCELTA OFFERTE COMMERCIALI</h3>
+            
+            <div id="offer-light-row" class="row" style="border-bottom: 1px solid #c8e6c9; padding-bottom: 15px; margin-bottom: 15px;">
                 <div class="col" style="flex: 2;">
-                    <label for="selectedOffer">Offerta da Proporre</label>
-                    <select id="selectedOffer" required>
-                        <option value="">-- Seleziona l'offerta --</option>
-                        <option id="opt-casa" value="ultraGreenCasa">UltraGreen Casa</option>
+                    <label for="selectedOfferLuce">Offerta LUCE</label>
+                    <select id="selectedOfferLuce">
+                        <option value="">-- Seleziona offerta Luce --</option>
+                        <option id="opt-casa-luce" value="ultraGreenCasa">UltraGreen Casa</option>
                         <option value="ultraGreen">UltraGreen</option>
                         <option value="revolutionTax">Revolution Tax</option>
                         <option value="ultraGreenPMI">UltraGreen PMI</option>
@@ -204,8 +205,29 @@
                     </select>
                 </div>
                 <div class="col">
-                    <label for="hasCap">Opzione CAP Prezzo</label>
-                    <select id="hasCap">
+                    <label for="hasCapLuce">CAP Luce</label>
+                    <select id="hasCapLuce">
+                        <option value="no">No</option>
+                        <option value="si">Sì (Protezione Tetto)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="offer-gas-row" class="row">
+                <div class="col" style="flex: 2;">
+                    <label for="selectedOfferGas">Offerta GAS</label>
+                    <select id="selectedOfferGas">
+                        <option value="">-- Seleziona offerta Gas --</option>
+                        <option id="opt-casa-gas" value="ultraGreenCasa">UltraGreen Casa</option>
+                        <option value="ultraGreen">UltraGreen</option>
+                        <option value="revolutionTax">Revolution Tax</option>
+                        <option value="ultraGreenPMI">UltraGreen PMI</option>
+                        <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="hasCapGas">CAP Gas</label>
+                    <select id="hasCapGas">
                         <option value="no">No</option>
                         <option value="si">Sì (Protezione Tetto)</option>
                     </select>
