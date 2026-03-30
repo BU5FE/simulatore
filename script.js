@@ -120,6 +120,12 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const userType = document.getElementById('userType').value;
     const utente = document.getElementById('clientName').value;
     const utility = document.getElementById('utilityType').value;
+    const hasCap = document.getElementById('hasCap').value === 'si';
+
+    // ---- CONFIGURAZIONE TETTI CAP (Inseriti dall'utente) ----
+    const LIMITE_CAP_LUCE = 0.175; // max 0.175 €/kWh
+    const LIMITE_CAP_GAS = 0.650;  // max 0.650 €/SMC
+    // --------------------------------------------------------
 
     // Calcolo data scadenza (ultimo giorno del mese corrente)
     const oggi = new Date();
@@ -135,13 +141,26 @@ document.getElementById('calculator-form').onsubmit = function(e) {
                         
     let spreadAttuale = OFFERTE_SPREAD[offer] || { luce: 0.055, gas: 0.20 };
 
+    // --- LOGICA MAGGIORAZIONE SPREAD PER OPZIONE CAP ---
+    let spreadLuceEffettivo = spreadAttuale.luce;
+    let spreadGasEffettivo = spreadAttuale.gas;
+
+    if (hasCap) {
+        spreadLuceEffettivo += 0.009; // +0.009 €/kWh
+        spreadGasEffettivo += 0.09;   // +0.09 €/SMC
+    }
+    // --------------------------------------------------
+
     let totalSaveAnnuo = 0;
     
+    let dicituraCap = hasCap ? `<p style="font-size:0.9em; color:#1b5e20;">🛡️ <strong>Opzione CAP Attiva</strong> (Tetto Luce: € ${LIMITE_CAP_LUCE.toFixed(3)} | Tetto Gas: € ${LIMITE_CAP_GAS.toFixed(3)})</p>` : '';
+
     let reportHtml = `
     <div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px; font-family:'Roboto', sans-serif;">
         <div style="text-align:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px;">
             <h2 style="color:#2e7d32; margin-bottom:5px;">Analisi Comparativa UltraGreen</h2>
             <p style="font-size:1.2em; margin:5px 0;">Cliente: <strong>${utente}</strong></p>
+            ${dicituraCap}
             <p style="font-size:0.95em; color:#d32f2f;"><strong>Offerta valida fino al: ${dataScadenza}</strong></p>
         </div>`;
 
@@ -188,36 +207,48 @@ document.getElementById('calculator-form').onsubmit = function(e) {
 
         const m1 = document.getElementById('monthLuce1').value;
         const pun1 = DB_PRICES.pun[m1];
+        
+        let f1_m1 = hasCap ? Math.min(pun1.f1, LIMITE_CAP_LUCE) : pun1.f1;
+        let f2_m1 = hasCap ? Math.min(pun1.f2, LIMITE_CAP_LUCE) : pun1.f2;
+        let f3_m1 = hasCap ? Math.min(pun1.f3, LIMITE_CAP_LUCE) : pun1.f3;
+        let mono_m1 = hasCap ? Math.min(pun1.mono, LIMITE_CAP_LUCE) : pun1.mono;
+
         if (tipoLettura === 'fasce') {
             const f1 = parseFloat(document.getElementById('kWhF1_M1').value) || 0;
             const f2 = parseFloat(document.getElementById('kWhF2_M1').value) || 0;
             const f3 = parseFloat(document.getElementById('kWhF3_M1').value) || 0;
             consTotale += (f1 + f2 + f3);
-            costoEnergiaPura += (f1 * pun1.f1) + (f2 * pun1.f2) + (f3 * pun1.f3);
+            costoEnergiaPura += (f1 * f1_m1) + (f2 * f2_m1) + (f3 * f3_m1);
         } else {
             const mono = parseFloat(document.getElementById('kWhTot1').value) || 0;
             consTotale += mono;
-            costoEnergiaPura += mono * pun1.mono;
+            costoEnergiaPura += mono * mono_m1;
         }
 
         if (freq === 2) {
             const m2 = document.getElementById('monthLuce2').value;
             const pun2 = DB_PRICES.pun[m2];
+            
+            let f1_m2 = hasCap ? Math.min(pun2.f1, LIMITE_CAP_LUCE) : pun2.f1;
+            let f2_m2 = hasCap ? Math.min(pun2.f2, LIMITE_CAP_LUCE) : pun2.f2;
+            let f3_m2 = hasCap ? Math.min(pun2.f3, LIMITE_CAP_LUCE) : pun2.f3;
+            let mono_m2 = hasCap ? Math.min(pun2.mono, LIMITE_CAP_LUCE) : pun2.mono;
+
             if (tipoLettura === 'fasce') {
                 const f1 = parseFloat(document.getElementById('kWhF1_M2').value) || 0;
                 const f2 = parseFloat(document.getElementById('kWhF2_M2').value) || 0;
                 const f3 = parseFloat(document.getElementById('kWhF3_M2').value) || 0;
                 consTotale += (f1 + f2 + f3);
-                costoEnergiaPura += (f1 * pun2.f1) + (f2 * pun2.f2) + (f3 * pun2.f3);
+                costoEnergiaPura += (f1 * f1_m2) + (f2 * f2_m2) + (f3 * f3_m2);
             } else {
                 const mono = parseFloat(document.getElementById('kWhTot2').value) || 0;
                 consTotale += mono;
-                costoEnergiaPura += mono * pun2.mono;
+                costoEnergiaPura += mono * mono_m2;
             }
         }
 
         let spesaAttualePeriodo = spesaPuraP + (pcvAttualeP * freq);
-        let spesaUltraGreenPeriodo = costoEnergiaPura + (consTotale * spreadAttuale.luce) + (ogtUltraGreen * freq);
+        let spesaUltraGreenPeriodo = costoEnergiaPura + (consTotale * spreadLuceEffettivo) + (ogtUltraGreen * freq);
         
         let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
@@ -238,17 +269,21 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         const m1 = document.getElementById('monthGas1').value;
         const cons1 = parseFloat(document.getElementById('smcTot1').value) || 0;
         consTotale += cons1;
-        costoGasPuro += cons1 * DB_PRICES.psv[m1];
+        
+        let psv_m1 = hasCap ? Math.min(DB_PRICES.psv[m1], LIMITE_CAP_GAS) : DB_PRICES.psv[m1];
+        costoGasPuro += cons1 * psv_m1;
 
         if (freq === 2) {
             const m2 = document.getElementById('monthGas2').value;
             const cons2 = parseFloat(document.getElementById('smcTot2').value) || 0;
             consTotale += cons2;
-            costoGasPuro += cons2 * DB_PRICES.psv[m2];
+            
+            let psv_m2 = hasCap ? Math.min(DB_PRICES.psv[m2], LIMITE_CAP_GAS) : DB_PRICES.psv[m2];
+            costoGasPuro += cons2 * psv_m2;
         }
 
         let spesaAttualePeriodo = spesaPuraP + (pcvAttualeP * freq);
-        let spesaUltraGreenPeriodo = costoGasPuro + (consTotale * spreadAttuale.gas) + (ogtUltraGreen * freq);
+        let spesaUltraGreenPeriodo = costoGasPuro + (consTotale * spreadGasEffettivo) + (ogtUltraGreen * freq);
         
         let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
@@ -285,38 +320,29 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     exportSec.style.display = 'block';
 };
 
-// ESPORTAZIONE IN PDF O PNG (Versione Rinforzata)
+// ESPORTAZIONE IN PDF O PNG
 window.exportDoc = function(tipo) {
     const el = document.getElementById('report-box');
     
-    // Usiamo una scala a 2 per avere un'immagine ad alta definizione
     html2canvas(el, { scale: 2 }).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
         
         if (tipo === 'png') {
-            // METODO FORZATO PER PNG: Usiamo il Canvas Blob (più compatibile con i browser moderni)
             canvas.toBlob(function(blob) {
                 const link = document.createElement('a');
                 link.download = 'Report_Risparmio_UltraGreen.png';
                 link.href = URL.createObjectURL(blob);
                 
-                // Lo appendiamo al documento per "ingannare" le restrizioni di sicurezza del browser
                 document.body.appendChild(link);
                 link.click();
-                document.body.removeChild(link); // Lo puliamo subito dopo il click
-                
-                // Rilasciamo la memoria allocata
+                document.body.removeChild(link);
                 URL.revokeObjectURL(link.href);
             }, 'image/png');
             
         } else if (tipo === 'pdf') {
-            // METODO PER PDF
-            const imgData = canvas.toDataURL('image/png');
             const pdf = new jspdf.jsPDF();
             pdf.addImage(imgData, 'PNG', 10, 10, 190, 0);
             pdf.save('Report_Risparmio_UltraGreen.pdf');
         }
-    }).catch(err => {
-        console.error("Errore durante la generazione del file:", err);
-        alert("Ops! C'è stato un errore durante la generazione. Controlla la console.");
     });
 };
