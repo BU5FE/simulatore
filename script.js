@@ -110,6 +110,15 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const utente = document.getElementById('clientName').value;
     const utility = document.getElementById('utilityType').value;
 
+    // 1. CALCOLO DATA SCADENZA (Ultimo giorno del mese corrente)
+    const oggi = new Date();
+    const ultimoGiorno = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0);
+    
+    const giorno = String(ultimoGiorno.getDate()).padStart(2, '0');
+    const mese = String(ultimoGiorno.getMonth() + 1).padStart(2, '0');
+    const anno = ultimoGiorno.getFullYear();
+    const dataScadenza = `${giorno}/${mese}/${anno}`;
+
     // Tutte le offerte consumer OGT a 8.95
     let ogtUltraGreen = (userType === 'consumer') ? 8.95 : 
                         (offer === 'ultraGreenPMI' || offer === 'ultraGreenGrandiAziende' ? 19.95 : 14.95);
@@ -117,21 +126,44 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     let spreadAttuale = OFFERTE_SPREAD[offer] || { luce: 0.055, gas: 0.20 };
 
     let totalSaveAnnuo = 0;
-    let reportHtml = `<div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px;">
-        <h2 style="color:#2e7d32; text-align:center; border-bottom:2px solid #eee; padding-bottom:10px;">Analisi per ${utente}</h2>`;
+    
+    // Intestazione del Report
+    let reportHtml = `
+    <div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px; font-family:'Roboto', sans-serif;">
+        <div style="text-align:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px;">
+            <h2 style="color:#2e7d32; margin-bottom:5px;">Analisi Comparativa UltraGreen</h2>
+            <p style="font-size:1.2em; margin:5px 0;">Cliente: <strong>${utente}</strong></p>
+            <p style="font-size:0.95em; color:#d32f2f;"><strong>Offerta valida fino al: ${dataScadenza}</strong></p>
+        </div>`;
 
-    // Funzione helper per formattare il testo e il colore in base al risparmio
-    function formatRisparmio(valore, etichetta) {
-        if (valore > 0) {
-            // C'è risparmio: mostriamo la cifra negativa in verde
-            const valNegativo = -Math.abs(valore);
-            return `<p style="font-size:1.1em;">${etichetta}: <strong style="color:green;">€ ${valNegativo.toFixed(2)}</strong></p>`;
-        } else if (valore < 0) {
-            // NON c'è risparmio: scritta dedicata e cifra positiva con + in rosso
-            const valPositivo = Math.abs(valore);
-            return `<p style="font-size:1.1em;">${etichetta}: <strong style="color:red;">Non C'è Risparmio +€ ${valPositivo.toFixed(2)}</strong></p>`;
+    // Funzione helper per mostrare sia il risparmio Annuale che Mensile
+    function formatRisparmio(valoreAnnuo, etichetta) {
+        const valoreMensile = valoreAnnuo / 12;
+
+        if (valoreAnnuo > 0) {
+            const valNegativoAnnuale = -Math.abs(valoreAnnuo);
+            const valNegativoMensile = -Math.abs(valoreMensile);
+            return `
+                <div style="margin-bottom: 15px; padding: 15px; border-left: 4px solid green; background: #f1f8e9; border-radius: 0 5px 5px 0;">
+                    <p style="font-size:1.15em; margin: 5px 0; color: #1b5e20;"><strong>${etichetta}</strong></p>
+                    <p style="font-size:1.05em; margin: 5px 0;">Risparmio Annuale: <strong style="color:green;">€ ${valNegativoAnnuale.toFixed(2)}</strong></p>
+                    <p style="font-size:1.05em; margin: 5px 0;">Risparmio Mensile: <strong style="color:green;">€ ${valNegativoMensile.toFixed(2)}</strong></p>
+                </div>`;
+        } else if (valoreAnnuo < 0) {
+            const valPositivoAnnuale = Math.abs(valoreAnnuo);
+            const valPositivoMensile = Math.abs(valoreMensile);
+            return `
+                <div style="margin-bottom: 15px; padding: 15px; border-left: 4px solid red; background: #ffebee; border-radius: 0 5px 5px 0;">
+                    <p style="font-size:1.15em; margin: 5px 0; color: #b71c1c;"><strong>${etichetta}</strong></p>
+                    <p style="font-size:1.05em; margin: 5px 0;">Risparmio Annuale: <strong style="color:red;">Non C'è Risparmio +€ ${valPositivoAnnuale.toFixed(2)}</strong></p>
+                    <p style="font-size:1.05em; margin: 5px 0;">Differenza Mensile: <strong style="color:red;">+€ ${valPositivoMensile.toFixed(2)}</strong></p>
+                </div>`;
         } else {
-            return `<p style="font-size:1.1em;">${etichetta}: <strong style="color:gray;">€ 0.00</strong></p>`;
+            return `
+                <div style="margin-bottom: 15px; padding: 15px; border-left: 4px solid gray; background: #f5f5f5; border-radius: 0 5px 5px 0;">
+                    <p style="font-size:1.15em; margin: 5px 0; color: #616161;"><strong>${etichetta}</strong></p>
+                    <p style="font-size:1.05em; margin: 5px 0;">Risparmio Annuale: <strong style="color:gray;">€ 0.00</strong></p>
+                </div>`;
         }
     }
 
@@ -182,7 +214,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
         
-        reportHtml += formatRisparmio(saveA, "Risparmio Annuo Luce");
+        reportHtml += formatRisparmio(saveA, "⚡ Fornitura Luce");
     }
 
     // CALCOLO GAS
@@ -213,21 +245,21 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
         
-        reportHtml += formatRisparmio(saveA, "Risparmio Annuo Gas");
+        reportHtml += formatRisparmio(saveA, "🔥 Fornitura Gas");
     }
 
-    // Gestione del box del Risparmio Totale Annuo
+    // Box Finale Riassuntivo
     let totaleStile = "";
     let totaleTesto = "";
     
     if (totalSaveAnnuo > 0) {
-        totaleStile = "background:#2e7d32; color:white;"; // Verde se c'è risparmio
+        totaleStile = "background:#2e7d32; color:white;";
         totaleTesto = `RISPARMIO TOTALE ANNUO<br><span style="font-size:2.5em; font-weight:bold;">€ -${Math.abs(totalSaveAnnuo).toFixed(2)}</span>`;
     } else if (totalSaveAnnuo < 0) {
-        totaleStile = "background:#d32f2f; color:white;"; // Rosso se NON c'è risparmio
+        totaleStile = "background:#d32f2f; color:white;";
         totaleTesto = `NON C'È RISPARMIO<br><span style="font-size:2.5em; font-weight:bold;">+€ ${Math.abs(totalSaveAnnuo).toFixed(2)}</span>`;
     } else {
-        totaleStile = "background:#757575; color:white;"; // Grigio se è perfettamente a zero
+        totaleStile = "background:#757575; color:white;";
         totaleTesto = `RISPARMIO TOTALE ANNUO<br><span style="font-size:2.5em; font-weight:bold;">€ 0.00</span>`;
     }
 
