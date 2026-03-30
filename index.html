@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisi Risparmio Energetico - UltraGreen</title>
+    <title>Simulatore UltraGreen - Analisi Risparmio</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -11,160 +11,165 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
 
     <style>
-        body { font-family: 'Roboto', sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1, h3 { color: #2e7d32; text-align: center; }
-        .section-box { border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #fafafa; }
-        label { font-weight: bold; display: block; margin-top: 10px; font-size: 0.9em; }
-        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        .btn-calculate { background-color: #2e7d32; color: white; padding: 15px; border: none; width: 100%; border-radius: 5px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
-        .btn-calculate:hover { background-color: #1b5e20; }
-        .btn-export { background-color: #1976d2; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin: 10px 5px; transition: 0.3s; }
-        .row { display: flex; gap: 15px; flex-wrap: wrap; }
-        .col { flex: 1; min-width: 200px; }
-        #result { margin-top: 30px; display: none; }
+        body { font-family: 'Roboto', sans-serif; background-color: #f0f2f5; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        h1, h3 { color: #1b5e20; text-align: center; margin-top: 0; }
+        .section-box { border: 1px solid #e0e0e0; padding: 25px; border-radius: 10px; margin-bottom: 25px; background: #ffffff; }
+        label { font-weight: bold; display: block; margin-top: 15px; font-size: 0.85em; color: #444; text-transform: uppercase; }
+        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #eee; border-radius: 8px; box-sizing: border-box; font-size: 1em; transition: 0.3s; }
+        input:focus, select:focus { border-color: #2e7d32; outline: none; background: #f1f8e9; }
+        .btn-calculate { background: linear-gradient(135deg, #2e7d32, #1b5e20); color: white; padding: 18px; border: none; width: 100%; border-radius: 8px; font-size: 1.3em; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .btn-calculate:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.3); }
+        .btn-export { background-color: #0277bd; color: white; padding: 14px 28px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1.1em; }
+        .row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 10px; }
+        .col { flex: 1; min-width: 180px; }
         .hidden { display: none; }
+        #result { margin-top: 30px; }
     </style>
 </head>
-<body>
+
+    <body>
 <div class="container">
     <h1>Analisi Tecnica UltraGreen</h1>
     
     <form id="calculator-form">
         <div class="section-box">
-            <h3>Dati Cliente</h3>
+            <h3>Dati Anagrafici e Offerta</h3>
             <div class="row">
                 <div class="col">
-                    <label for="userType">Tipo Cliente</label>
+                    <label for="userType">Segmento Cliente</label>
                     <select id="userType" required>
                         <option value="consumer">Privato (Consumer)</option>
                         <option value="business">Azienda (Business)</option>
                     </select>
                 </div>
                 <div class="col">
-                    <label for="clientName">Ragione Sociale / Nome</label>
-                    <input type="text" id="clientName" placeholder="Inserisci nome cliente" required>
+                    <label for="clientName">Nome / Ragione Sociale</label>
+                    <input type="text" id="clientName" placeholder="es. Mario Rossi S.r.l." required>
                 </div>
             </div>
 
-            <label for="selectedOffer">Offerta Target</label>
-            <select id="selectedOffer" required>
-                <option value="">-- Seleziona Offerta --</option>
-                <option id="opt-casa" value="ultraGreenCasa">UltraGreen Casa</option>
-                <option value="ultraGreen">UltraGreen</option>
-                <option value="ultraGreenPMI">UltraGreen PMI</option>
-                <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
-                <option value="revolutionTax">Revolution Tax</option>
-            </select>
-
-            <label for="utilityType">Servizi da Analizzare</label>
-            <select id="utilityType" required>
-                <option value="">-- Seleziona --</option>
-                <option value="light">Luce</option>
-                <option value="gas">Gas</option>
-                <option value="lightAndGas">Luce e Gas</option>
-            </select>
-        </div>
-        <div id="light-section" class="section-box" style="display:none;">
-            <h3>⚡ ENERGIA ELETTRICA</h3>
             <div class="row">
                 <div class="col">
-                    <label for="monthLuce">Mese Bolletta Riferimento</label>
+                    <label for="selectedOffer">Offerta da Proporre</label>
+                    <select id="selectedOffer" required>
+                        <option value="">-- Seleziona --</option>
+                        <option id="opt-casa" value="ultraGreenCasa">UltraGreen Casa</option>
+                        <option value="ultraGreen">UltraGreen</option>
+                        <option value="ultraGreenPMI">UltraGreen PMI</option>
+                        <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
+                        <option value="revolutionTax">Revolution Tax</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="utilityType">Tipo di Analisi</label>
+                    <select id="utilityType" required>
+                        <option value="">-- Scegli Fornitura --</option>
+                        <option value="light">Luce (Energia Elettrica)</option>
+                        <option value="gas">Gas (Gas Naturale)</option>
+                        <option value="lightAndGas">Luce e Gas (Dual)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div id="light-section" class="section-box" style="display:none;">
+            <h3>⚡ CONSUMI LUCE</h3>
+            <div class="row">
+                <div class="col">
+                    <label for="monthLuce">Mese Bolletta</label>
                     <select id="monthLuce"></select>
                 </div>
                 <div class="col">
-                    <label for="freqLuce">Frequenza Bolletta</label>
+                    <label for="tipoLettura">Profilo Lettura</label>
+                    <select id="tipoLettura">
+                        <option value="monoraria">Monoraria (F0)</option>
+                        <option value="fasce">Tri-oraria (F1-F2-F3)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="div-mono">
+                <label for="kWhTot">Consumo Totale Periodo (kWh)</label>
+                <input type="number" id="kWhTot" placeholder="Inserisci il totale bolletta">
+            </div>
+
+            <div id="div-fasce" class="hidden">
+                <div class="row">
+                    <div class="col">
+                        <label for="kWhF1">F1 (Punta)</label>
+                        <input type="number" id="kWhF1" placeholder="kWh">
+                    </div>
+                    <div class="col">
+                        <label for="kWhF2">F2 (Intermedia)</label>
+                        <input type="number" id="kWhF2" placeholder="kWh">
+                    </div>
+                    <div class="col">
+                        <label for="kWhF3">F3 (Fuori Punta)</label>
+                        <input type="number" id="kWhF3" placeholder="kWh">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label for="annuoLuce">Consumo Annuo Stimato</label>
+                    <input type="number" id="annuoLuce" placeholder="es. 2700 kWh">
+                </div>
+                <div class="col">
+                    <label for="costMateriaLuce">Spesa Energia Bolletta (€)</label>
+                    <input type="number" step="0.01" id="costMateriaLuce" placeholder="Solo quota energia">
+                </div>
+                <div class="col">
+                    <label for="freqLuce">Ciclo Fatturazione</label>
                     <select id="freqLuce">
                         <option value="1">Mensile</option>
                         <option value="2">Bimestrale</option>
                     </select>
                 </div>
             </div>
-
-            <div class="row">
-                <div class="col">
-                    <label for="tipoLettura">Tipo Lettura</label>
-                    <select id="tipoLettura">
-                        <option value="monoraria">Monoraria</option>
-                        <option value="fasce">A Fasce (F1, F2, F3)</option>
-                    </select>
-                </div>
-                <div class="col">
-                    <label for="annuoLuce">Consumo Annuo Stimato (kWh)</label>
-                    <input type="number" id="annuoLuce" placeholder="es. 2700">
-                </div>
-            </div>
-
-            <div id="div-mono">
-                <label for="kWhTot">Consumo Totale Bolletta (kWh)</label>
-                <input type="number" id="kWhTot" placeholder="Inserisci kWh totali">
-            </div>
-
-            <div id="div-fasce" class="hidden">
-                <div class="row">
-                    <div class="col"><label>Consumo F1</label><input type="number" id="kWhF1" placeholder="kWh"></div>
-                    <div class="col"><label>Consumo F2</label><input type="number" id="kWhF2" placeholder="kWh"></div>
-                    <div class="col"><label>Consumo F3</label><input type="number" id="kWhF3" placeholder="kWh"></div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col">
-                    <label for="costMateriaLuce">Spesa Materia Bolletta (€)</label>
-                    <input type="number" step="0.01" id="costMateriaLuce" placeholder="Solo quota energia">
-                </div>
-                <div class="col">
-                    <label for="pcvLuce">PCV Attuale Cliente (€/mese)</label>
-                    <input type="number" step="0.01" id="pcvLuce" placeholder="es. 12.00">
-                </div>
-            </div>
         </div>
+
         <div id="gas-section" class="section-box" style="display:none;">
-            <h3>🔥 GAS NATURALE</h3>
+            <h3>🔥 CONSUMI GAS</h3>
             <div class="row">
                 <div class="col">
-                    <label for="monthGas">Mese Bolletta Riferimento</label>
+                    <label for="monthGas">Mese Bolletta</label>
                     <select id="monthGas"></select>
                 </div>
                 <div class="col">
-                    <label for="annuoGas">Consumo Annuo Stimato (smc)</label>
-                    <input type="number" id="annuoGas" placeholder="es. 1200">
+                    <label for="smcTot">Consumo Gas Bolletta (smc)</label>
+                    <input type="number" id="smcTot" placeholder="Totale smc periodo">
                 </div>
             </div>
 
             <div class="row">
                 <div class="col">
-                    <label for="smcTot">Consumo Bolletta (smc)</label>
-                    <input type="number" id="smcTot" placeholder="Inserisci smc totali">
+                    <label for="annuoGas">Consumo Annuo Stimato</label>
+                    <input type="number" id="annuoGas" placeholder="es. 1200 smc">
                 </div>
                 <div class="col">
-                    <label for="freqGas">Frequenza Bolletta</label>
+                    <label for="costMateriaGas">Spesa Gas Bolletta (€)</label>
+                    <input type="number" step="0.01" id="costMateriaGas" placeholder="Solo quota gas">
+                </div>
+                <div class="col">
+                    <label for="freqGas">Ciclo Fatturazione</label>
                     <select id="freqGas">
                         <option value="1">Mensile</option>
                         <option value="2">Bimestrale</option>
                     </select>
                 </div>
             </div>
-
-            <div class="row">
-                <div class="col">
-                    <label for="costMateriaGas">Spesa Materia Bolletta (€)</label>
-                    <input type="number" step="0.01" id="costMateriaGas" placeholder="Solo quota gas">
-                </div>
-                <div class="col">
-                    <label for="pcvGas">QVD/OGT Attuale Cliente (€/mese)</label>
-                    <input type="number" step="0.01" id="pcvGas" placeholder="es. 10.00">
-                </div>
-            </div>
         </div>
 
-        <button type="submit" class="btn-calculate">GENERA ANALISI RISPARMIO</button>
+        <button type="submit" class="btn-calculate">GENERA ANALISI COMPARATIVA</button>
     </form>
 
     <div id="result"></div>
     
-    <div id="export-actions" style="display:none; text-align:center; margin-top:20px;">
-        <button onclick="exportDoc()" class="btn-export">STAMPA REPORT / SALVA PDF</button>
+    <div id="export-actions" class="hidden" style="text-align:center; margin-top:25px; padding-top:20px; border-top:1px solid #ddd;">
+        <p style="color:#666; font-style:italic; margin-bottom:15px;">Analisi completata con successo.</p>
+        <button onclick="exportDoc()" class="btn-export">ESPORTA REPORT IN PDF</button>
     </div>
 </div>
 
