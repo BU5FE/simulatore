@@ -110,7 +110,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const utente = document.getElementById('clientName').value;
     const utility = document.getElementById('utilityType').value;
 
-    // SISTEMATO: Tutte le offerte consumer OGT a 8.95
+    // Tutte le offerte consumer OGT a 8.95
     let ogtUltraGreen = (userType === 'consumer') ? 8.95 : 
                         (offer === 'ultraGreenPMI' || offer === 'ultraGreenGrandiAziende' ? 19.95 : 14.95);
                         
@@ -119,6 +119,21 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     let totalSaveAnnuo = 0;
     let reportHtml = `<div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px;">
         <h2 style="color:#2e7d32; text-align:center; border-bottom:2px solid #eee; padding-bottom:10px;">Analisi per ${utente}</h2>`;
+
+    // Funzione helper per formattare il testo e il colore in base al risparmio
+    function formatRisparmio(valore, etichetta) {
+        if (valore > 0) {
+            // C'è risparmio: mostriamo la cifra negativa in verde
+            const valNegativo = -Math.abs(valore);
+            return `<p style="font-size:1.1em;">${etichetta}: <strong style="color:green;">€ ${valNegativo.toFixed(2)}</strong></p>`;
+        } else if (valore < 0) {
+            // NON c'è risparmio: scritta dedicata e cifra positiva con + in rosso
+            const valPositivo = Math.abs(valore);
+            return `<p style="font-size:1.1em;">${etichetta}: <strong style="color:red;">Non C'è Risparmio +€ ${valPositivo.toFixed(2)}</strong></p>`;
+        } else {
+            return `<p style="font-size:1.1em;">${etichetta}: <strong style="color:gray;">€ 0.00</strong></p>`;
+        }
+    }
 
     // CALCOLO LUCE
     if (utility === 'light' || utility === 'lightAndGas') {
@@ -131,7 +146,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         let consTotale = 0;
         let costoEnergiaPura = 0;
 
-        // Mese 1
         const m1 = document.getElementById('monthLuce1').value;
         const pun1 = DB_PRICES.pun[m1];
         if (tipoLettura === 'fasce') {
@@ -146,7 +160,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             costoEnergiaPura += mono * ((pun1.f1 + pun1.f2 + pun1.f3) / 3);
         }
 
-        // Mese 2
         if (freq === 2) {
             const m2 = document.getElementById('monthLuce2').value;
             const pun2 = DB_PRICES.pun[m2];
@@ -169,7 +182,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
         
-        reportHtml += `<p style="font-size:1.1em;">Risparmio Annuo Luce: <strong style="color:green;">€ ${saveA.toFixed(2)}</strong></p>`;
+        reportHtml += formatRisparmio(saveA, "Risparmio Annuo Luce");
     }
 
     // CALCOLO GAS
@@ -182,13 +195,11 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         let consTotale = 0;
         let costoGasPuro = 0;
 
-        // Mese 1
         const m1 = document.getElementById('monthGas1').value;
         const cons1 = parseFloat(document.getElementById('smcTot1').value) || 0;
         consTotale += cons1;
         costoGasPuro += cons1 * DB_PRICES.psv[m1];
 
-        // Mese 2
         if (freq === 2) {
             const m2 = document.getElementById('monthGas2').value;
             const cons2 = parseFloat(document.getElementById('smcTot2').value) || 0;
@@ -202,13 +213,27 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
         
-        reportHtml += `<p style="font-size:1.1em;">Risparmio Annuo Gas: <strong style="color:green;">€ ${saveA.toFixed(2)}</strong></p>`;
+        reportHtml += formatRisparmio(saveA, "Risparmio Annuo Gas");
+    }
+
+    // Gestione del box del Risparmio Totale Annuo
+    let totaleStile = "";
+    let totaleTesto = "";
+    
+    if (totalSaveAnnuo > 0) {
+        totaleStile = "background:#2e7d32; color:white;"; // Verde se c'è risparmio
+        totaleTesto = `RISPARMIO TOTALE ANNUO<br><span style="font-size:2.5em; font-weight:bold;">€ -${Math.abs(totalSaveAnnuo).toFixed(2)}</span>`;
+    } else if (totalSaveAnnuo < 0) {
+        totaleStile = "background:#d32f2f; color:white;"; // Rosso se NON c'è risparmio
+        totaleTesto = `NON C'È RISPARMIO<br><span style="font-size:2.5em; font-weight:bold;">+€ ${Math.abs(totalSaveAnnuo).toFixed(2)}</span>`;
+    } else {
+        totaleStile = "background:#757575; color:white;"; // Grigio se è perfettamente a zero
+        totaleTesto = `RISPARMIO TOTALE ANNUO<br><span style="font-size:2.5em; font-weight:bold;">€ 0.00</span>`;
     }
 
     reportHtml += `
-        <div style="background:#2e7d32; color:white; padding:20px; text-align:center; border-radius:8px; margin-top:20px;">
-            <span style="text-transform:uppercase; font-size:0.9em;">Risparmio Totale Annuo</span><br>
-            <span style="font-size:2.5em; font-weight:bold;">€ ${totalSaveAnnuo.toFixed(2)}</span>
+        <div style="${totaleStile} padding:20px; text-align:center; border-radius:8px; margin-top:20px;">
+            <span style="text-transform:uppercase; font-size:0.9em;">${totaleTesto}</span>
         </div>
     </div>`;
 
