@@ -11,8 +11,8 @@ const DB_PRICES = {
         '10': { mono: 0.107, f1: 0.118, f2: 0.112, f3: 0.095 }, 
         '11': { mono: 0.117, f1: 0.130, f2: 0.124, f3: 0.108 }, 
         '12': { mono: 0.124, f1: 0.145, f2: 0.138, f3: 0.115 }, 
-        '01': { mono: 0.133, f1: 0.151, f2: 0.137, f3: 0.118 }, // Dati reali Gennaio 2026
-        '02': { mono: 0.114, f1: 0.122, f2: 0.120, f3: 0.105 }  // Dati reali Febbraio 2026
+        '01': { mono: 0.133, f1: 0.151, f2: 0.137, f3: 0.118 },
+        '02': { mono: 0.114, f1: 0.122, f2: 0.120, f3: 0.105 }
     },
     psv: { 
         '07': 0.36, '08': 0.38, '09': 0.40, '10': 0.42, 
@@ -34,7 +34,7 @@ const months = [
     {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}
 ];
 
-// Funzione per mostrare/nascondere i campi in base alle scelte dell'utente
+// Mostra/nasconde i campi a seconda delle scelte
 function toggleSections() {
     const utility = document.getElementById('utilityType').value;
     const lettura = document.getElementById('tipoLettura').value;
@@ -79,7 +79,7 @@ function toggleSections() {
     }
 }
 
-// Nasconde l'offerta "Casa" se l'utente seleziona un profilo Business
+// Nasconde l'offerta "Casa" se l'utente è Business
 function updateOffersDropdown() {
     const userType = document.getElementById('userType').value;
     const optionCasa = document.getElementById('opt-casa');
@@ -121,7 +121,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const utente = document.getElementById('clientName').value;
     const utility = document.getElementById('utilityType').value;
 
-    // Calcolo data scadenza offerta (ultimo giorno del mese corrente)
+    // Calcolo data scadenza (ultimo giorno del mese corrente)
     const oggi = new Date();
     const ultimoGiorno = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0);
     
@@ -197,7 +197,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         } else {
             const mono = parseFloat(document.getElementById('kWhTot1').value) || 0;
             consTotale += mono;
-            costoEnergiaPura += mono * pun1.mono; // Monoraria nativa
+            costoEnergiaPura += mono * pun1.mono;
         }
 
         if (freq === 2) {
@@ -212,7 +212,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             } else {
                 const mono = parseFloat(document.getElementById('kWhTot2').value) || 0;
                 consTotale += mono;
-                costoEnergiaPura += mono * pun2.mono; // Monoraria nativa
+                costoEnergiaPura += mono * pun2.mono;
             }
         }
 
@@ -285,13 +285,22 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     exportSec.style.display = 'block';
 };
 
-// ESPORTAZIONE IN PDF
-window.exportDoc = function() {
+// ESPORTAZIONE IN PDF O PNG
+window.exportDoc = function(tipo) {
     const el = document.getElementById('report-box');
+    
     html2canvas(el, { scale: 2 }).then(canvas => {
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jspdf.jsPDF();
-        pdf.addImage(imgData, 'PNG', 10, 10, 190, 0);
-        pdf.save('Report_Risparmio_UltraGreen.pdf');
+        
+        if (tipo === 'png') {
+            const link = document.createElement('a');
+            link.download = 'Report_Risparmio_UltraGreen.png';
+            link.href = imgData;
+            link.click();
+        } else if (tipo === 'pdf') {
+            const pdf = new jspdf.jsPDF();
+            pdf.addImage(imgData, 'PNG', 10, 10, 190, 0);
+            pdf.save('Report_Risparmio_UltraGreen.pdf');
+        }
     });
 };
