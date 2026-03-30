@@ -285,22 +285,38 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     exportSec.style.display = 'block';
 };
 
-// ESPORTAZIONE IN PDF O PNG
+// ESPORTAZIONE IN PDF O PNG (Versione Rinforzata)
 window.exportDoc = function(tipo) {
     const el = document.getElementById('report-box');
     
+    // Usiamo una scala a 2 per avere un'immagine ad alta definizione
     html2canvas(el, { scale: 2 }).then(canvas => {
-        const imgData = canvas.toDataURL('image/png');
         
         if (tipo === 'png') {
-            const link = document.createElement('a');
-            link.download = 'Report_Risparmio_UltraGreen.png';
-            link.href = imgData;
-            link.click();
+            // METODO FORZATO PER PNG: Usiamo il Canvas Blob (più compatibile con i browser moderni)
+            canvas.toBlob(function(blob) {
+                const link = document.createElement('a');
+                link.download = 'Report_Risparmio_UltraGreen.png';
+                link.href = URL.createObjectURL(blob);
+                
+                // Lo appendiamo al documento per "ingannare" le restrizioni di sicurezza del browser
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link); // Lo puliamo subito dopo il click
+                
+                // Rilasciamo la memoria allocata
+                URL.revokeObjectURL(link.href);
+            }, 'image/png');
+            
         } else if (tipo === 'pdf') {
+            // METODO PER PDF
+            const imgData = canvas.toDataURL('image/png');
             const pdf = new jspdf.jsPDF();
             pdf.addImage(imgData, 'PNG', 10, 10, 190, 0);
             pdf.save('Report_Risparmio_UltraGreen.pdf');
         }
+    }).catch(err => {
+        console.error("Errore durante la generazione del file:", err);
+        alert("Ops! C'è stato un errore durante la generazione. Controlla la console.");
     });
 };
