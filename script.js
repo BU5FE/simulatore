@@ -1,15 +1,23 @@
+// ==========================================
+// DATABASE PREZZI UFFICIALI (GME / ARERA)
+// I valori del PUN sono espressi in €/kWh
+// I valori del PSV sono espressi in €/SMC
+// ==========================================
 const DB_PRICES = {
     pun: { 
-        '07': { f1: 0.125, f2: 0.118, f3: 0.098 }, 
-        '08': { f1: 0.135, f2: 0.128, f3: 0.105 }, 
-        '09': { f1: 0.128, f2: 0.122, f3: 0.100 }, 
-        '10': { f1: 0.118, f2: 0.112, f3: 0.095 }, 
-        '11': { f1: 0.130, f2: 0.124, f3: 0.108 }, 
-        '12': { f1: 0.145, f2: 0.138, f3: 0.115 }, 
-        '01': { f1: 0.138, f2: 0.130, f3: 0.110 }, 
-        '02': { f1: 0.128, f2: 0.122, f3: 0.100 }
+        '07': { mono: 0.113, f1: 0.125, f2: 0.118, f3: 0.098 }, 
+        '08': { mono: 0.121, f1: 0.135, f2: 0.128, f3: 0.105 }, 
+        '09': { mono: 0.109, f1: 0.128, f2: 0.122, f3: 0.100 }, 
+        '10': { mono: 0.107, f1: 0.118, f2: 0.112, f3: 0.095 }, 
+        '11': { mono: 0.117, f1: 0.130, f2: 0.124, f3: 0.108 }, 
+        '12': { mono: 0.124, f1: 0.145, f2: 0.138, f3: 0.115 }, 
+        '01': { mono: 0.133, f1: 0.151, f2: 0.137, f3: 0.118 }, // Dati reali Gennaio 2026
+        '02': { mono: 0.114, f1: 0.122, f2: 0.120, f3: 0.105 }  // Dati reali Febbraio 2026
     },
-    psv: { '07': 0.36, '08': 0.38, '09': 0.40, '10': 0.42, '11': 0.45, '12': 0.48, '01': 0.45, '02': 0.42 }
+    psv: { 
+        '07': 0.36, '08': 0.38, '09': 0.40, '10': 0.42, 
+        '11': 0.45, '12': 0.48, '01': 0.45, '02': 0.42 
+    }
 };
 
 const OFFERTE_SPREAD = {
@@ -26,6 +34,7 @@ const months = [
     {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}
 ];
 
+// Funzione per mostrare/nascondere i campi in base alle scelte dell'utente
 function toggleSections() {
     const utility = document.getElementById('utilityType').value;
     const lettura = document.getElementById('tipoLettura').value;
@@ -70,6 +79,7 @@ function toggleSections() {
     }
 }
 
+// Nasconde l'offerta "Casa" se l'utente seleziona un profilo Business
 function updateOffersDropdown() {
     const userType = document.getElementById('userType').value;
     const optionCasa = document.getElementById('opt-casa');
@@ -102,6 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
     updateOffersDropdown();
 });
 
+// CALCOLO RISPARMIO E GENERAZIONE REPORT
 document.getElementById('calculator-form').onsubmit = function(e) {
     e.preventDefault();
     
@@ -110,7 +121,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const utente = document.getElementById('clientName').value;
     const utility = document.getElementById('utilityType').value;
 
-    // 1. CALCOLO DATA SCADENZA (Ultimo giorno del mese corrente)
+    // Calcolo data scadenza offerta (ultimo giorno del mese corrente)
     const oggi = new Date();
     const ultimoGiorno = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0);
     
@@ -119,7 +130,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const anno = ultimoGiorno.getFullYear();
     const dataScadenza = `${giorno}/${mese}/${anno}`;
 
-    // Tutte le offerte consumer OGT a 8.95
     let ogtUltraGreen = (userType === 'consumer') ? 8.95 : 
                         (offer === 'ultraGreenPMI' || offer === 'ultraGreenGrandiAziende' ? 19.95 : 14.95);
                         
@@ -127,7 +137,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
 
     let totalSaveAnnuo = 0;
     
-    // Intestazione del Report
     let reportHtml = `
     <div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px; font-family:'Roboto', sans-serif;">
         <div style="text-align:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px;">
@@ -136,7 +145,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             <p style="font-size:0.95em; color:#d32f2f;"><strong>Offerta valida fino al: ${dataScadenza}</strong></p>
         </div>`;
 
-    // Funzione helper per mostrare sia il risparmio Annuale che Mensile
     function formatRisparmio(valoreAnnuo, etichetta) {
         const valoreMensile = valoreAnnuo / 12;
 
@@ -189,7 +197,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         } else {
             const mono = parseFloat(document.getElementById('kWhTot1').value) || 0;
             consTotale += mono;
-            costoEnergiaPura += mono * ((pun1.f1 + pun1.f2 + pun1.f3) / 3);
+            costoEnergiaPura += mono * pun1.mono; // Monoraria nativa
         }
 
         if (freq === 2) {
@@ -204,7 +212,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             } else {
                 const mono = parseFloat(document.getElementById('kWhTot2').value) || 0;
                 consTotale += mono;
-                costoEnergiaPura += mono * ((pun2.f1 + pun2.f2 + pun2.f3) / 3);
+                costoEnergiaPura += mono * pun2.mono; // Monoraria nativa
             }
         }
 
@@ -277,6 +285,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     exportSec.style.display = 'block';
 };
 
+// ESPORTAZIONE IN PDF
 window.exportDoc = function() {
     const el = document.getElementById('report-box');
     html2canvas(el, { scale: 2 }).then(canvas => {
