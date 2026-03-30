@@ -3,205 +3,171 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisi Tecnica UltraGreen v8.1</title>
+    <title>Analisi Risparmio Energetico - UltraGreen</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+
     <style>
-        :root { --primary: #1b5e20; --secondary: #e65100; --bg: #f1f5f9; --red: #d32f2f; --green: #2e7d32; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); padding: 20px; color: #1a202c; }
-        .container { max-width: 950px; margin: auto; background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: var(--primary); font-weight: 800; text-transform: uppercase; margin-bottom: 25px; letter-spacing: 1px; }
-        .section { display: none; padding: 25px; margin-top: 20px; border-radius: 15px; border: 1px solid #e2e8f0; border-top: 6px solid; }
-        #light-section { border-color: var(--primary); background: #f0fff4; }
-        #gas-section { border-color: var(--secondary); background: #fffaf0; }
-        .month-card { background: white; padding: 20px; border-radius: 12px; border: 1px solid #edf2f7; margin-top: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-        label { display: block; margin-top: 12px; font-weight: 700; font-size: 0.85rem; color: #4a5568; }
-        input, select { width: 100%; padding: 12px; margin-top: 6px; border: 2px solid #edf2f7; border-radius: 10px; box-sizing: border-box; font-size: 1rem; transition: 0.2s; }
-        input:focus, select:focus { border-color: var(--primary); outline: none; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        button { width: 100%; padding: 20px; margin-top: 30px; border: none; border-radius: 12px; font-size: 1.3rem; font-weight: 800; cursor: pointer; background: var(--primary); color: white; transition: 0.3s; }
-        button:hover { background: #0d3d12; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        #result { margin-top: 40px; display: none; }
-        .report-card { padding: 35px; border-radius: 20px; background: white; border: 1px solid #e2e8f0; box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .res-row { padding: 15px 0; border-bottom: 1px solid #f1f5f9; font-size: 1.1rem; display: flex; justify-content: space-between; }
-        .save-pos { color: var(--green); font-weight: 800; }
-        .save-neg { color: var(--red); font-weight: 800; }
-        .total-banner { margin-top: 25px; padding: 25px; border-radius: 15px; text-align: center; }
-        .bg-green { background: #e8f5e9; border: 2px solid var(--green); }
-        .bg-red { background: #ffebee; border: 2px solid var(--red); }
-        .print-btn { background: #4a5568; margin-top: 15px; font-size: 1rem; padding: 12px; }
-        @media print { .print-btn, button, input, select, label { display: none !important; } .section { display: block !important; border: none; background: white; } }
+        body { font-family: 'Roboto', sans-serif; background-color: #f4f7f6; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1, h3 { color: #2e7d32; text-align: center; }
+        .section-box { border: 1px solid #e0e0e0; padding: 20px; border-radius: 8px; margin-bottom: 20px; background: #fafafa; }
+        label { font-weight: bold; display: block; margin-top: 10px; font-size: 0.9em; }
+        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn-calculate { background-color: #2e7d32; color: white; padding: 15px; border: none; width: 100%; border-radius: 5px; font-size: 1.1em; font-weight: bold; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-calculate:hover { background-color: #1b5e20; }
+        .btn-export { background-color: #1976d2; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; margin: 10px 5px; transition: 0.3s; }
+        .row { display: flex; gap: 15px; flex-wrap: wrap; }
+        .col { flex: 1; min-width: 200px; }
+        #result { margin-top: 30px; display: none; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <h1>Analisi Risparmio Energetico</h1>
+    <h1>Analisi Tecnica UltraGreen</h1>
     
-    <div class="grid-2">
-        <div>
-            <label>Tipo Cliente</label>
-            <select id="tipoCliente" onchange="filtraOfferte(); renderApp();">
-                <option value="consumer">Privato (Consumer)</option>
-                <option value="business">Azienda (Business)</option>
+    <form id="calculator-form">
+        <div class="section-box">
+            <h3>Dati Cliente</h3>
+            <div class="row">
+                <div class="col">
+                    <label for="userType">Tipo Cliente</label>
+                    <select id="userType" required>
+                        <option value="consumer">Privato (Consumer)</option>
+                        <option value="business">Azienda (Business)</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="clientName">Ragione Sociale / Nome</label>
+                    <input type="text" id="clientName" placeholder="Inserisci nome cliente" required>
+                </div>
+            </div>
+
+            <label for="selectedOffer">Offerta Target</label>
+            <select id="selectedOffer" required>
+                <option value="">-- Seleziona Offerta --</option>
+                <option id="opt-casa" value="ultraGreenCasa">UltraGreen Casa</option>
+                <option value="ultraGreen">UltraGreen</option>
+                <option value="ultraGreenPMI">UltraGreen PMI</option>
+                <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
+                <option value="revolutionTax">Revolution Tax</option>
+            </select>
+
+            <label for="utilityType">Servizi da Analizzare</label>
+            <select id="utilityType" required>
+                <option value="">-- Seleziona --</option>
+                <option value="light">Luce</option>
+                <option value="gas">Gas</option>
+                <option value="lightAndGas">Luce e Gas</option>
             </select>
         </div>
-        <div>
-            <label>Ragione Sociale / Nome</label>
-            <input type="text" id="nome" placeholder="Inserisci nome cliente">
-        </div>
-    </div>
+        <div id="light-section" class="section-box" style="display:none;">
+            <h3>⚡ ENERGIA ELETTRICA</h3>
+            <div class="row">
+                <div class="col">
+                    <label for="monthLuce">Mese Bolletta Riferimento</label>
+                    <select id="monthLuce"></select>
+                </div>
+                <div class="col">
+                    <label for="freqLuce">Frequenza Bolletta</label>
+                    <select id="freqLuce">
+                        <option value="1">Mensile</option>
+                        <option value="2">Bimestrale</option>
+                    </select>
+                </div>
+            </div>
 
-    <label>Servizi da Analizzare</label>
-    <select id="utenza" onchange="renderApp()">
-        <option value="">-- Seleziona --</option>
-        <option value="L">Luce</option>
-        <option value="G">Gas</option>
-        <option value="LG">Luce e Gas</option>
-    </select>
+            <div class="row">
+                <div class="col">
+                    <label for="tipoLettura">Tipo Lettura</label>
+                    <select id="tipoLettura">
+                        <option value="monoraria">Monoraria</option>
+                        <option value="fasce">A Fasce (F1, F2, F3)</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="annuoLuce">Consumo Annuo Stimato (kWh)</label>
+                    <input type="number" id="annuoLuce" placeholder="es. 2700">
+                </div>
+            </div>
 
-    <div id="light-section" class="section">
-        <h3>⚡ ENERGIA ELETTRICA</h3>
-        <div class="grid-2">
-            <div><label>Offerta Luce Target</label><select id="offL"></select></div>
-            <div><label>Frequenza</label><select id="freqL" onchange="renderApp()"><option value="1">Mensile</option><option value="2" selected>Bimestrale</option></select></div>
-        </div>
-        <div class="grid-2">
-            <div><label>Tipo Lettura</label><select id="modoL" onchange="renderApp()"><option value="mono">Monoraria</option><option value="fasce">A Fasce</option></select></div>
-            <div><label>Consumo Annuo (kWh)</label><input type="number" id="annuoL" placeholder="es. 2700"></div>
-        </div>
-        <div id="contMesiL"></div>
-        <div class="grid-2">
-            <div><label>Spesa Materia Bolletta (€)</label><input type="number" id="spesaL" step="0.01"></div>
-            <div><label>PCV/OGT Attuale Cliente (€/mese)</label><input type="number" id="pcvL" value="12.00"></div>
-        </div>
-    </div>
+            <div id="div-mono">
+                <label for="kWhTot">Consumo Totale Bolletta (kWh)</label>
+                <input type="number" id="kWhTot" placeholder="Inserisci kWh totali">
+            </div>
 
-    <div id="gas-section" class="section">
-        <h3>🔥 GAS NATURALE</h3>
-        <div class="grid-2">
-            <div><label>Offerta Gas Target</label><select id="offG"></select></div>
-            <div><label>Frequenza</label><select id="freqG" onchange="renderApp()"><option value="1">Mensile</option><option value="2" selected>Bimestrale</option></select></div>
-        </div>
-        <div id="contMesiG"></div>
-        <div class="grid-2">
-            <div><label>Spesa Materia Bolletta (€)</label><input type="number" id="spesaG" step="0.01"></div>
-            <div><label>PCV/OGT Attuale Cliente (€/mese)</label><input type="number" id="pcvG" value="12.00"></div>
-        </div>
-        <label>Consumo Annuo (smc)</label><input type="number" id="annuoG" placeholder="es. 1000">
-    </div>
+            <div id="div-fasce" class="hidden">
+                <div class="row">
+                    <div class="col"><label>Consumo F1</label><input type="number" id="kWhF1" placeholder="kWh"></div>
+                    <div class="col"><label>Consumo F2</label><input type="number" id="kWhF2" placeholder="kWh"></div>
+                    <div class="col"><label>Consumo F3</label><input type="number" id="kWhF3" placeholder="kWh"></div>
+                </div>
+            </div>
 
-    <button onclick="calcola()">GENERA ANALISI RISPARMIO</button>
+            <div class="row">
+                <div class="col">
+                    <label for="costMateriaLuce">Spesa Materia Bolletta (€)</label>
+                    <input type="number" step="0.01" id="costMateriaLuce" placeholder="Solo quota energia">
+                </div>
+                <div class="col">
+                    <label for="pcvLuce">PCV Attuale Cliente (€/mese)</label>
+                    <input type="number" step="0.01" id="pcvLuce" placeholder="es. 12.00">
+                </div>
+            </div>
+        </div>
+        <div id="gas-section" class="section-box" style="display:none;">
+            <h3>🔥 GAS NATURALE</h3>
+            <div class="row">
+                <div class="col">
+                    <label for="monthGas">Mese Bolletta Riferimento</label>
+                    <select id="monthGas"></select>
+                </div>
+                <div class="col">
+                    <label for="annuoGas">Consumo Annuo Stimato (smc)</label>
+                    <input type="number" id="annuoGas" placeholder="es. 1200">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label for="smcTot">Consumo Bolletta (smc)</label>
+                    <input type="number" id="smcTot" placeholder="Inserisci smc totali">
+                </div>
+                <div class="col">
+                    <label for="freqGas">Frequenza Bolletta</label>
+                    <select id="freqGas">
+                        <option value="1">Mensile</option>
+                        <option value="2">Bimestrale</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label for="costMateriaGas">Spesa Materia Bolletta (€)</label>
+                    <input type="number" step="0.01" id="costMateriaGas" placeholder="Solo quota gas">
+                </div>
+                <div class="col">
+                    <label for="pcvGas">QVD/OGT Attuale Cliente (€/mese)</label>
+                    <input type="number" step="0.01" id="pcvGas" placeholder="es. 10.00">
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-calculate">GENERA ANALISI RISPARMIO</button>
+    </form>
+
+    <div id="result"></div>
     
-    <div id="result">
-        <div id="report-content"></div>
-        <button class="print-btn" onclick="window.print()">STAMPA REPORT / SALVA PDF</button>
+    <div id="export-actions" style="display:none; text-align:center; margin-top:20px;">
+        <button onclick="exportDoc()" class="btn-export">STAMPA REPORT / SALVA PDF</button>
     </div>
 </div>
 
-<script>
-const PREZZI = {
-    pun: {'09_25':{f1:0.128,f2:0.122,f3:0.108,m:0.115},'10_25':{f1:0.118,f2:0.112,f3:0.101,m:0.108},'11_25':{f1:0.132,f2:0.125,f3:0.114,m:0.119},'12_25':{f1:0.145,f2:0.138,f3:0.125,m:0.132},'01_26':{f1:0.138,f2:0.131,f3:0.118,m:0.124},'02_26':{f1:0.128,f2:0.121,f3:0.109,m:0.115}},
-    psv: {'09_25':0.40, '10_25':0.42, '11_25':0.45, '12_25':0.48, '01_26':0.45, '02_26':0.42}
-};
-const mesiNomi = {'09_25':'Settembre 2025','10_25':'Ottobre 2025','11_25':'Novembre 2025','12_25':'Dicembre 2025','01_26':'Gennaio 2026','02_26':'Febbraio 2026'};
-
-const CONFIG = {
-    'CASA': { sprL: 0.061, sprG: 0.11, ogtC: 8.95, ogtB: 8.95 },
-    'ULTRAGREEN': { sprL: 0.061, sprG: 0.08, ogtC: 8.95, ogtB: 14.95 },
-    'PMI': { sprL: 0.059, sprG: 0.06, ogtC: 8.95, ogtB: 19.95 },
-    'AZIENDE': { sprL: 0.043, sprG: 0.04, ogtC: 8.95, ogtB: 19.95 },
-    'REVO': { sprL: 0.061, sprG: 0.08, ogtC: 8.95, ogtB: 14.95 }
-};
-
-function filtraOfferte() {
-    const tipo = document.getElementById('tipoCliente').value;
-    const offL = document.getElementById('offL');
-    const offG = document.getElementById('offG');
-    
-    let opzioniBase = `
-        <option value="ULTRAGREEN">UltraGreen</option>
-        <option value="PMI">UltraGreen PMI</option>
-        <option value="AZIENDE">UltraGreen Grandi Aziende</option>
-        <option value="REVO">Revolution Tax</option>`;
-    
-    if(tipo === 'consumer') {
-        opzioniBase = `<option value="CASA">UltraGreen CASA</option>` + opzioniBase;
-    }
-    
-    offL.innerHTML = opzioniBase;
-    offG.innerHTML = opzioniBase;
-}
-
-function renderApp() {
-    const u = document.getElementById('utenza').value;
-    document.getElementById('light-section').style.display = u.includes('L') ? 'block' : 'none';
-    document.getElementById('gas-section').style.display = u.includes('G') ? 'block' : 'none';
-    if(u.includes('L')) buildFields('L');
-    if(u.includes('G')) buildFields('G');
-    document.getElementById('result').style.display = 'none';
-}
-
-function buildFields(tipo) {
-    const freq = document.getElementById('freq'+tipo).value;
-    const cont = document.getElementById(tipo === 'L' ? 'contMesiL' : 'contMesiG');
-    cont.innerHTML = "";
-    for(let i=0; i<freq; i++) {
-        let h = `<div class="month-card"><label>Mese ${i+1}</label><select id="m${tipo}${i}">${Object.keys(mesiNomi).map(k=>`<option value="${k}">${mesiNomi[k]}</option>`).join('')}</select>`;
-        if(tipo === 'L' && document.getElementById('modoL').value === 'fasce') {
-            h += `<div class="grid-2"><div><label>F1 (kWh)</label><input type="number" id="v${tipo}${i}f1" value="0"></div><div><label>F2/F3 (kWh)</label><input type="number" id="v${tipo}${i}f23" value="0"></div></div>`;
-        } else { h += `<label>Consumo ${tipo==='L'?'kWh':'smc'}</label><input type="number" id="v${tipo}${i}" value="0">`; }
-        cont.innerHTML += h + `</div>`;
-    }
-}
-
-function calcola() {
-    let totR = 0, ut = document.getElementById('utenza').value, tipo = document.getElementById('tipoCliente').value, resH = "";
-    const nome = document.getElementById('nome').value || "Cliente";
-
-    if(ut.includes('L')) {
-        let f = parseInt(document.getElementById('freqL').value), off = document.getElementById('offL').value, cB = 0, cMT = 0;
-        let ogt = (tipo === 'consumer') ? CONFIG[off].ogtC : CONFIG[off].ogtB;
-        for(let i=0; i<f; i++) {
-            let m = document.getElementById(`mL${i}`).value;
-            if(document.getElementById('modoL').value === 'fasce') {
-                let v1=parseFloat(document.getElementById(`vL${i}f1`).value)||0, v23=parseFloat(document.getElementById(`vL${i}f23`).value)||0;
-                cB += (v1+v23); cMT += (v1*PREZZI.pun[m].f1 + v23*((PREZZI.pun[m].f2+PREZZI.pun[m].f3)/2));
-            } else { let c = parseFloat(document.getElementById(`vL${i}`).value)||0; cB += c; cMT += (c * PREZZI.pun[m].m); }
-        }
-        let nL = cMT + (cB * CONFIG[off].sprL) + (ogt * f);
-        let rA = (nL - (parseFloat(document.getElementById('spesaL').value)||0)) / (cB||1) * (parseFloat(document.getElementById('annuoL').value)||0);
-        totR += rA;
-        resH += `<div class="res-row"><span>⚡ <b>LUCE</b> (${off})</span> <span class="${rA<0?'save-pos':'save-neg'}">${rA<0?'-':'+'} € ${Math.abs(rA).toFixed(2)} / anno</span></div>`;
-    }
-
-    if(ut.includes('G')) {
-        let f = parseInt(document.getElementById('freqG').value), off = document.getElementById('offG').value, cBG = 0, cMTG = 0;
-        let ogt = (tipo === 'consumer') ? CONFIG[off].ogtC : CONFIG[off].ogtB;
-        for(let i=0; i<f; i++) {
-            let m = document.getElementById(`mG${i}`).value, c = parseFloat(document.getElementById(`vG${i}`).value)||0;
-            cBG += c; cMTG += (c * (PREZZI.psv[m] + CONFIG[off].sprG));
-        }
-        let nG = cMTG + (ogt * f);
-        let rAG = (nG - (parseFloat(document.getElementById('spesaG').value)||0)) / (cBG||1) * (parseFloat(document.getElementById('annuoG').value)||0);
-        totR += rAG;
-        resH += `<div class="res-row"><span>🔥 <b>GAS</b> (${off})</span> <span class="${rAG<0?'save-pos':'save-neg'}">${rAG<0?'-':'+'} € ${Math.abs(rAG).toFixed(2)} / anno</span></div>`;
-    }
-
-    const rd = document.getElementById('report-content');
-    rd.innerHTML = `
-        <div class="report-card">
-            <h3 style="color:var(--primary); border-bottom: 2px solid #edf2f7; padding-bottom: 10px;">REPORT ANALISI: ${nome.toUpperCase()}</h3>
-            ${resH}
-            <div class="total-banner ${totR<0?'bg-green':'bg-red'}">
-                <span style="font-weight:700; font-size: 0.9rem; text-transform: uppercase;">Risparmio Totale Annuo Stimato</span>
-                <h2 style="margin: 5px 0 0 0;">${totR<0?'-':'+'} € ${Math.abs(totR).toFixed(2)}</h2>
-            </div>
-            <p style="font-size: 0.75rem; color: #718096; margin-top: 20px; text-align: center;">*L'analisi si basa sui prezzi PUN/PSV correnti e sugli spread commerciali indicati.</p>
-        </div>`;
-    document.getElementById('result').style.display = 'block';
-    document.getElementById('result').scrollIntoView({ behavior: 'smooth' });
-}
-// Inizializzazione
-window.onload = filtraOfferte;
-</script>
+<script src="script.js"></script>
 </body>
 </html>
