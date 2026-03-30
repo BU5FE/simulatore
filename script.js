@@ -1,5 +1,4 @@
 const DB_PRICES = {
-    // Valori del PUN divisi per fascia. Sostituisci pure questi numeri con i tuoi reali!
     pun: { 
         '07': { f1: 0.125, f2: 0.118, f3: 0.098 }, 
         '08': { f1: 0.135, f2: 0.128, f3: 0.105 }, 
@@ -27,7 +26,6 @@ const months = [
     {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}
 ];
 
-// Funzione di visibilità per mostrare/nascondere i campi SENZA azzerare i dati
 function toggleSections() {
     const utility = document.getElementById('utilityType').value;
     const lettura = document.getElementById('tipoLettura').value;
@@ -37,7 +35,7 @@ function toggleSections() {
     const divMono = document.getElementById('div-mono');
     const divFasce = document.getElementById('div-fasce');
 
-    // Mostra/Nascondi sezioni principali (Luce e Gas)
+    // Visibilità Luce/Gas
     if (utility === 'light' || utility === 'lightAndGas') {
         lightSec.style.display = 'block';
     } else {
@@ -50,18 +48,19 @@ function toggleSections() {
         gasSec.style.display = 'none';
     }
 
-    // Mostra/Nascondi Monoraria vs Fasce (Risolto il bug del blocco hidden!)
+    // Visibilità Fasce
     if (lettura === 'fasce') {
-        divFasce.classList.remove('hidden'); 
+        divFasce.classList.remove('hidden');
         divFasce.style.display = 'block';
         divMono.style.display = 'none';
     } else {
+        divFasce.classList.add('hidden');
         divFasce.style.display = 'none';
         divMono.style.display = 'block';
     }
 }
 
-// Nasconde l'offerta Casa se l'utente è un'azienda
+// Funzione infallibile per nascondere l'offerta Casa se è selezionato Business
 function updateOffersDropdown() {
     const userType = document.getElementById('userType').value;
     const optionCasa = document.getElementById('opt-casa');
@@ -70,17 +69,20 @@ function updateOffersDropdown() {
     if (!optionCasa) return;
 
     if (userType === 'business') {
-        optionCasa.style.display = 'none';
+        optionCasa.classList.add('hidden');
+        optionCasa.style.display = 'none'; // Doppia sicurezza
+        
+        // Se per sbaglio era selezionata l'offerta casa, resetta la scelta
         if (selectedOffer.value === 'ultraGreenCasa') {
             selectedOffer.value = '';
         }
     } else {
+        optionCasa.classList.remove('hidden');
         optionCasa.style.display = 'block';
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Popola i menu a tendina dei mesi
     const mSelL = document.getElementById('monthLuce');
     const mSelG = document.getElementById('monthGas');
     months.forEach(m => {
@@ -88,17 +90,14 @@ document.addEventListener('DOMContentLoaded', () => {
         if(mSelG) mSelG.add(new Option(m.t, m.v));
     });
 
-    // Collega gli eventi "change" per far muovere il simulatore
     document.getElementById('utilityType').addEventListener('change', toggleSections);
     document.getElementById('tipoLettura').addEventListener('change', toggleSections);
     document.getElementById('userType').addEventListener('change', updateOffersDropdown);
     
-    // Imposta lo stato iniziale all'avvio
     toggleSections();
     updateOffersDropdown();
 });
 
-// LOGICA DI CALCOLO FINALE
 document.getElementById('calculator-form').onsubmit = function(e) {
     e.preventDefault();
     
@@ -107,17 +106,13 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const utente = document.getElementById('clientName').value;
     const utility = document.getElementById('utilityType').value;
 
-    // Calcolo OGT (Costi Fissi Commercializzazione)
     let ogt = (userType === 'consumer') ? (offer === 'ultraGreenCasa' ? 12.00 : 8.95) : (offer === 'ultraGreenPMI' || offer === 'ultraGreenGrandiAziende' ? 19.95 : 14.95);
-    
-    // Recupero lo spread dell'offerta scelta
     let spreadAttuale = OFFERTE_SPREAD[offer] || { luce: 0.055, gas: 0.20 };
 
     let totalSaveAnnuo = 0;
     let reportHtml = `<div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px;">
         <h2 style="color:#2e7d32; text-align:center; border-bottom:2px solid #eee; padding-bottom:10px;">Analisi per ${utente}</h2>`;
 
-    // CALCOLO LUCE
     if (utility === 'light' || utility === 'lightAndGas') {
         const freq = parseInt(document.getElementById('freqLuce').value);
         const annuo = parseFloat(document.getElementById('annuoLuce').value) || 0;
@@ -137,7 +132,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             costoEnergiaPura = (f1 * punMese.f1) + (f2 * punMese.f2) + (f3 * punMese.f3);
         } else {
             consP = parseFloat(document.getElementById('kWhTot').value) || 0;
-            // Media semplice delle 3 fasce per la monoraria
             let punMedio = (punMese.f1 + punMese.f2 + punMese.f3) / 3;
             costoEnergiaPura = consP * punMedio;
         }
@@ -149,7 +143,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         reportHtml += `<p style="font-size:1.1em;">Risparmio Annuo Luce: <strong style="color:green;">€ ${saveA.toFixed(2)}</strong></p>`;
     }
 
-    // CALCOLO GAS
     if (utility === 'gas' || utility === 'lightAndGas') {
         const freq = parseInt(document.getElementById('freqGas').value);
         const annuo = parseFloat(document.getElementById('annuoGas').value) || 0;
@@ -164,7 +157,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         reportHtml += `<p style="font-size:1.1em;">Risparmio Annuo Gas: <strong style="color:green;">€ ${saveA.toFixed(2)}</strong></p>`;
     }
 
-    // BLOCCO TOTALE
     reportHtml += `
         <div style="background:#2e7d32; color:white; padding:20px; text-align:center; border-radius:8px; margin-top:20px;">
             <span style="text-transform:uppercase; font-size:0.9em;">Risparmio Totale Annuo</span><br>
@@ -174,10 +166,13 @@ document.getElementById('calculator-form').onsubmit = function(e) {
 
     document.getElementById('result').innerHTML = reportHtml;
     document.getElementById('result').style.display = 'block';
-    document.getElementById('export-actions').style.display = 'block';
+    
+    // Mostra il pulsante PDF (Sbloccato anche questo da hidden)
+    const exportSec = document.getElementById('export-actions');
+    exportSec.classList.remove('hidden');
+    exportSec.style.display = 'block';
 };
 
-// ESPORTAZIONE PDF
 window.exportDoc = function() {
     const el = document.getElementById('report-box');
     html2canvas(el, { scale: 2 }).then(canvas => {
