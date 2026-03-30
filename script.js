@@ -26,41 +26,57 @@ const months = [
     {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}
 ];
 
+// Gestione dinamica visibilità campi
 function toggleSections() {
     const utility = document.getElementById('utilityType').value;
     const lettura = document.getElementById('tipoLettura').value;
+    const freqLuce = document.getElementById('freqLuce').value;
+    const freqGas = document.getElementById('freqGas').value;
 
-    const lightSec = document.getElementById('light-section');
-    const gasSec = document.getElementById('gas-section');
-    const divMono = document.getElementById('div-mono');
-    const divFasce = document.getElementById('div-fasce');
+    // Sezioni Principali
+    document.getElementById('light-section').style.display = (utility === 'light' || utility === 'lightAndGas') ? 'block' : 'none';
+    document.getElementById('gas-section').style.display = (utility === 'gas' || utility === 'lightAndGas') ? 'block' : 'none';
 
-    // Visibilità Luce/Gas
-    if (utility === 'light' || utility === 'lightAndGas') {
-        lightSec.style.display = 'block';
+    // Gestione Bimestrale Luce
+    const lightM2 = document.getElementById('light-mese2');
+    if (freqLuce === "2" && (utility === 'light' || utility === 'lightAndGas')) {
+        lightM2.classList.remove('hidden');
     } else {
-        lightSec.style.display = 'none';
+        lightM2.classList.add('hidden');
     }
 
-    if (utility === 'gas' || utility === 'lightAndGas') {
-        gasSec.style.display = 'block';
+    // Gestione Bimestrale Gas
+    const gasM2 = document.getElementById('gas-mese2');
+    if (freqGas === "2" && (utility === 'gas' || utility === 'lightAndGas')) {
+        gasM2.classList.remove('hidden');
     } else {
-        gasSec.style.display = 'none';
+        gasM2.classList.add('hidden');
     }
 
-    // Visibilità Fasce
+    // Gestione Monoraria vs Fasce (Mese 1)
+    const divMono1 = document.getElementById('div-mono1');
+    const divFasce1 = document.getElementById('div-fasce1');
     if (lettura === 'fasce') {
-        divFasce.classList.remove('hidden');
-        divFasce.style.display = 'block';
-        divMono.style.display = 'none';
+        divFasce1.classList.remove('hidden');
+        divMono1.classList.add('hidden');
     } else {
-        divFasce.classList.add('hidden');
-        divFasce.style.display = 'none';
-        divMono.style.display = 'block';
+        divFasce1.classList.add('hidden');
+        divMono1.classList.remove('hidden');
+    }
+
+    // Gestione Monoraria vs Fasce (Mese 2)
+    const divMono2 = document.getElementById('div-mono2');
+    const divFasce2 = document.getElementById('div-fasce2');
+    if (lettura === 'fasce') {
+        divFasce2.classList.remove('hidden');
+        divMono2.classList.add('hidden');
+    } else {
+        divFasce2.classList.add('hidden');
+        divMono2.classList.remove('hidden');
     }
 }
 
-// Funzione infallibile per nascondere l'offerta Casa se è selezionato Business
+// Nasconde offerta Casa per i Business
 function updateOffersDropdown() {
     const userType = document.getElementById('userType').value;
     const optionCasa = document.getElementById('opt-casa');
@@ -69,35 +85,32 @@ function updateOffersDropdown() {
     if (!optionCasa) return;
 
     if (userType === 'business') {
-        optionCasa.classList.add('hidden');
-        optionCasa.style.display = 'none'; // Doppia sicurezza
-        
-        // Se per sbaglio era selezionata l'offerta casa, resetta la scelta
-        if (selectedOffer.value === 'ultraGreenCasa') {
-            selectedOffer.value = '';
-        }
+        optionCasa.style.display = 'none';
+        if (selectedOffer.value === 'ultraGreenCasa') selectedOffer.value = '';
     } else {
-        optionCasa.classList.remove('hidden');
         optionCasa.style.display = 'block';
     }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const mSelL = document.getElementById('monthLuce');
-    const mSelG = document.getElementById('monthGas');
-    months.forEach(m => {
-        if(mSelL) mSelL.add(new Option(m.t, m.v));
-        if(mSelG) mSelG.add(new Option(m.t, m.v));
+    // Popolamento select mesi
+    const dropIds = ['monthLuce1', 'monthLuce2', 'monthGas1', 'monthGas2'];
+    dropIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) months.forEach(m => el.add(new Option(m.t, m.v)));
     });
 
     document.getElementById('utilityType').addEventListener('change', toggleSections);
     document.getElementById('tipoLettura').addEventListener('change', toggleSections);
+    document.getElementById('freqLuce').addEventListener('change', toggleSections);
+    document.getElementById('freqGas').addEventListener('change', toggleSections);
     document.getElementById('userType').addEventListener('change', updateOffersDropdown);
     
     toggleSections();
     updateOffersDropdown();
 });
 
+// LOGICA DI CALCOLO
 document.getElementById('calculator-form').onsubmit = function(e) {
     e.preventDefault();
     
@@ -113,45 +126,80 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     let reportHtml = `<div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px;">
         <h2 style="color:#2e7d32; text-align:center; border-bottom:2px solid #eee; padding-bottom:10px;">Analisi per ${utente}</h2>`;
 
+    // CALCOLO LUCE
     if (utility === 'light' || utility === 'lightAndGas') {
         const freq = parseInt(document.getElementById('freqLuce').value);
         const annuo = parseFloat(document.getElementById('annuoLuce').value) || 0;
         const spesaP = parseFloat(document.getElementById('costMateriaLuce').value) || 0;
-        const mKey = document.getElementById('monthLuce').value;
         const tipoLettura = document.getElementById('tipoLettura').value;
 
+        let consTotale = 0;
         let costoEnergiaPura = 0;
-        let consP = 0;
-        let punMese = DB_PRICES.pun[mKey];
 
+        // Mese 1
+        const m1 = document.getElementById('monthLuce1').value;
+        const pun1 = DB_PRICES.pun[m1];
         if (tipoLettura === 'fasce') {
-            const f1 = parseFloat(document.getElementById('kWhF1').value) || 0;
-            const f2 = parseFloat(document.getElementById('kWhF2').value) || 0;
-            const f3 = parseFloat(document.getElementById('kWhF3').value) || 0;
-            consP = f1 + f2 + f3;
-            costoEnergiaPura = (f1 * punMese.f1) + (f2 * punMese.f2) + (f3 * punMese.f3);
+            const f1 = parseFloat(document.getElementById('kWhF1_M1').value) || 0;
+            const f2 = parseFloat(document.getElementById('kWhF2_M1').value) || 0;
+            const f3 = parseFloat(document.getElementById('kWhF3_M1').value) || 0;
+            consTotale += (f1 + f2 + f3);
+            costoEnergiaPura += (f1 * pun1.f1) + (f2 * pun1.f2) + (f3 * pun1.f3);
         } else {
-            consP = parseFloat(document.getElementById('kWhTot').value) || 0;
-            let punMedio = (punMese.f1 + punMese.f2 + punMese.f3) / 3;
-            costoEnergiaPura = consP * punMedio;
+            const mono = parseFloat(document.getElementById('kWhTot1').value) || 0;
+            consTotale += mono;
+            costoEnergiaPura += mono * ((pun1.f1 + pun1.f2 + pun1.f3) / 3);
         }
 
-        let nuovaSpesa = costoEnergiaPura + (consP * spreadAttuale.luce) + (ogt * freq);
-        let saveA = ((spesaP - nuovaSpesa) / (consP || 1)) * annuo;
+        // Mese 2 (se bimestrale)
+        if (freq === 2) {
+            const m2 = document.getElementById('monthLuce2').value;
+            const pun2 = DB_PRICES.pun[m2];
+            if (tipoLettura === 'fasce') {
+                const f1 = parseFloat(document.getElementById('kWhF1_M2').value) || 0;
+                const f2 = parseFloat(document.getElementById('kWhF2_M2').value) || 0;
+                const f3 = parseFloat(document.getElementById('kWhF3_M2').value) || 0;
+                consTotale += (f1 + f2 + f3);
+                costoEnergiaPura += (f1 * pun2.f1) + (f2 * pun2.f2) + (f3 * pun2.f3);
+            } else {
+                const mono = parseFloat(document.getElementById('kWhTot2').value) || 0;
+                consTotale += mono;
+                costoEnergiaPura += mono * ((pun2.f1 + pun2.f2 + pun2.f3) / 3);
+            }
+        }
+
+        let nuovaSpesa = costoEnergiaPura + (consTotale * spreadAttuale.luce) + (ogt * freq);
+        let saveA = ((spesaP - nuovaSpesa) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
         
         reportHtml += `<p style="font-size:1.1em;">Risparmio Annuo Luce: <strong style="color:green;">€ ${saveA.toFixed(2)}</strong></p>`;
     }
 
+    // CALCOLO GAS
     if (utility === 'gas' || utility === 'lightAndGas') {
         const freq = parseInt(document.getElementById('freqGas').value);
         const annuo = parseFloat(document.getElementById('annuoGas').value) || 0;
         const spesaP = parseFloat(document.getElementById('costMateriaGas').value) || 0;
-        const consP = parseFloat(document.getElementById('smcTot').value) || 0;
-        const mKey = document.getElementById('monthGas').value;
-        
-        let nuovaSpesa = (consP * (DB_PRICES.psv[mKey] + spreadAttuale.gas)) + (ogt * freq);
-        let saveA = ((spesaP - nuovaSpesa) / (consP || 1)) * annuo;
+
+        let consTotale = 0;
+        let costoGasPuro = 0;
+
+        // Mese 1
+        const m1 = document.getElementById('monthGas1').value;
+        const cons1 = parseFloat(document.getElementById('smcTot1').value) || 0;
+        consTotale += cons1;
+        costoGasPuro += cons1 * DB_PRICES.psv[m1];
+
+        // Mese 2
+        if (freq === 2) {
+            const m2 = document.getElementById('monthGas2').value;
+            const cons2 = parseFloat(document.getElementById('smcTot2').value) || 0;
+            consTotale += cons2;
+            costoGasPuro += cons2 * DB_PRICES.psv[m2];
+        }
+
+        let nuovaSpesa = costoGasPuro + (consTotale * spreadAttuale.gas) + (ogt * freq);
+        let saveA = ((spesaP - nuovaSpesa) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
         
         reportHtml += `<p style="font-size:1.1em;">Risparmio Annuo Gas: <strong style="color:green;">€ ${saveA.toFixed(2)}</strong></p>`;
@@ -167,7 +215,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     document.getElementById('result').innerHTML = reportHtml;
     document.getElementById('result').style.display = 'block';
     
-    // Mostra il pulsante PDF (Sbloccato anche questo da hidden)
     const exportSec = document.getElementById('export-actions');
     exportSec.classList.remove('hidden');
     exportSec.style.display = 'block';
