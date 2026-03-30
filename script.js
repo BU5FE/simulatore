@@ -26,18 +26,15 @@ const months = [
     {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}
 ];
 
-// Gestione dinamica visibilità campi
 function toggleSections() {
     const utility = document.getElementById('utilityType').value;
     const lettura = document.getElementById('tipoLettura').value;
     const freqLuce = document.getElementById('freqLuce').value;
     const freqGas = document.getElementById('freqGas').value;
 
-    // Sezioni Principali
     document.getElementById('light-section').style.display = (utility === 'light' || utility === 'lightAndGas') ? 'block' : 'none';
     document.getElementById('gas-section').style.display = (utility === 'gas' || utility === 'lightAndGas') ? 'block' : 'none';
 
-    // Gestione Bimestrale Luce
     const lightM2 = document.getElementById('light-mese2');
     if (freqLuce === "2" && (utility === 'light' || utility === 'lightAndGas')) {
         lightM2.classList.remove('hidden');
@@ -45,7 +42,6 @@ function toggleSections() {
         lightM2.classList.add('hidden');
     }
 
-    // Gestione Bimestrale Gas
     const gasM2 = document.getElementById('gas-mese2');
     if (freqGas === "2" && (utility === 'gas' || utility === 'lightAndGas')) {
         gasM2.classList.remove('hidden');
@@ -53,7 +49,6 @@ function toggleSections() {
         gasM2.classList.add('hidden');
     }
 
-    // Gestione Monoraria vs Fasce (Mese 1)
     const divMono1 = document.getElementById('div-mono1');
     const divFasce1 = document.getElementById('div-fasce1');
     if (lettura === 'fasce') {
@@ -64,7 +59,6 @@ function toggleSections() {
         divMono1.classList.remove('hidden');
     }
 
-    // Gestione Monoraria vs Fasce (Mese 2)
     const divMono2 = document.getElementById('div-mono2');
     const divFasce2 = document.getElementById('div-fasce2');
     if (lettura === 'fasce') {
@@ -76,7 +70,6 @@ function toggleSections() {
     }
 }
 
-// Nasconde offerta Casa per i Business
 function updateOffersDropdown() {
     const userType = document.getElementById('userType').value;
     const optionCasa = document.getElementById('opt-casa');
@@ -93,7 +86,6 @@ function updateOffersDropdown() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    // Popolamento select mesi
     const dropIds = ['monthLuce1', 'monthLuce2', 'monthGas1', 'monthGas2'];
     dropIds.forEach(id => {
         const el = document.getElementById(id);
@@ -110,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateOffersDropdown();
 });
 
-// LOGICA DI CALCOLO
 document.getElementById('calculator-form').onsubmit = function(e) {
     e.preventDefault();
     
@@ -119,7 +110,10 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const utente = document.getElementById('clientName').value;
     const utility = document.getElementById('utilityType').value;
 
-    let ogt = (userType === 'consumer') ? (offer === 'ultraGreenCasa' ? 12.00 : 8.95) : (offer === 'ultraGreenPMI' || offer === 'ultraGreenGrandiAziende' ? 19.95 : 14.95);
+    // SISTEMATO: Tutte le offerte consumer OGT a 8.95
+    let ogtUltraGreen = (userType === 'consumer') ? 8.95 : 
+                        (offer === 'ultraGreenPMI' || offer === 'ultraGreenGrandiAziende' ? 19.95 : 14.95);
+                        
     let spreadAttuale = OFFERTE_SPREAD[offer] || { luce: 0.055, gas: 0.20 };
 
     let totalSaveAnnuo = 0;
@@ -130,7 +124,8 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     if (utility === 'light' || utility === 'lightAndGas') {
         const freq = parseInt(document.getElementById('freqLuce').value);
         const annuo = parseFloat(document.getElementById('annuoLuce').value) || 0;
-        const spesaP = parseFloat(document.getElementById('costMateriaLuce').value) || 0;
+        const spesaPuraP = parseFloat(document.getElementById('costMateriaLuce').value) || 0;
+        const pcvAttualeP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0;
         const tipoLettura = document.getElementById('tipoLettura').value;
 
         let consTotale = 0;
@@ -151,7 +146,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             costoEnergiaPura += mono * ((pun1.f1 + pun1.f2 + pun1.f3) / 3);
         }
 
-        // Mese 2 (se bimestrale)
+        // Mese 2
         if (freq === 2) {
             const m2 = document.getElementById('monthLuce2').value;
             const pun2 = DB_PRICES.pun[m2];
@@ -168,8 +163,10 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             }
         }
 
-        let nuovaSpesa = costoEnergiaPura + (consTotale * spreadAttuale.luce) + (ogt * freq);
-        let saveA = ((spesaP - nuovaSpesa) / (consTotale || 1)) * annuo;
+        let spesaAttualePeriodo = spesaPuraP + (pcvAttualeP * freq);
+        let spesaUltraGreenPeriodo = costoEnergiaPura + (consTotale * spreadAttuale.luce) + (ogtUltraGreen * freq);
+        
+        let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
         
         reportHtml += `<p style="font-size:1.1em;">Risparmio Annuo Luce: <strong style="color:green;">€ ${saveA.toFixed(2)}</strong></p>`;
@@ -179,7 +176,8 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     if (utility === 'gas' || utility === 'lightAndGas') {
         const freq = parseInt(document.getElementById('freqGas').value);
         const annuo = parseFloat(document.getElementById('annuoGas').value) || 0;
-        const spesaP = parseFloat(document.getElementById('costMateriaGas').value) || 0;
+        const spesaPuraP = parseFloat(document.getElementById('costMateriaGas').value) || 0;
+        const pcvAttualeP = parseFloat(document.getElementById('pcvAttualeGas').value) || 0;
 
         let consTotale = 0;
         let costoGasPuro = 0;
@@ -198,8 +196,10 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             costoGasPuro += cons2 * DB_PRICES.psv[m2];
         }
 
-        let nuovaSpesa = costoGasPuro + (consTotale * spreadAttuale.gas) + (ogt * freq);
-        let saveA = ((spesaP - nuovaSpesa) / (consTotale || 1)) * annuo;
+        let spesaAttualePeriodo = spesaPuraP + (pcvAttualeP * freq);
+        let spesaUltraGreenPeriodo = costoGasPuro + (consTotale * spreadAttuale.gas) + (ogtUltraGreen * freq);
+        
+        let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
         
         reportHtml += `<p style="font-size:1.1em;">Risparmio Annuo Gas: <strong style="color:green;">€ ${saveA.toFixed(2)}</strong></p>`;
