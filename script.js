@@ -18,12 +18,13 @@ const DB_PRICES = {
     }
 };
 
+// SPREAD GAS AGGIORNATI CON +0.12€
 const OFFERTE_SPREAD = {
-    'ultraGreenCasa': { luce: 0.061, gas: 0.23 },
-    'ultraGreen': { luce: 0.061, gas: 0.20 },
-    'revolutionTax': { luce: 0.061, gas: 0.20 },
-    'ultraGreenPMI': { luce: 0.059, gas: 0.18 },
-    'ultraGreenGrandiAziende': { luce: 0.043, gas: 0.16 }
+    'ultraGreenCasa': { luce: 0.061, gas: 0.35 },
+    'ultraGreen': { luce: 0.061, gas: 0.32 },
+    'revolutionTax': { luce: 0.061, gas: 0.32 },
+    'ultraGreenPMI': { luce: 0.059, gas: 0.30 },
+    'ultraGreenGrandiAziende': { luce: 0.043, gas: 0.28 }
 };
 
 const months = [
@@ -159,7 +160,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         </div>`;
 
     // FUNZIONE DI FORMATTAZIONE OUTPUT MIGLIORATA
-    function formatRisparmio(valoreAnnuo, etichetta, spesaAttuale, spesaNuova, nomeOfferta) {
+    function formatRisparmio(valoreAnnuo, etichetta, spesaAttualePeriodo, spesaNuovaPeriodo, nomeOfferta, freq) {
         const valoreMensile = valoreAnnuo / 12;
         const isRisparmio = valoreAnnuo >= 0;
         const color = isRisparmio ? "#1b5e20" : "#d32f2f";
@@ -167,17 +168,18 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         const borderColor = isRisparmio ? "green" : "red";
         const segno = isRisparmio ? "-" : "+";
         const labelRisparmio = isRisparmio ? "Risparmio" : "Differenza";
+        const tipoPeriodo = (freq === 1) ? "Mensile" : "Bimestrale";
 
         return `
             <div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${borderColor}; background: ${bgColor}; border-radius: 0 5px 5px 0;">
                 <p style="font-size:1.15em; margin: 5px 0; color: ${color}; text-transform: uppercase;"><strong>${etichetta}</strong></p>
                 <div style="font-size:0.95em; color: #444; margin-bottom: 10px;">
-                    <p style="margin: 2px 0;">Attuale Spesa Materia: <strong>€ ${spesaAttuale.toFixed(2)}</strong></p>
-                    <p style="margin: 2px 0;">Simulazione Spesa Materia con <em>${nomeOfferta}</em>: <strong>€ ${spesaNuova.toFixed(2)}</strong></p>
+                    <p style="margin: 2px 0;">Attuale Spesa Materia (${tipoPeriodo}): <strong>€ ${spesaAttualePeriodo.toFixed(2)}</strong></p>
+                    <p style="margin: 2px 0;">Spesa con <em>${nomeOfferta}</em> (${tipoPeriodo}): <strong>€ ${spesaNuovaPeriodo.toFixed(2)}</strong></p>
                 </div>
                 <div style="border-top: 1px dotted #ccc; padding-top: 10px;">
-                    <p style="font-size:1.05em; margin: 3px 0;">${labelRisparmio} Annuo Stimato: <strong style="color:${borderColor};">€ ${segno}${Math.abs(valoreAnnuo).toFixed(2)}</strong></p>
                     <p style="font-size:1.05em; margin: 3px 0;">${labelRisparmio} Mensile Stimato: <strong style="color:${borderColor};">€ ${segno}${Math.abs(valoreMensile).toFixed(2)}</strong></p>
+                    <p style="font-size:1.05em; margin: 3px 0;">${labelRisparmio} Annuo Stimato: <strong style="color:${borderColor};">€ ${segno}${Math.abs(valoreAnnuo).toFixed(2)}</strong></p>
                 </div>
             </div>`;
     }
@@ -244,12 +246,8 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         
         let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
-
-        // Proiezione Spese Annuali per Output
-        let spesaAttualeAnnuale = (spesaAttualePeriodo / (consTotale || 1)) * annuo;
-        let spesaNuovaAnnuale = (spesaUltraGreenPeriodo / (consTotale || 1)) * annuo;
         
-        reportHtml += formatRisparmio(saveA, "⚡ Fornitura Luce", spesaAttualeAnnuale, spesaNuovaAnnuale, nomeOffertaLuce);
+        reportHtml += formatRisparmio(saveA, "⚡ Fornitura Luce", spesaAttualePeriodo, spesaUltraGreenPeriodo, nomeOffertaLuce, freq);
     }
 
     // CALCOLO GAS
@@ -287,12 +285,8 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         
         let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
         totalSaveAnnuo += saveA;
-
-        // Proiezione Spese Annuali per Output
-        let spesaAttualeAnnuale = (spesaAttualePeriodo / (consTotale || 1)) * annuo;
-        let spesaNuovaAnnuale = (spesaUltraGreenPeriodo / (consTotale || 1)) * annuo;
         
-        reportHtml += formatRisparmio(saveA, "🔥 Fornitura Gas", spesaAttualeAnnuale, spesaNuovaAnnuale, nomeOffertaGas);
+        reportHtml += formatRisparmio(saveA, "🔥 Fornitura Gas", spesaAttualePeriodo, spesaUltraGreenPeriodo, nomeOffertaGas, freq);
     }
 
     // Box Finale Riassuntivo
