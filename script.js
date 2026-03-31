@@ -19,11 +19,11 @@ const DB_PRICES = {
 };
 
 const OFFERTE_SPREAD = {
-    'ultraGreenCasa': { luce: 0.061, gas: 0.11 },
-    'ultraGreen': { luce: 0.061, gas: 0.08 },
-    'revolutionTax': { luce: 0.061, gas: 0.08 },
-    'ultraGreenPMI': { luce: 0.059, gas: 0.06 },
-    'ultraGreenGrandiAziende': { luce: 0.043, gas: 0.04 }
+    'ultraGreenCasa': { luce: 0.061, gas: 0.23 },
+    'ultraGreen': { luce: 0.061, gas: 0.20 },
+    'revolutionTax': { luce: 0.061, gas: 0.20 },
+    'ultraGreenPMI': { luce: 0.059, gas: 0.18 },
+    'ultraGreenGrandiAziende': { luce: 0.043, gas: 0.16 }
 };
 
 const months = [
