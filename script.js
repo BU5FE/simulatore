@@ -10,11 +10,12 @@ const DB_PRICES = {
         '11': { mono: 0.117, f1: 0.130, f2: 0.124, f3: 0.108 }, 
         '12': { mono: 0.124, f1: 0.145, f2: 0.138, f3: 0.115 }, 
         '01': { mono: 0.133, f1: 0.151, f2: 0.137, f3: 0.118 },
-        '02': { mono: 0.114, f1: 0.122, f2: 0.120, f3: 0.105 }
+        '02': { mono: 0.114, f1: 0.122, f2: 0.120, f3: 0.105 },
+        '03': { mono: 0.143, f1: 0.143, f2: 0.153, f3: 0.138 }
     },
     psv: { 
         '07': 0.38, '08': 0.43, '09': 0.40, '10': 0.42, 
-        '11': 0.45, '12': 0.48, '01': 0.45, '02': 0.377
+        '11': 0.45, '12': 0.48, '01': 0.45, '02': 0.377, '03': 0.558
     }
 };
 
@@ -30,7 +31,7 @@ const OFFERTE_SPREAD = {
 const months = [
     {v:'07', t:'Luglio 2025'}, {v:'08', t:'Agosto 2025'}, {v:'09', t:'Settembre 2025'}, 
     {v:'10', t:'Ottobre 2025'}, {v:'11', t:'Novembre 2025'}, {v:'12', t:'Dicembre 2025'}, 
-    {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}
+    {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}, {v:'03', t:'Marzo 2026'}
 ];
 
 // Mostra/nasconde i campi a seconda delle scelte
@@ -134,8 +135,8 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const nomeOffertaGas = selectGas.options[selectGas.selectedIndex].text;
     const hasCapGas = document.getElementById('hasCapGas').value === 'si';
 
-    const LIMITE_CAP_LUCE = 0.199;
-    const LIMITE_CAP_GAS = 0.800;
+    const LIMITE_CAP_LUCE = 0.185;
+    const LIMITE_CAP_GAS = 0.730;
 
     const oggi = new Date();
     const ultimoGiorno = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0);
