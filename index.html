@@ -188,3 +188,69 @@
                 </div>
             </div>
         </div>
+        <div class="section-box" style="border: 2px solid #2e7d32; background: #f1f8e9;">
+            <h3>🎯 SCELTA OFFERTE COMMERCIALI</h3>
+            
+            <div id="offer-light-row" class="row" style="border-bottom: 1px solid #c8e6c9; padding-bottom: 15px; margin-bottom: 15px;">
+                <div class="col" style="flex: 2;">
+                    <label for="selectedOfferLuce">Offerta LUCE</label>
+                    <select id="selectedOfferLuce">
+                        <option value="">-- Seleziona offerta Luce --</option>
+                        <option id="opt-casa-luce" value="ultraGreenCasa">UltraGreen Casa</option>
+                        <option id="opt-casa-pun0-luce" value="ultraGreenCasaPun0">ULTRAGREEN CASA PUN 0</option>
+                        <option id="opt-fix-casa-luce" value="ultraGreenFixCasa">UltraGreen Fix Casa</option>
+                        <option id="opt-fix-biz-luce" value="ultraGreenFixBusiness">UltraGreen Fix</option>
+                        <option value="ultraGreen">UltraGreen</option>
+                        <option value="revolutionTax">Revolution Tax</option>
+                        <option value="ultraGreenPMI">UltraGreen PMI</option>
+                        <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="hasCapLuce">CAP Luce</label>
+                    <select id="hasCapLuce">
+                        <option value="no">No</option>
+                        <option value="si">Sì (Protezione Tetto)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div id="offer-gas-row" class="row">
+                <div class="col" style="flex: 2;">
+                    <label for="selectedOfferGas">Offerta GAS</label>
+                    <select id="selectedOfferGas">
+                        <option value="">-- Seleziona offerta Gas --</option>
+                        <option id="opt-casa-gas" value="ultraGreenCasa">UltraGreen Casa</option>
+                        <option id="opt-casa-pun0-gas" value="ultraGreenCasaPun0">ULTRAGREEN CASA PUN 0</option>
+                        <option id="opt-fix-casa-gas" value="ultraGreenFixCasa">UltraGreen Fix Casa</option>
+                        <option id="opt-fix-biz-gas" value="ultraGreenFixBusiness">UltraGreen Fix</option>
+                        <option value="ultraGreen">UltraGreen</option>
+                        <option value="revolutionTax">Revolution Tax</option>
+                        <option value="ultraGreenPMI">UltraGreen PMI</option>
+                        <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="hasCapGas">CAP Gas</label>
+                    <select id="hasCapGas">
+                        <option value="no">No</option>
+                        <option value="si">Sì (Protezione Tetto)</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn-calculate">GENERA ANALISI COMPARATIVA</button>
+    </form>
+
+    <div id="result"></div>
+    
+    <div id="export-actions" class="hidden" style="text-align:center; margin-top:25px; padding-top:20px; border-top:1px solid #ddd;">
+        <button onclick="exportDoc('pdf')" class="btn-export" style="margin-right: 10px;">ESPORTA IN PDF</button>
+        <button onclick="exportDoc('png')" class="btn-export" style="background-color: #4caf50;">SCARICA COME IMMAGINE (PNG)</button>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
