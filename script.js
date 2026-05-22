@@ -1,67 +1,35 @@
-// ============================================================================
-// PARTE 1: PREZZI, SPREAD, STRUTTURA MESI E COSTRUZIONE DELLA PAGINA
-// ============================================================================
 const DB_PRICES = {
     pun: { 
-        '07': { mono: 0.112, f1: 0.121, f2: 0.118, f3: 0.102 },
-        '08': { mono: 0.128, f1: 0.138, f2: 0.135, f3: 0.116 },
-        '09': { mono: 0.109, f1: 0.128, f2: 0.122, f3: 0.100 }, 
-        '10': { mono: 0.107, f1: 0.118, f2: 0.112, f3: 0.095 }, 
-        '11': { mono: 0.117, f1: 0.130, f2: 0.124, f3: 0.108 }, 
-        '12': { mono: 0.124, f1: 0.145, f2: 0.138, f3: 0.115 }, 
-        '01': { mono: 0.133, f1: 0.151, f2: 0.137, f3: 0.118 },
-        '02': { mono: 0.114, f1: 0.122, f2: 0.120, f3: 0.105 },
-        '03': { mono: 0.143, f1: 0.143, f2: 0.153, f3: 0.138 },
-        '04': { mono: 0.119, f1: 0.111, f2: 0.138, f3: 0.116 }
-    },
-    psv: { 
-        '07': 0.38, '08': 0.43, '09': 0.40, '10': 0.42, 
-        '11': 0.45, '12': 0.48, '01': 0.45, '02': 0.377, '03': 0.558, '04': 0.493
+        '07': { mono: 0.112, f1: 0.121, f2: 0.118, f3: 0.102 }, '08': { mono: 0.128, f1: 0.138, f2: 0.135, f3: 0.116 },
+        '09': { mono: 0.109, f1: 0.128, f2: 0.122, f3: 0.100 }, '10': { mono: 0.107, f1: 0.118, f2: 0.112, f3: 0.095 }, 
+        '11': { mono: 0.117, f1: 0.130, f2: 0.124, f3: 0.108 }, '12': { mono: 0.124, f1: 0.145, f2: 0.138, f3: 0.115 }, 
+        '01': { mono: 0.133, f1: 0.151, f2: 0.137, f3: 0.118 }, '02': { mono: 0.114, f1: 0.122, f2: 0.120, f3: 0.105 },
+        '03': { mono: 0.143, f1: 0.143, f2: 0.153, f3: 0.138 }, '04': { mono: 0.119, f1: 0.111, f2: 0.138, f3: 0.116 }
+    }, psv: { 
+        '07': 0.38, '08': 0.43, '09': 0.40, '10': 0.42, '11': 0.45, '12': 0.48, '01': 0.45, '02': 0.377, '03': 0.558, '04': 0.493
     }
 };
-
 const OFFERTE_SPREAD = {
-    'ultraGreenCasa': { luce: 0.061, gas: 0.35 },
-    'ultraGreenCasaPun0': { luce: 0.058, gas: 0.287 },
-    'ultraGreen': { luce: 0.061, gas: 0.32 },
-    'revolutionTax': { luce: 0.061, gas: 0.32 },
-    'ultraGreenPMI': { luce: 0.059, gas: 0.30 },
-    'ultraGreenGrandiAziende': { luce: 0.043, gas: 0.28 },
-    'ultraGreenFixCasa': { isFix: true, luceFix: 0.159, gasFix: 0.69 },
-    'ultraGreenFixBusiness': { isFix: true, luceFix: 0.129, gasFix: 0.52 }
+    'ultraGreenCasa': { luce: 0.061, gas: 0.35 }, 'ultraGreenCasaPun0': { luce: 0.058, gas: 0.287 },
+    'ultraGreen': { luce: 0.061, gas: 0.32 }, 'revolutionTax': { luce: 0.061, gas: 0.32 },
+    'ultraGreenPMI': { luce: 0.059, gas: 0.30 }, 'ultraGreenGrandiAziende': { luce: 0.043, gas: 0.28 },
+    'ultraGreenFixCasa': { isFix: true, luceFix: 0.159, gasFix: 0.69 }, 'ultraGreenFixBusiness': { isFix: true, luceFix: 0.129, gasFix: 0.52 }
 };
-
 const months = [
-    {v:'07', t:'Luglio 2025'}, {v:'08', t:'Agosto 2025'}, {v:'09', t:'Settembre 2025'}, 
-    {v:'10', t:'Ottobre 2025'}, {v:'11', t:'Novembre 2025'}, {v:'12', t:'Dicembre 2025'}, 
-    {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}, {v:'03', t:'Marzo 2026'},
-    {v:'04', t:'Aprile 2026'}
+    {v:'07', t:'Luglio 2025'}, {v:'08', t:'Agosto 2025'}, {v:'09', t:'Settembre 2025'}, {v:'10', t:'Ottobre 2025'}, {v:'11', t:'Novembre 2025'},
+    {v:'12', t:'Dicembre 2025'}, {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}, {v:'03', t:'Marzo 2026'}, {v:'04', t:'Aprile 2026'}
 ];
-
 function toggleSections() {
-    const utility = document.getElementById('utilityType').value;
-    const lettura = document.getElementById('tipoLettura').value;
-    const freqLuce = document.getElementById('freqLuce').value;
-    const freqGas = document.getElementById('freqGas').value;
-
-    document.getElementById('light-section').style.display = (utility === 'light' || utility === 'lightAndGas') ? 'block' : 'none';
-    document.getElementById('gas-section').style.display = (utility === 'gas' || utility === 'lightAndGas') ? 'block' : 'none';
-    document.getElementById('offer-light-row').style.display = (utility === 'light' || utility === 'lightAndGas') ? 'flex' : 'none';
-    document.getElementById('offer-gas-row').style.display = (utility === 'gas' || utility === 'lightAndGas') ? 'flex' : 'none';
-
-    const lightM2 = document.getElementById('light-mese2');
-    if (freqLuce === "2" && (utility === 'light' || utility === 'lightAndGas')) { lightM2.classList.remove('hidden'); } else { lightM2.classList.add('hidden'); }
-
-    const gasM2 = document.getElementById('gas-mese2');
-    if (freqGas === "2" && (utility === 'gas' || utility === 'lightAndGas')) { gasM2.classList.remove('hidden'); } else { gasM2.classList.add('hidden'); }
-
-    const divMono1 = document.getElementById('div-mono1');
-    const divFasce1 = document.getElementById('div-fasce1');
-    if (lettura === 'fasce') { divFasce1.classList.remove('hidden'); divMono1.classList.add('hidden'); } else { divFasce1.classList.add('hidden'); divMono1.classList.remove('hidden'); }
-
-    const divMono2 = document.getElementById('div-mono2');
-    const divFasce2 = document.getElementById('div-fasce2');
-    if (lettura === 'fasce') { divFasce2.classList.remove('hidden'); divMono2.classList.add('hidden'); } else { divFasce2.classList.add('hidden'); divMono2.classList.remove('hidden'); }
+    const u = document.getElementById('utilityType').value, l = document.getElementById('tipoLettura').value;
+    const fL = document.getElementById('freqLuce').value, fG = document.getElementById('freqGas').value;
+    document.getElementById('light-section').style.display = (u === 'light' || u === 'lightAndGas') ? 'block' : 'none';
+    document.getElementById('gas-section').style.display = (u === 'gas' || u === 'lightAndGas') ? 'block' : 'none';
+    document.getElementById('offer-light-row').style.display = (u === 'light' || u === 'lightAndGas') ? 'flex' : 'none';
+    document.getElementById('offer-gas-row').style.display = (u === 'gas' || u === 'lightAndGas') ? 'flex' : 'none';
+    if (fL === "2" && (u === 'light' || u === 'lightAndGas')) { document.getElementById('light-mese2').classList.remove('hidden'); } else { document.getElementById('light-mese2').classList.add('hidden'); }
+    if (fG === "2" && (u === 'gas' || u === 'lightAndGas')) { document.getElementById('gas-mese2').classList.remove('hidden'); } else { document.getElementById('gas-mese2').classList.add('hidden'); }
+    if (l === 'fasce') { document.getElementById('div-fasce1').classList.remove('hidden'); document.getElementById('div-mono1').classList.add('hidden'); document.getElementById('div-fasce2').classList.remove('hidden'); document.getElementById('div-mono2').classList.add('hidden'); }
+    else { document.getElementById('div-fasce1').classList.add('hidden'); document.getElementById('div-mono1').classList.remove('hidden'); document.getElementById('div-fasce2').classList.add('hidden'); document.getElementById('div-mono2').classList.remove('hidden'); }
 }
 function updateOffersDropdown() {
     const t = document.getElementById('userType').value, sL = document.getElementById('selectedOfferLuce'), sG = document.getElementById('selectedOfferGas');
