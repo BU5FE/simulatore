@@ -48,42 +48,42 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 document.getElementById('calculator-form').onsubmit = function(e) {
     e.preventDefault();
-    const userType = document.getElementById('userType').value, utente = document.getElementById('clientName').value, utility = document.getElementById('utilityType').value;
+    const t = document.getElementById('userType').value, ut = document.getElementById('clientName').value, u = document.getElementById('utilityType').value;
     const oL = document.getElementById('selectedOfferLuce').value, nL = document.getElementById('selectedOfferLuce').options[document.getElementById('selectedOfferLuce').selectedIndex].text, hL = document.getElementById('hasCapLuce').value === 'si';
     const oG = document.getElementById('selectedOfferGas').value, nG = document.getElementById('selectedOfferGas').options[document.getElementById('selectedOfferGas').selectedIndex].text, hG = document.getElementById('hasCapGas').value === 'si';
     const LIM_L = 0.170, LIM_G = 0.630, oggi = new Date(), uG = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0), dS = `${String(uG.getDate()).padStart(2,'0')}/${String(uG.getMonth()+1).padStart(2,'0')}/${uG.getFullYear()}`;
-    let totalSaveAnnuo = 0, dCap = '';
-    if ((utility === 'light' || utility === 'lightAndGas') && hL) dCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Luce Attivo</strong> (€ ${LIM_L.toFixed(3)})</p>`;
-    if ((utility === 'gas' || utility === 'lightAndGas') && hG) dCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Gas Attivo</strong> (€ ${LIM_G.toFixed(3)})</p>`;
-    let rHtml = `<div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px; font-family:'Roboto',sans-serif;"><div style="text-align:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px;"><h2 style="color:#2e7d32; margin-bottom:5px;">Simulazione di Risparmio</h2><p style="font-size:1.2em; margin:5px 0;">Cliente: <strong>${utente}</strong></p>${dCap}<p style="font-size:0.95em; color:#d32f2f;"><strong>Scadenza: ${dS}</strong></p></div>`;
+    let totSave = 0, dCap = '';
+    if ((u === 'light' || u === 'lightAndGas') && hL) dCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Luce Attivo</strong> (€ ${LIM_L.toFixed(3)})</p>`;
+    if ((u === 'gas' || u === 'lightAndGas') && hG) dCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Gas Attivo</strong> (€ ${LIM_G.toFixed(3)})</p>`;
+    let rHtml = `<div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px; font-family:'Roboto',sans-serif;"><div style="text-align:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px;"><h2 style="color:#2e7d32; margin-bottom:5px;">Simulazione di Risparmio</h2><p style="font-size:1.2em; margin:5px 0;">Cliente: <strong>${ut}</strong></p>${dCap}<p style="font-size:0.95em; color:#d32f2f;"><strong>Scadenza: ${dS}</strong></p></div>`;
     function fRes(vA, et, sA, sN, nO, fr) {
         const vM = vA / 12, isR = vA >= 0, col = isR ? "#1b5e20" : "#d32f2f", bg = isR ? "#f1f8e9" : "#ffebee", bCol = isR ? "green" : "red", seg = isR ? "-" : "+", lbl = isR ? "Risparmio" : "Differenza", tP = (fr === 1) ? "Mensile" : "Bimestrale";
         return `<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${bCol}; background: ${bg}; border-radius: 0 5px 5px 0;"><p style="font-size:1.15em; margin: 5px 0; color: ${col}; text-transform: uppercase;"><strong>${et}</strong></p><div style="font-size:0.95em; color: #444; margin-bottom: 10px;"><p style="margin: 2px 0;">Attuale (${tP}): <strong>€ ${sA.toFixed(2)}</strong></p><p style="margin: 2px 0;">Con ${nO} (${tP}): <strong>€ ${sN.toFixed(2)}</strong></p></div><div style="border-top: 1px dotted #ccc; padding-top: 10px;"><p style="font-size:1.05em; margin: 3px 0;">${lbl} Mensile: <strong style="color:${bCol};">€ ${seg}${Math.abs(vM).toFixed(2)}</strong></p><p style="font-size:1.05em; margin: 3px 0;">${lbl} Annuo: <strong style="color:${bCol};">€ ${seg}${Math.abs(vA).toFixed(2)}</strong></p></div></div>`;
     }
-    if (utility === 'light' || utility === 'lightAndGas') {
+    if (u === 'light' || u === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqLuce').value), ann = parseFloat(document.getElementById('annuoLuce').value) || 0, sP = parseFloat(document.getElementById('costMateriaLuce').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0, tL = document.getElementById('tipoLettura').value;
-        let ogt = (oL==='ultraGreenCasa'||oL==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oL==='ultraGreenCasaPun0'||oL==='ultraGreenPMI'||oL==='ultraGreenGrandiAziende')?19.95:14.95;
+        let ogt = (oL==='ultraGreenCasaPun0')?19.95:(oL==='ultraGreenCasa'||oL==='ultraGreenFixCasa'||t==='consumer')?8.95:(oL==='ultraGreenPMI'||oL==='ultraGreenGrandiAziende')?19.95:14.95;
         let cT = 0, cE = 0; const cL = OFFERTE_SPREAD[oL];
+        if (tL === 'fasce') { cT += (parseFloat(document.getElementById('kWhF1_M1').value)||0)+(parseFloat(document.getElementById('kWhF2_M1').value)||0)+(parseFloat(document.getElementById('kWhF3_M1').value)||0); } else { cT += parseFloat(document.getElementById('kWhTot1').value)||0; }
+        if (fr === 2) { if (tL === 'fasce') { cT += (parseFloat(document.getElementById('kWhF1_M2').value)||0)+(parseFloat(document.getElementById('kWhF2_M2').value)||0)+(parseFloat(document.getElementById('kWhF3_M2').value)||0); } else { cT += parseFloat(document.getElementById('kWhTot2').value)||0; } }
         if (cL && cL.isFix) {
-            cT += (tL === 'fasce') ? (parseFloat(document.getElementById('kWhF1_M1').value)||0)+(parseFloat(document.getElementById('kWhF2_M1').value)||0)+(parseFloat(document.getElementById('kWhF3_M1').value)||0) : parseFloat(document.getElementById('kWhTot1').value)||0;
-            if (fr === 2) cT += (tL === 'fasce') ? (parseFloat(document.getElementById('kWhF1_M2').value)||0)+(parseFloat(document.getElementById('kWhF2_M2').value)||0)+(parseFloat(document.getElementById('kWhF3_M2').value)||0) : parseFloat(document.getElementById('kWhTot2').value)||0;
             cE = cT * cL.luceFix;
         } else {
             const sB = cL?.luce || 0.055, sE = hL ? (sB + 0.009) : sB, m1 = document.getElementById('monthLuce1').value, p1 = DB_PRICES.pun[m1];
             let f1=hL?Math.min(p1.f1,LIM_L):p1.f1, f2=hL?Math.min(p1.f2,LIM_L):p1.f2, f3=hL?Math.min(p1.f3,LIM_L):p1.f3, mo=hL?Math.min(p1.mono,LIM_L):p1.mono;
-            if (tL === 'fasce') { const f1v=parseFloat(document.getElementById('kWhF1_M1').value)||0, f2v=parseFloat(document.getElementById('kWhF2_M1').value)||0, f3v=parseFloat(document.getElementById('kWhF3_M1').value)||0; cT+=(f1v+f2v+f3v); cE+=(f1v*f1)+(f2v*f2)+(f3v*f3); } else { const mono=parseFloat(document.getElementById('kWhTot1').value)||0; cT+=mono; cE+=mono*mo; }
+            if (tL === 'fasce') { cE += ((parseFloat(document.getElementById('kWhF1_M1').value)||0)*f1)+((parseFloat(document.getElementById('kWhF2_M1').value)||0)*f2)+((parseFloat(document.getElementById('kWhF3_M1').value)||0)*f3); } else { cE += (parseFloat(document.getElementById('kWhTot1').value)||0)*mo; }
             if (fr === 2) {
                 const m2 = document.getElementById('monthLuce2').value, p2 = DB_PRICES.pun[m2];
                 let f12=hL?Math.min(p2.f1,LIM_L):p2.f1, f22=hL?Math.min(p2.f2,LIM_L):p2.f2, f32=hL?Math.min(p2.f3,LIM_L):p2.f3, mo2=hL?Math.min(p2.mono,LIM_L):p2.mono;
-                if (tL === 'fasce') { const f1v=parseFloat(document.getElementById('kWhF1_M2').value)||0, f2v=parseFloat(document.getElementById('kWhF2_M2').value)||0, f3v=parseFloat(document.getElementById('kWhF3_M2').value)||0; cT+=(f1v+f2v+f3v); cE+=(f1v*f12)+(f2v*f22)+(f3v*f32); } else { const mono=parseFloat(document.getElementById('kWhTot2').value)||0; cT+=mono; cE+=mono*mo2; }
+                if (tL === 'fasce') { cE += ((parseFloat(document.getElementById('kWhF1_M2').value)||0)*f12)+((parseFloat(document.getElementById('kWhF2_M2').value)||0)*f22)+((parseFloat(document.getElementById('kWhF3_M2').value)||0)*f32); } else { cE += (parseFloat(document.getElementById('kWhTot2').value)||0)*mo2; }
             }
             cE += (cT * sE);
         }
-        let sAt = sP + (pP * fr), sUG = cE + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totalSaveAnnuo += svA; rHtml += fRes(svA, "⚡ Fornitura Luce", sAt, sUG, nL, fr);
+        let sAt = sP + (pP * fr), sUG = cE + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "⚡ Fornitura Luce", sAt, sUG, nL, fr);
     }
-    if (utility === 'gas' || utility === 'lightAndGas') {
+    if (u === 'gas' || u === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqGas').value), ann = parseFloat(document.getElementById('annuoGas').value) || 0, sP = parseFloat(document.getElementById('costMateriaGas').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeGas').value) || 0;
-        let ogt = (oG==='ultraGreenCasa'||oG==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oG==='ultraGreenCasaPun0'||oG==='ultraGreenPMI'||oG==='ultraGreenGrandiAziende')?19.95:14.95;
+        let ogt = (oG==='ultraGreenCasaPun0')?19.95:(oG==='ultraGreenCasa'||oG==='ultraGreenFixCasa'||t==='consumer')?8.95:(oG==='ultraGreenPMI'||oG==='ultraGreenGrandiAziende')?19.95:14.95;
         let cT = 0, cG = 0; const cGConf = OFFERTE_SPREAD[oG];
         if (cGConf && cGConf.isFix) {
             cT += parseFloat(document.getElementById('smcTot1').value) || 0; if (fr === 2) cT += parseFloat(document.getElementById('smcTot2').value) || 0;
@@ -94,11 +94,11 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             if (fr === 2) { const m2 = document.getElementById('monthGas2').value, c2 = parseFloat(document.getElementById('smcTot2').value) || 0; cT += c2; let psv2 = hG ? Math.min(DB_PRICES.psv[m2], LIM_G) : DB_PRICES.psv[m2]; cG += c2 * psv2; }
             cG += (cT * sE);
         }
-        let sAt = sP + (pP * fr), sUG = cG + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totalSaveAnnuo += svA; rHtml += fRes(svA, "🔥 Fornitura Gas", sAt, sUG, nG, fr);
+        let sAt = sP + (pP * fr), sUG = cG + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "🔥 Fornitura Gas", sAt, sUG, nG, fr);
     }
     let tSt = "", tTx = "";
-    if (totalSaveAnnuo > 0) { tSt = "background:#2e7d32; color:white;"; tTx = `RISPARMIO ANNUO STIMATO<br><span style='font-size:2.5em; font-weight:bold;'>€ -${Math.abs(totalSaveAnnuo).toFixed(2)}</span>`; }
-    else if (totalSaveAnnuo < 0) { tSt = "background:#d32f2f; color:white;"; tTx = `DIFFERENZA ANNUALE<br><span style='font-size:2.5em; font-weight:bold;'>+€ ${Math.abs(totalSaveAnnuo).toFixed(2)}</span>`; }
+    if (totSave > 0) { tSt = "background:#2e7d32; color:white;"; tTx = `RISPARMIO ANNUO STIMATO<br><span style='font-size:2.5em; font-weight:bold;'>€ -${Math.abs(totSave).toFixed(2)}</span>`; }
+    else if (totSave < 0) { tSt = "background:#d32f2f; color:white;"; tTx = `DIFFERENZA ANNUALE<br><span style='font-size:2.5em; font-weight:bold;'>+€ ${Math.abs(totSave).toFixed(2)}</span>`; }
     else { tSt = "background:#757575; color:white;"; tTx = `RISPARMIO ANNUO<br><span style='font-size:2.5em; font-weight:bold;'>€ 0.00</span>`; }
     rHtml += `<div style="${tSt} padding:20px; text-align:center; border-radius:8px; margin-top:20px;"><span style='text-transform:uppercase; font-size:0.9em;'>${tTx}</span></div></div>`;
     document.getElementById('result').innerHTML = rHtml; document.getElementById('result').style.display = 'block';
@@ -106,6 +106,14 @@ document.getElementById('calculator-form').onsubmit = function(e) {
 };
 window.exportDoc = function(t) {
     const el = document.getElementById('report-box');
+    html2canvas(el, { scale: 2 }).then(canvas => {
+        if (t === 'png') {
+            canvas.toBlob(blob => { const l = document.createElement('a'); l.download = 'Report_Risparmio.png'; l.href = URL.createObjectURL(blob); document.body.appendChild(l); l.click(); document.body.removeChild(l); URL.revokeObjectURL(l.href); }, 'image/png');
+        } else if (t === 'pdf') {
+            const img = canvas.toDataURL('image/png'), pdf = new jspdf.jsPDF(); pdf.addImage(img, 'PNG', 10, 10, 190, 0); pdf.save('Report_Risparmio.pdf');
+        }
+    });
+};
     html2canvas(el, { scale: 2 }).then(canvas => {
         if (t === 'png') {
             canvas.toBlob(blob => { const l = document.createElement('a'); l.download = 'Report_Risparmio.png'; l.href = URL.createObjectURL(blob); document.body.appendChild(l); l.click(); document.body.removeChild(l); URL.revokeObjectURL(l.href); }, 'image/png');
