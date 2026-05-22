@@ -1,6 +1,6 @@
-// ==========================================
-// PARTE 1: DATABASE PREZZI E CONTROLLO CAMPI
-// ==========================================
+// ============================================================================
+// PARTE 1: PREZZI, SPREAD, STRUTTURA MESI E COSTRUZIONE DELLA PAGINA
+// ============================================================================
 const DB_PRICES = {
     pun: { 
         '07': { mono: 0.112, f1: 0.121, f2: 0.118, f3: 0.102 },
@@ -63,272 +63,86 @@ function toggleSections() {
     const divFasce2 = document.getElementById('div-fasce2');
     if (lettura === 'fasce') { divFasce2.classList.remove('hidden'); divMono2.classList.add('hidden'); } else { divFasce2.classList.add('hidden'); divMono2.classList.remove('hidden'); }
 }
-// ==========================================
-// PARTE 2: FILTRI MENU E AVVIO FORM
-// ==========================================
 function updateOffersDropdown() {
-    const userType = document.getElementById('userType').value;
-    const optCasaLuce = document.getElementById('opt-casa-luce');
-    const optCasaGas = document.getElementById('opt-casa-gas');
-    const optCasaPun0Luce = document.getElementById('opt-casa-pun0-luce');
-    const optCasaPun0Gas = document.getElementById('opt-casa-pun0-gas');
-    const optFixCasaLuce = document.getElementById('opt-fix-casa-luce');
-    const optFixCasaGas = document.getElementById('opt-fix-casa-gas');
-    const optFixBizLuce = document.getElementById('opt-fix-biz-luce');
-    const optFixBizGas = document.getElementById('opt-fix-biz-gas');
-    const selLuce = document.getElementById('selectedOfferLuce');
-    const selGas = document.getElementById('selectedOfferGas');
-
-    if (userType === 'business') {
-        if (optCasaLuce) optCasaLuce.style.display = 'none';
-        if (optCasaGas) optCasaGas.style.display = 'none';
-        if (optCasaPun0Luce) optCasaPun0Luce.style.display = 'none';
-        if (optCasaPun0Gas) optCasaPun0Gas.style.display = 'none';
-        if (optFixCasaLuce) optFixCasaLuce.style.display = 'none';
-        if (optFixCasaGas) optFixCasaGas.style.display = 'none';
-        if (optFixBizLuce) optFixBizLuce.style.display = 'block';
-        if (optFixBizGas) optFixBizGas.style.display = 'block';
-        if (['ultraGreenCasa', 'ultraGreenCasaPun0', 'ultraGreenFixCasa'].includes(selLuce.value)) selLuce.value = '';
-        if (['ultraGreenCasa', 'ultraGreenCasaPun0', 'ultraGreenFixCasa'].includes(selGas.value)) selGas.value = '';
-    } else {
-        if (optCasaLuce) optCasaLuce.style.display = 'block';
-        if (optCasaGas) optCasaGas.style.display = 'block';
-        if (optCasaPun0Luce) optCasaPun0Luce.style.display = 'block';
-        if (optCasaPun0Gas) optCasaPun0Gas.style.display = 'block';
-        if (optFixCasaLuce) optFixCasaLuce.style.display = 'block';
-        if (optFixCasaGas) optFixCasaGas.style.display = 'block';
-        if (optFixBizLuce) optFixBizLuce.style.display = 'none';
-        if (optFixBizGas) optFixBizGas.style.display = 'none';
-        if (selLuce.value === 'ultraGreenFixBusiness') selLuce.value = '';
-        if (selGas.value === 'ultraGreenFixBusiness') selGas.value = '';
-    }
+    const t = document.getElementById('userType').value, sL = document.getElementById('selectedOfferLuce'), sG = document.getElementById('selectedOfferGas');
+    const dispB = (t === 'business') ? 'none' : 'block', dispF = (t === 'business') ? 'block' : 'none';
+    ['opt-casa-luce', 'opt-casa-gas', 'opt-casa-pun0-luce', 'opt-casa-pun0-gas', 'opt-fix-casa-luce', 'opt-fix-casa-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispB; });
+    ['opt-fix-biz-luce', 'opt-fix-biz-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispF; });
+    if (t === 'business' && ['ultraGreenCasa', 'ultraGreenCasaPun0', 'ultraGreenFixCasa'].includes(sL.value)) sL.value = '';
+    if (t === 'business' && ['ultraGreenCasa', 'ultraGreenCasaPun0', 'ultraGreenFixCasa'].includes(sG.value)) sG.value = '';
+    if (t !== 'business' && sL.value === 'ultraGreenFixBusiness') sL.value = '';
+    if (t !== 'business' && sG.value === 'ultraGreenFixBusiness') sG.value = '';
 }
-
 document.addEventListener('DOMContentLoaded', () => {
-    const dropIds = ['monthLuce1', 'monthLuce2', 'monthGas1', 'monthGas2'];
-    dropIds.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) months.forEach(m => el.add(new Option(m.t, m.v)));
-    });
-    document.getElementById('utilityType').addEventListener('change', toggleSections);
-    document.getElementById('tipoLettura').addEventListener('change', toggleSections);
-    document.getElementById('freqLuce').addEventListener('change', toggleSections);
-    document.getElementById('freqGas').addEventListener('change', toggleSections);
-    document.getElementById('userType').addEventListener('change', updateOffersDropdown);
-    toggleSections();
-    updateOffersDropdown();
+    ['monthLuce1', 'monthLuce2', 'monthGas1', 'monthGas2'].forEach(id => { const el = document.getElementById(id); if (el) months.forEach(m => el.add(new Option(m.t, m.v))); });
+    ['utilityType', 'tipoLettura', 'freqLuce', 'freqGas'].forEach(id => document.getElementById(id).addEventListener('change', toggleSections));
+    document.getElementById('userType').addEventListener('change', updateOffersDropdown); toggleSections(); updateOffersDropdown();
 });
-// ==========================================
-// PARTE 3: PREPARAZIONE E CALCOLO LUCE
-// ==========================================
 document.getElementById('calculator-form').onsubmit = function(e) {
     e.preventDefault();
-    const userType = document.getElementById('userType').value;
-    const utente = document.getElementById('clientName').value;
-    const utility = document.getElementById('utilityType').value;
-    const selectLuce = document.getElementById('selectedOfferLuce');
-    const offerLuce = selectLuce.value;
-    const nomeOffertaLuce = selectLuce.options[selectLuce.selectedIndex].text;
-    const hasCapLuce = document.getElementById('hasCapLuce').value === 'si';
-    const selectGas = document.getElementById('selectedOfferGas');
-    const offerGas = selectGas.value;
-    const nomeOffertaGas = selectGas.options[selectGas.selectedIndex].text;
-    const hasCapGas = document.getElementById('hasCapGas').value === 'si';
-
-    const LIMITE_CAP_LUCE = 0.170;
-    const LIMITE_CAP_GAS = 0.630;
-    const oggi = new Date();
-    const ultimoGiorno = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0);
-    const dataScadenza = `${String(ultimoGiorno.getDate()).padStart(2, '0')}/${String(ultimoGiorno.getMonth() + 1).padStart(2, '0')}/${ultimoGiorno.getFullYear()}`;
-
-    let totalSaveAnnuo = 0;
-    let dicituraCap = '';
-    if ((utility === 'light' || utility === 'lightAndGas') && hasCapLuce) { dicituraCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Luce Attivo</strong> (Tetto: € ${LIMITE_CAP_LUCE.toFixed(3)})</p>`; }
-    if ((utility === 'gas' || utility === 'lightAndGas') && hasCapGas) { dicituraCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Gas Attivo</strong> (Tetto: € ${LIMITE_CAP_GAS.toFixed(3)})</p>`; }
-
-    let reportHtml = `<div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px; font-family:'Roboto', sans-serif;"><div style="text-align:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px;"><h2 style="color:#2e7d32; margin-bottom:5px;">Simulazione di Risparmio Luce&Gas</h2><p style="font-size:1.2em; margin:5px 0;">Cliente: <strong>${utente}</strong></p>${dicituraCap}<p style="font-size:0.95em; color:#d32f2f;"><strong>Offerta valida fino al: ${dataScadenza}</strong></p></div>`;
-
-    function formatRisparmio(valoreAnnuo, etichetta, spesaAttualePeriodo, spesaNuovaPeriodo, nomeOfferta, freq) {
-        const valoreMensile = valoreAnnuo / 12;
-        const isRisparmio = valoreAnnuo >= 0;
-        const color = isRisparmio ? "#1b5e20" : "#d32f2f";
-        const bgColor = isRisparmio ? "#f1f8e9" : "#ffebee";
-        const borderColor = isRisparmio ? "green" : "red";
-        const segno = isRisparmio ? "-" : "+";
-        const labelRisparmio = isRisparmio ? "Risparmio" : "Differenza";
-        const tipoPeriodo = (freq === 1) ? "Mensile" : "Bimestrale";
-        return `<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${borderColor}; background: ${bgColor}; border-radius: 0 5px 5px 0;"><p style="font-size:1.15em; margin: 5px 0; color: ${color}; text-transform: uppercase;"><strong>${etichetta}</strong></p><div style="font-size:0.95em; color: #444; margin-bottom: 10px;"><p style="margin: 2px 0;">Attuale Spesa Materia (${tipoPeriodo}): <strong>€ ${spesaAttualePeriodo.toFixed(2)}</strong></p><p style="margin: 2px 0;">Spesa con <em>${nomeOfferta}</em> (${tipoPeriodo}): <strong>€ ${spesaNuovaPeriodo.toFixed(2)}</strong></p></div><div style="border-top: 1px dotted #ccc; padding-top: 10px;"><p style="font-size:1.05em; margin: 3px 0;">${labelRisparmio} Mensile Stimato: <strong style="color:${borderColor};">€ ${segno}${Math.abs(valoreMensile).toFixed(2)}</strong></p><p style="font-size:1.05em; margin: 3px 0;">${labelRisparmio} Annuo Stimato: <strong style="color:${borderColor};">€ ${segno}${Math.abs(valoreAnnuo).toFixed(2)}</strong></p></div></div>`;
+    const userType = document.getElementById('userType').value, utente = document.getElementById('clientName').value, utility = document.getElementById('utilityType').value;
+    const oL = document.getElementById('selectedOfferLuce').value, nL = document.getElementById('selectedOfferLuce').options[document.getElementById('selectedOfferLuce').selectedIndex].text, hL = document.getElementById('hasCapLuce').value === 'si';
+    const oG = document.getElementById('selectedOfferGas').value, nG = document.getElementById('selectedOfferGas').options[document.getElementById('selectedOfferGas').selectedIndex].text, hG = document.getElementById('hasCapGas').value === 'si';
+    const LIM_L = 0.170, LIM_G = 0.630, oggi = new Date(), uG = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0), dS = `${String(uG.getDate()).padStart(2,'0')}/${String(uG.getMonth()+1).padStart(2,'0')}/${uG.getFullYear()}`;
+    let totalSaveAnnuo = 0, dCap = '';
+    if ((utility === 'light' || utility === 'lightAndGas') && hL) dCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Luce Attivo</strong> (€ ${LIM_L.toFixed(3)})</p>`;
+    if ((utility === 'gas' || utility === 'lightAndGas') && hG) dCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Gas Attivo</strong> (€ ${LIM_G.toFixed(3)})</p>`;
+    let rHtml = `<div id="report-box" style="padding:30px; border:3px solid #2e7d32; background:white; border-radius:10px; font-family:'Roboto',sans-serif;"><div style="text-align:center; border-bottom:2px solid #eee; padding-bottom:15px; margin-bottom:20px;"><h2 style="color:#2e7d32; margin-bottom:5px;">Simulazione di Risparmio</h2><p style="font-size:1.2em; margin:5px 0;">Cliente: <strong>${utente}</strong></p>${dCap}<p style="font-size:0.95em; color:#d32f2f;"><strong>Scadenza: ${dS}</strong></p></div>`;
+    function fRes(vA, et, sA, sN, nO, fr) {
+        const vM = vA / 12, isR = vA >= 0, col = isR ? "#1b5e20" : "#d32f2f", bg = isR ? "#f1f8e9" : "#ffebee", bCol = isR ? "green" : "red", seg = isR ? "-" : "+", lbl = isR ? "Risparmio" : "Differenza", tP = (fr === 1) ? "Mensile" : "Bimestrale";
+        return `<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${bCol}; background: ${bg}; border-radius: 0 5px 5px 0;"><p style="font-size:1.15em; margin: 5px 0; color: ${col}; text-transform: uppercase;"><strong>${et}</strong></p><div style="font-size:0.95em; color: #444; margin-bottom: 10px;"><p style="margin: 2px 0;">Attuale (${tP}): <strong>€ ${sA.toFixed(2)}</strong></p><p style="margin: 2px 0;">Con ${nO} (${tP}): <strong>€ ${sN.toFixed(2)}</strong></p></div><div style="border-top: 1px dotted #ccc; padding-top: 10px;"><p style="font-size:1.05em; margin: 3px 0;">${lbl} Mensile: <strong style="color:${bCol};">€ ${seg}${Math.abs(vM).toFixed(2)}</strong></p><p style="font-size:1.05em; margin: 3px 0;">${lbl} Annuo: <strong style="color:${bCol};">€ ${seg}${Math.abs(vA).toFixed(2)}</strong></p></div></div>`;
     }
-
     if (utility === 'light' || utility === 'lightAndGas') {
-        const freq = parseInt(document.getElementById('freqLuce').value);
-        const annuo = parseFloat(document.getElementById('annuoLuce').value) || 0;
-        const spesaPuraP = parseFloat(document.getElementById('costMateriaLuce').value) || 0;
-        const pcvAttualeP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0;
-        const tipoLettura = document.getElementById('tipoLettura').value;
-
-        let ogtUltraGreenLuce = 14.95;
-        if (offerLuce === 'ultraGreenCasa') ogtUltraGreenLuce = 8.95;
-        else if (offerLuce === 'ultraGreenCasaPun0') ogtUltraGreenLuce = 19.95;
-        else if (offerLuce === 'ultraGreenFixCasa') ogtUltraGreenLuce = 8.95;
-        else if (offerLuce === 'ultraGreenFixBusiness') ogtUltraGreenLuce = 14.95;
-        else if (userType === 'consumer') ogtUltraGreenLuce = 8.95;
-        else if (offerLuce === 'ultraGreenPMI' || offerLuce === 'ultraGreenGrandiAziende') ogtUltraGreenLuce = 19.95;
-
-        let consTotale = 0;
-        let costoEnergiaPura = 0;
-        const confLuce = OFFERTE_SPREAD[offerLuce];
-
-        if (confLuce && confLuce.isFix) {
-            if (tipoLettura === 'fasce') {
-                consTotale += (parseFloat(document.getElementById('kWhF1_M1').value) || 0) + (parseFloat(document.getElementById('kWhF2_M1').value) || 0) + (parseFloat(document.getElementById('kWhF3_M1').value) || 0);
-            } else { consTotale += parseFloat(document.getElementById('kWhTot1').value) || 0; }
-            if (freq === 2) {
-                if (tipoLettura === 'fasce') {
-                    consTotale += (parseFloat(document.getElementById('kWhF1_M2').value) || 0) + (parseFloat(document.getElementById('kWhF2_M2').value) || 0) + (parseFloat(document.getElementById('kWhF3_M2').value) || 0);
-                } else { consTotale += parseFloat(document.getElementById('kWhTot2').value) || 0; }
-            }
-            costoEnergiaPura = consTotale * confLuce.luceFix;
+        const fr = parseInt(document.getElementById('freqLuce').value), ann = parseFloat(document.getElementById('annuoLuce').value) || 0, sP = parseFloat(document.getElementById('costMateriaLuce').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0, tL = document.getElementById('tipoLettura').value;
+        let ogt = (oL==='ultraGreenCasa'||oL==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oL==='ultraGreenCasaPun0'||oL==='ultraGreenPMI'||oL==='ultraGreenGrandiAziende')?19.95:14.95;
+        let cT = 0, cE = 0; const cL = OFFERTE_SPREAD[oL];
+        if (cL && cL.isFix) {
+            cT += (tL === 'fasce') ? (parseFloat(document.getElementById('kWhF1_M1').value)||0)+(parseFloat(document.getElementById('kWhF2_M1').value)||0)+(parseFloat(document.getElementById('kWhF3_M1').value)||0) : parseFloat(document.getElementById('kWhTot1').value)||0;
+            if (fr === 2) cT += (tL === 'fasce') ? (parseFloat(document.getElementById('kWhF1_M2').value)||0)+(parseFloat(document.getElementById('kWhF2_M2').value)||0)+(parseFloat(document.getElementById('kWhF3_M2').value)||0) : parseFloat(document.getElementById('kWhTot2').value)||0;
+            cE = cT * cL.luceFix;
         } else {
-            const spreadLuceBase = confLuce?.luce || 0.055;
-            const spreadLuceEffettivo = hasCapLuce ? (spreadLuceBase + 0.009) : spreadLuceBase;
-            const m1 = document.getElementById('monthLuce1').value;
-            const pun1 = DB_PRICES.pun[m1];
-            let f1_m1 = hasCapLuce ? Math.min(pun1.f1, LIMITE_CAP_LUCE) : pun1.f1;
-            let f2_m1 = hasCapLuce ? Math.min(pun1.f2, LIMITE_CAP_LUCE) : pun1.f2;
-            let f3_m1 = hasCapLuce ? Math.min(pun1.f3, LIMITE_CAP_LUCE) : pun1.f3;
-            let mono_m1 = hasCapLuce ? Math.min(pun1.mono, LIMITE_CAP_LUCE) : pun1.mono;
-
-            if (tipoLettura === 'fasce') {
-                const f1 = parseFloat(document.getElementById('kWhF1_M1').value) || 0;
-                const f2 = parseFloat(document.getElementById('kWhF2_M1').value) || 0;
-                const f3 = parseFloat(document.getElementById('kWhF3_M1').value) || 0;
-                consTotale += (f1 + f2 + f3);
-                costoEnergiaPura += (f1 * f1_m1) + (f2 * f2_m1) + (f3 * f3_m1);
-            } else {
-                const mono = parseFloat(document.getElementById('kWhTot1').value) || 0;
-                consTotale += mono;
-                costoEnergiaPura += mono * mono_m1;
+            const sB = cL?.luce || 0.055, sE = hL ? (sB + 0.009) : sB, m1 = document.getElementById('monthLuce1').value, p1 = DB_PRICES.pun[m1];
+            let f1=hL?Math.min(p1.f1,LIM_L):p1.f1, f2=hL?Math.min(p1.f2,LIM_L):p1.f2, f3=hL?Math.min(p1.f3,LIM_L):p1.f3, mo=hL?Math.min(p1.mono,LIM_L):p1.mono;
+            if (tL === 'fasce') { const f1v=parseFloat(document.getElementById('kWhF1_M1').value)||0, f2v=parseFloat(document.getElementById('kWhF2_M1').value)||0, f3v=parseFloat(document.getElementById('kWhF3_M1').value)||0; cT+=(f1v+f2v+f3v); cE+=(f1v*f1)+(f2v*f2)+(f3v*f3); } else { const mono=parseFloat(document.getElementById('kWhTot1').value)||0; cT+=mono; cE+=mono*mo; }
+            if (fr === 2) {
+                const m2 = document.getElementById('monthLuce2').value, p2 = DB_PRICES.pun[m2];
+                let f12=hL?Math.min(p2.f1,LIM_L):p2.f1, f22=hL?Math.min(p2.f2,LIM_L):p2.f2, f32=hL?Math.min(p2.f3,LIM_L):p2.f3, mo2=hL?Math.min(p2.mono,LIM_L):p2.mono;
+                if (tL === 'fasce') { const f1v=parseFloat(document.getElementById('kWhF1_M2').value)||0, f2v=parseFloat(document.getElementById('kWhF2_M2').value)||0, f3v=parseFloat(document.getElementById('kWhF3_M2').value)||0; cT+=(f1v+f2v+f3v); cE+=(f1v*f12)+(f2v*f22)+(f3v*f32); } else { const mono=parseFloat(document.getElementById('kWhTot2').value)||0; cT+=mono; cE+=mono*mo2; }
             }
-            if (freq === 2) {
-                const m2 = document.getElementById('monthLuce2').value;
-                const pun2 = DB_PRICES.pun[m2];
-                let f1_m2 = hasCapLuce ? Math.min(pun2.f1, LIMITE_CAP_LUCE) : pun2.f1;
-                let f2_m2 = hasCapLuce ? Math.min(pun2.f2, LIMITE_CAP_LUCE) : pun2.f2;
-                let f3_m2 = hasCapLuce ? Math.min(pun2.f3, LIMITE_CAP_LUCE) : pun2.f3;
-                let mono_m2 = hasCapLuce ? Math.min(pun2.mono, LIMITE_CAP_LUCE) : pun2.mono;
-
-                if (tipoLettura === 'fasce') {
-                    const f1 = parseFloat(document.getElementById('kWhF1_M2').value) || 0;
-                    const f2 = parseFloat(document.getElementById('kWhF2_M2').value) || 0;
-                    const f3 = parseFloat(document.getElementById('kWhF3_M2').value) || 0;
-                    consTotale += (f1 + f2 + f3);
-                    costoEnergiaPura += (f1 * f1_m2) + (f2 * f2_m2) + (f3 * f3_m2);
-                } else {
-                    const mono = parseFloat(document.getElementById('kWhTot2').value) || 0;
-                    consTotale += mono;
-                    costoEnergiaPura += mono * mono_m2;
-                }
-            }
-            costoEnergiaPura += (consTotale * spreadLuceEffettivo);
+            cE += (cT * sE);
         }
-
-        let spesaAttualePeriodo = spesaPuraP + (pcvAttualeP * freq);
-        let spesaUltraGreenPeriodo = costoEnergiaPura + (ogtUltraGreenLuce * freq);
-        let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
-        totalSaveAnnuo += saveA;
-        reportHtml += formatRisparmio(saveA, "⚡ Fornitura Luce", spesaAttualePeriodo, spesaUltraGreenPeriodo, nomeOffertaLuce, freq);
+        let sAt = sP + (pP * fr), sUG = cE + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totalSaveAnnuo += svA; rHtml += fRes(svA, "⚡ Fornitura Luce", sAt, sUG, nL, fr);
     }
-// ==========================================
-// PARTE 4: CALCOLO GAS ED ESPORTAZIONE PDF/PNG
-// ==========================================
     if (utility === 'gas' || utility === 'lightAndGas') {
-        const freq = parseInt(document.getElementById('freqGas').value);
-        const annuo = parseFloat(document.getElementById('annuoGas').value) || 0;
-        const spesaPuraP = parseFloat(document.getElementById('costMateriaGas').value) || 0;
-        const pcvAttualeP = parseFloat(document.getElementById('pcvAttualeGas').value) || 0;
-
-        let ogtUltraGreenGas = 14.95;
-        if (offerGas === 'ultraGreenCasa') ogtUltraGreenGas = 8.95;
-        else if (offerGas === 'ultraGreenCasaPun0') ogtUltraGreenGas = 19.95;
-        else if (offerGas === 'ultraGreenFixCasa') ogtUltraGreenGas = 8.95;
-        else if (offerGas === 'ultraGreenFixBusiness') ogtUltraGreenGas = 14.95;
-        else if (userType === 'consumer') ogtUltraGreenGas = 8.95;
-        else if (offerGas === 'ultraGreenPMI' || offerGas === 'ultraGreenGrandiAziende') ogtUltraGreenGas = 19.95;
-
-        let consTotale = 0;
-        let costoGasPuro = 0;
-        const confGas = OFFERTE_SPREAD[offerGas];
-
-        if (confGas && confGas.isFix) {
-            consTotale += parseFloat(document.getElementById('smcTot1').value) || 0;
-            if (freq === 2) { consTotale += parseFloat(document.getElementById('smcTot2').value) || 0; }
-            costoGasPuro = consTotale * confGas.gasFix;
+        const fr = parseInt(document.getElementById('freqGas').value), ann = parseFloat(document.getElementById('annuoGas').value) || 0, sP = parseFloat(document.getElementById('costMateriaGas').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeGas').value) || 0;
+        let ogt = (oG==='ultraGreenCasa'||oG==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oG==='ultraGreenCasaPun0'||oG==='ultraGreenPMI'||oG==='ultraGreenGrandiAziende')?19.95:14.95;
+        let cT = 0, cG = 0; const cGConf = OFFERTE_SPREAD[oG];
+        if (cGConf && cGConf.isFix) {
+            cT += parseFloat(document.getElementById('smcTot1').value) || 0; if (fr === 2) cT += parseFloat(document.getElementById('smcTot2').value) || 0;
+            cG = cT * cGConf.gasFix;
         } else {
-            const spreadGasBase = confGas?.gas || 0.20;
-            const spreadGasEffettivo = hasCapGas ? (spreadGasBase + 0.09) : spreadGasBase;
-            const m1 = document.getElementById('monthGas1').value;
-            const cons1 = parseFloat(document.getElementById('smcTot1').value) || 0;
-            consTotale += cons1;
-            let psv_m1 = hasCapGas ? Math.min(DB_PRICES.psv[m1], LIMITE_CAP_GAS) : DB_PRICES.psv[m1];
-            costoGasPuro += cons1 * psv_m1;
-
-            if (freq === 2) {
-                const m2 = document.getElementById('monthGas2').value;
-                const cons2 = parseFloat(document.getElementById('smcTot2').value) || 0;
-                consTotale += cons2;
-                let psv_m2 = hasCapGas ? Math.min(DB_PRICES.psv[m2], LIMITE_CAP_GAS) : DB_PRICES.psv[m2];
-                costoGasPuro += cons2 * psv_m2;
-            }
-            costoGasPuro += (consTotale * spreadGasEffettivo);
+            const sB = cGConf?.gas || 0.20, sE = hG ? (sB + 0.09) : sB, m1 = document.getElementById('monthGas1').value, c1 = parseFloat(document.getElementById('smcTot1').value) || 0;
+            cT += c1; let psv1 = hG ? Math.min(DB_PRICES.psv[m1], LIM_G) : DB_PRICES.psv[m1]; cG += c1 * psv1;
+            if (fr === 2) { const m2 = document.getElementById('monthGas2').value, c2 = parseFloat(document.getElementById('smcTot2').value) || 0; cT += c2; let psv2 = hG ? Math.min(DB_PRICES.psv[m2], LIM_G) : DB_PRICES.psv[m2]; cG += c2 * psv2; }
+            cG += (cT * sE);
         }
-
-        let spesaAttualePeriodo = spesaPuraP + (pcvAttualeP * freq);
-        let spesaUltraGreenPeriodo = costoGasPuro + (ogtUltraGreenGas * freq);
-        let saveA = ((spesaAttualePeriodo - spesaUltraGreenPeriodo) / (consTotale || 1)) * annuo;
-        totalSaveAnnuo += saveA;
-        reportHtml += formatRisparmio(saveA, "🔥 Fornitura Gas", spesaAttualePeriodo, spesaUltraGreenPeriodo, nomeOffertaGas, freq);
+        let sAt = sP + (pP * fr), sUG = cG + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totalSaveAnnuo += svA; rHtml += fRes(svA, "🔥 Fornitura Gas", sAt, sUG, nG, fr);
     }
-
-    let totaleStile = "", totaleTesto = "";
-    if (totalSaveAnnuo > 0) {
-        totaleStile = "background:#2e7d32; color:white;";
-        totaleTesto = `RISPARMIO TOTALE ANNUO STIMATO<br><span style="font-size:2.5em; font-weight:bold;">€ -${Math.abs(totalSaveAnnuo).toFixed(2)}</span>`;
-    } else if (totalSaveAnnuo < 0) {
-        totaleStile = "background:#d32f2f; color:white;";
-        totaleTesto = `DIFFERENZA TOTALE ANNUALE<br><span style="font-size:2.5em; font-weight:bold;">+€ ${Math.abs(totalSaveAnnuo).toFixed(2)}</span>`;
-    } else {
-        totaleStile = "background:#757575; color:white;";
-        totaleTesto = `RISPARMIO TOTALE ANNUO<br><span style="font-size:2.5em; font-weight:bold;">€ 0.00</span>`;
-    }
-
-    reportHtml += `<div style="${totaleStile} padding:20px; text-align:center; border-radius:8px; margin-top:20px;"><span style="text-transform:uppercase; font-size:0.9em;">${totaleTesto}</span></div></div>`;
-    document.getElementById('result').innerHTML = reportHtml;
-    document.getElementById('result').style.display = 'block';
-    
-    const exportSec = document.getElementById('export-actions');
-    exportSec.classList.remove('hidden');
-    exportSec.style.display = 'block';
+    let tSt = "", tTx = "";
+    if (totalSaveAnnuo > 0) { tSt = "background:#2e7d32; color:white;"; tTx = `RISPARMIO ANNUO STIMATO<br><span style='font-size:2.5em; font-weight:bold;'>€ -${Math.abs(totalSaveAnnuo).toFixed(2)}</span>`; }
+    else if (totalSaveAnnuo < 0) { tSt = "background:#d32f2f; color:white;"; tTx = `DIFFERENZA ANNUALE<br><span style='font-size:2.5em; font-weight:bold;'>+€ ${Math.abs(totalSaveAnnuo).toFixed(2)}</span>`; }
+    else { tSt = "background:#757575; color:white;"; tTx = `RISPARMIO ANNUO<br><span style='font-size:2.5em; font-weight:bold;'>€ 0.00</span>`; }
+    rHtml += `<div style="${tSt} padding:20px; text-align:center; border-radius:8px; margin-top:20px;"><span style='text-transform:uppercase; font-size:0.9em;'>${tTx}</span></div></div>`;
+    document.getElementById('result').innerHTML = rHtml; document.getElementById('result').style.display = 'block';
+    document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
 };
-
-window.exportDoc = function(tipo) {
+window.exportDoc = function(t) {
     const el = document.getElementById('report-box');
     html2canvas(el, { scale: 2 }).then(canvas => {
-        if (tipo === 'png') {
-            canvas.toBlob(function(blob) {
-                const link = document.createElement('a');
-                link.download = 'Report_Risparmio_UltraGreen.png';
-                link.href = URL.createObjectURL(blob);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(link.href);
-            }, 'image/png');
-        } else if (tipo === 'pdf') {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jspdf.jsPDF();
-            pdf.addImage(imgData, 'PNG', 10, 10, 190, 0);
-            pdf.save('Report_Risparmio_UltraGreen.pdf');
+        if (t === 'png') {
+            canvas.toBlob(blob => { const l = document.createElement('a'); l.download = 'Report_Risparmio.png'; l.href = URL.createObjectURL(blob); document.body.appendChild(l); l.click(); document.body.removeChild(l); URL.revokeObjectURL(l.href); }, 'image/png');
+        } else if (t === 'pdf') {
+            const img = canvas.toDataURL('image/png'), pdf = new jspdf.jsPDF(); pdf.addImage(img, 'PNG', 10, 10, 190, 0); pdf.save('Report_Risparmio.pdf');
         }
     });
 };
