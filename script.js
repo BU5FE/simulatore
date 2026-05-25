@@ -115,7 +115,6 @@ window.exportDoc = function(t) {
             }, 'image/png');
         } else if (t === 'pdf') {
             const img = canvas.toDataURL('image/png');
-            const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
