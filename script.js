@@ -105,45 +105,53 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
 };
 
+// ==========================================
+// FUNZIONE DI ESPORTAZIONE FINALE (IN FONDO AL TUO SCRIPT.JS)
+// ==========================================
 window.exportDoc = function(type) {
-    // Seleziona esclusivamente il riquadro dell'output dei risultati
-    const target = document.getElementById('report-box');
-    if (!target) return;
+    const el = document.getElementById('report-box');
+    if (!el) return;
 
-    // Crea un SVG temporaneo per renderizzare l'HTML in modo nativo e sicuro
-    const ctxHtml = `<svg xmlns="http://w3.org" width="${target.offsetWidth}" height="${target.offsetHeight}">` +
-                    `<foreignObject width="100%" height="100%">` +
-                    `<div xmlns="http://w3.org" style="font-family:'Roboto',sans-serif; background:white; padding:10px;">` + 
-                    target.innerHTML + 
-                    `</div></foreignObject></svg>`;
+    // Crea un frame temporaneo invisibile per isolare l'output mantenendo gli stili
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'fixed';
+    iframe.style.right = '100%';
+    iframe.style.bottom = '100%';
+    iframe.style.width = el.offsetWidth + 'px';
+    iframe.style.height = el.offsetHeight + 'px';
+    iframe.style.border = 'none';
+    document.body.appendChild(iframe);
 
-    const img = new Image();
-    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(ctxHtml);
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write(`
+        <html>
+        <head>
+            <link rel="stylesheet" href="style.css">
+            <style>
+                body { margin: 0; padding: 20px; background: white; }
+                #report-box { border: 3px solid #2e7d32; background: white; border-radius: 10px; font-family: 'Roboto', sans-serif; }
+            </style>
+        </head>
+        <body>
+            <div id="report-box">${el.innerHTML}</div>
+        </body>
+        </html>
+    `);
+    doc.close();
 
-    img.onload = function() {
-        const canvas = document.createElement('canvas');
-        canvas.width = target.offsetWidth * 2; // Scala 2 per alta definizione
-        canvas.height = target.offsetHeight * 2;
-        const ctx = canvas.getContext('2d');
-        ctx.scale(2, 2);
-        ctx.drawImage(img, 0, 0);
-
+    // Attende il caricamento del foglio di stile nel frame temporaneo
+    setTimeout(() => {
         if (type === 'png') {
-            // Genera e scarica l'immagine PNG dell'output
-            const link = document.createElement('a');
-            link.download = 'Report_Risparmio.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            // Avvia la stampa nativa focalizzata unicamente sull'iframe dei risultati
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            document.body.removeChild(iframe);
         } else if (type === 'pdf') {
-            // Sfrutta la stampa nativa isolando temporaneamente solo l'immagine dell'output
-            const pdfWindow = window.open('', '_blank');
-            pdfWindow.document.write(`<html><head><title>Report Risparmio</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh;} img{max-width:100%; max-height:100%;}</style></head><body><img src="${canvas.toDataURL('image/png')}" /></body></html>`);
-            pdfWindow.document.close();
-            pdfWindow.focus();
-            setTimeout(() => {
-                pdfWindow.print();
-                pdfWindow.close();
-            }, 250);
+            // Esegue lo stesso isolamento mirato per il formato PDF
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            document.body.removeChild(iframe);
         }
-    };
+    }, 300);
 };
