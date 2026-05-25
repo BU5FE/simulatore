@@ -105,12 +105,12 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
 };
 window.exportDoc = function(t) {
-    const el = document.getElementById('report-box');
-    html2canvas(el, { scale: 2 }).then(canvas => {
+    const el = document.querySelector('.container');
+    html2canvas(el, { scale: 2, useCORS: true }).then(canvas => {
         if (t === 'png') {
             canvas.toBlob(blob => { const l = document.createElement('a'); l.download = 'Report_Risparmio.png'; l.href = URL.createObjectURL(blob); document.body.appendChild(l); l.click(); document.body.removeChild(l); URL.revokeObjectURL(l.href); }, 'image/png');
         } else if (t === 'pdf') {
-            const img = canvas.toDataURL('image/png'), pdf = new jspdf.jsPDF(); pdf.addImage(img, 'PNG', 10, 10, 190, 0); pdf.save('Report_Risparmio.pdf');
+            const img = canvas.toDataURL('image/png'), pdf = new window.jspdf.jsPDF(); pdf.addImage(img, 'PNG', 10, 10, 190, 0); pdf.save('Report_Risparmio.pdf');
         }
     });
 };
