@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Simulatore UltraGreen - Analisi Risparmio</title>
     
-    <!-- LIBRERIE DI ESPORTAZIONE AGGIORNATE -->
+    <!-- LIBRERIE PER ESPORTAZIONE -->
     <script src="https://cloudflare.com"></script>
     <script src="https://cloudflare.com"></script>
     
@@ -246,8 +246,8 @@
     <div id="result"></div>
     
     <div id="export-actions" class="hidden" style="text-align:center; margin-top:25px; padding-top:20px; border-top:1px solid #ddd;">
-        <button onclick="esportaPDF()" class="btn-export" style="margin-right: 10px;">ESPORTA IN PDF</button>
-        <button onclick="esportaPNG()" class="btn-export" style="background-color: #4caf50;">SCARICA COME IMMAGINE (PNG)</button>
+        <button onclick="exportDoc('pdf')" class="btn-export" style="margin-right: 10px;">ESPORTA IN PDF</button>
+        <button onclick="exportDoc('png')" class="btn-export" style="background-color: #4caf50;">SCARICA COME IMMAGINE (PNG)</button>
     </div>
 </div>
 
