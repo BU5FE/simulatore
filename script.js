@@ -105,61 +105,33 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
 };
 
-// ==========================================
-// FUNZIONE DI ESPORTAZIONE (IN FONDO AL TUO SCRIPT.JS)
-// ==========================================
-window.exportDoc = function(type) {
-    const el = document.getElementById('report-box');
-    if (!el) return;
-
-    if (type === 'png') {
-        // Usa la libreria sbloccata per fare una foto reale solo al riquadro dei risultati
-        html2canvas(el, { scale: 2, useCORS: true, logging: false }).then(canvas => {
-            canvas.toBlob(blob => { 
-                const link = document.createElement('a'); 
-                link.download = 'Report_Risparmio.png'; 
-                link.href = URL.createObjectURL(blob); 
-                document.body.appendChild(link); 
-                link.click(); 
-                document.body.removeChild(link); 
-                URL.revokeObjectURL(link.href); 
-            }, 'image/png');
-        }).catch(err => console.error("Errore PNG:", err));
-    } 
+window.exportDoc = function(t) {
+    const el = document.querySelector('.container');
     
-    else if (type === 'pdf') {
-        // Mantiene il sistema dell'iframe che hai visto funzionare perfettamente per il PDF pulito
-        const iframe = document.createElement('iframe');
-        iframe.style.position = 'fixed';
-        iframe.style.right = '100%';
-        iframe.style.bottom = '100%';
-        iframe.style.width = el.offsetWidth + 'px';
-        iframe.style.height = el.offsetHeight + 'px';
-        iframe.style.border = 'none';
-        document.body.appendChild(iframe);
-
-        const doc = iframe.contentWindow.document;
-        doc.open();
-        doc.write(`
-            <html>
-            <head>
-                <link rel="stylesheet" href="style.css">
-                <style>
-                    body { margin: 0; padding: 20px; background: white; }
-                    #report-box { border: 3px solid #2e7d32; background: white; border-radius: 10px; font-family: 'Roboto', sans-serif; }
-                </style>
-            </head>
-            <body>
-                <div id="report-box">${el.innerHTML}</div>
-            </body>
-            </html>
-        `);
-        doc.close();
-
-        setTimeout(() => {
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-            document.body.removeChild(iframe);
-        }, 300);
-    }
+    // Configurazione ad alta definizione con supporto CORS per i server online
+    html2canvas(el, { scale: 2, useCORS: true, logging: false }).then(canvas => {
+        if (t === 'png') {
+            canvas.toBlob(blob => { 
+                const l = document.createElement('a'); 
+                l.download = 'Report_Risparmio.png'; 
+                l.href = URL.createObjectURL(blob); 
+                document.body.appendChild(l); 
+                l.click(); 
+                document.body.removeChild(l); 
+                URL.revokeObjectURL(l.href); 
+            }, 'image/png');
+        } else if (t === 'pdf') {
+            const img = canvas.toDataURL('image/png');
+            
+            // ATTIVAZIONE SPECIFICA PER LA LIBRERIA UMD.MIN.JS DEL TUO HEAD
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
+            
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+            
+            pdf.addImage(img, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.save('Report_Risparmio.pdf');
+        }
+    }).catch(err => console.error("Errore esportazione:", err));
 };
