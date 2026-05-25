@@ -105,18 +105,16 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
 };
 
+// AGGIORNA SOLO QUESTO BLOCCO IN FONDO AL TUO SCRIPT.JS
+
+// Questa funzione risponde se l'HTML cerca "exportDoc"
 window.exportDoc = function(t) {
     const el = document.querySelector('.container');
     html2canvas(el, { scale: 2, useCORS: true, logging: false }).then(canvas => {
         if (t === 'png') {
             canvas.toBlob(blob => { 
-                const l = document.createElement('a'); 
-                l.download = 'Report_Risparmio.png'; 
-                l.href = URL.createObjectURL(blob); 
-                document.body.appendChild(l); 
-                l.click(); 
-                document.body.removeChild(l); 
-                URL.revokeObjectURL(l.href); 
+                const l = document.createElement('a'); l.download = 'Report_Risparmio.png'; l.href = URL.createObjectURL(blob); 
+                document.body.appendChild(l); l.click(); document.body.removeChild(l); URL.revokeObjectURL(l.href); 
             }, 'image/png');
         } else if (t === 'pdf') {
             const img = canvas.toDataURL('image/png');
@@ -128,3 +126,9 @@ window.exportDoc = function(t) {
         }
     });
 };
+
+// Questa funzione risponde se l'HTML cerca "esportaPNG"
+window.esportaPNG = function() { window.exportDoc('png'); };
+
+// Questa funzione risponde se l'HTML cerca "esportaPDF"
+window.esportaPDF = function() { window.exportDoc('pdf'); };
