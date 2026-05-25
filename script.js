@@ -62,7 +62,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     }
     if (utility === 'light' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqLuce').value), ann = parseFloat(document.getElementById('annuoLuce').value) || 0, sP = parseFloat(document.getElementById('costMateriaLuce').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0, tL = document.getElementById('tipoLettura').value;
-        let ogt = (oL=='ultraGreenCasaPun0')?19.95:(oL=='ultraGreenCasa'||oL=='ultraGreenFixCasa'||userType=='consumer')?8.95:(oL=='ultraGreenPMI'||oL=='ultraGreenGrandiAziende')?19.95:14.95;
+        let ogt = (oL==='ultraGreenCasaPun0')?19.95:(oL==='ultraGreenCasa'||oL==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oL==='ultraGreenPMI'||oL==='ultraGreenGrandiAziende')?19.95:14.95;
         let cT = 0, cE = 0; const cL = OFFERTE_SPREAD[oL];
         if (tL === 'fasce') { cT += (parseFloat(document.getElementById('kWhF1_M1').value)||0)+(parseFloat(document.getElementById('kWhF2_M1').value)||0)+(parseFloat(document.getElementById('kWhF3_M1').value)||0); } else { cT += parseFloat(document.getElementById('kWhTot1').value)||0; }
         if (fr === 2) { if (tL === 'fasce') { cT += (parseFloat(document.getElementById('kWhF1_M2').value)||0)+(parseFloat(document.getElementById('kWhF2_M2').value)||0)+(parseFloat(document.getElementById('kWhF3_M2').value)||0); } else { cT += parseFloat(document.getElementById('kWhTot2').value)||0; } }
@@ -83,7 +83,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     }
     if (utility === 'gas' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqGas').value), ann = parseFloat(document.getElementById('annuoGas').value) || 0, sP = parseFloat(document.getElementById('costMateriaGas').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeGas').value) || 0;
-        let ogt = (oG=='ultraGreenCasaPun0')?19.95:(oG=='ultraGreenCasa'||oG=='ultraGreenFixCasa'||userType=='consumer')?8.95:(oG=='ultraGreenPMI'||oG=='ultraGreenGrandiAziende')?19.95:14.95;
+        let ogt = (oG==='ultraGreenCasaPun0')?19.95:(oG==='ultraGreenCasa'||oG==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oG==='ultraGreenPMI'||oG==='ultraGreenGrandiAziende')?19.95:14.95;
         let cT = 0, cG = 0; const cGConf = OFFERTE_SPREAD[oG];
         if (cGConf && cGConf.isFix) {
             cT += parseFloat(document.getElementById('smcTot1').value) || 0; if (fr === 2) cT += parseFloat(document.getElementById('smcTot2').value) || 0;
@@ -105,9 +105,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
 };
 
-// AGGIORNA SOLO QUESTO BLOCCO IN FONDO AL TUO SCRIPT.JS
-
-// Questa funzione risponde se l'HTML cerca "exportDoc"
 window.exportDoc = function(t) {
     const el = document.querySelector('.container');
     html2canvas(el, { scale: 2, useCORS: true, logging: false }).then(canvas => {
@@ -118,7 +115,8 @@ window.exportDoc = function(t) {
             }, 'image/png');
         } else if (t === 'pdf') {
             const img = canvas.toDataURL('image/png');
-            const pdf = new window.jspdf.jsPDF('p', 'mm', 'a4');
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(img, 'PNG', 0, 0, pdfWidth, pdfHeight);
@@ -126,9 +124,3 @@ window.exportDoc = function(t) {
         }
     });
 };
-
-// Questa funzione risponde se l'HTML cerca "esportaPNG"
-window.esportaPNG = function() { window.exportDoc('png'); };
-
-// Questa funzione risponde se l'HTML cerca "esportaPDF"
-window.esportaPDF = function() { window.exportDoc('pdf'); };
