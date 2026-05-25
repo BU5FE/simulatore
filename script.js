@@ -106,9 +106,10 @@ document.getElementById('calculator-form').onsubmit = function(e) {
 };
 
 window.exportDoc = function(t) {
-    const el = document.querySelector('.container');
+    // CAMBIATO QUI: Seleziona solo il riquadro dell'output e non tutta la pagina
+    const el = document.getElementById('report-box');
+    if (!el) return;
     
-    // Configurazione ad alta definizione con supporto CORS per i server online
     html2canvas(el, { scale: 2, useCORS: true, logging: false }).then(canvas => {
         if (t === 'png') {
             canvas.toBlob(blob => { 
@@ -123,7 +124,6 @@ window.exportDoc = function(t) {
         } else if (t === 'pdf') {
             const img = canvas.toDataURL('image/png');
             
-            // ATTIVAZIONE SPECIFICA PER LA LIBRERIA UMD.MIN.JS DEL TUO HEAD
             const { jsPDF } = window.jspdf;
             const pdf = new jsPDF('p', 'mm', 'a4');
             
