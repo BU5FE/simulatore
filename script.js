@@ -105,21 +105,31 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
 };
 
-window.exportDoc = function(t) {
-    const el = document.querySelector('.container');
-    html2canvas(el, { scale: 2, useCORS: true, logging: false }).then(canvas => {
-        if (t === 'png') {
+window.exportDoc = function(format) {
+    const targetElement = document.querySelector('.container');
+    
+    html2canvas(targetElement, { scale: 2, useCORS: true, logging: false }).then(canvas => {
+        const cleanFormat = String(format).toLowerCase().trim();
+        
+        if (cleanFormat.includes('png')) {
             canvas.toBlob(blob => { 
-                const l = document.createElement('a'); l.download = 'Report_Risparmio.png'; l.href = URL.createObjectURL(blob); 
-                document.body.appendChild(l); l.click(); document.body.removeChild(l); URL.revokeObjectURL(l.href); 
+                const link = document.createElement('a'); 
+                link.download = 'Report_Risparmio.png'; 
+                link.href = URL.createObjectURL(blob); 
+                document.body.appendChild(link); 
+                link.click(); 
+                document.body.removeChild(link); 
+                URL.revokeObjectURL(link.href); 
             }, 'image/png');
-        } else if (t === 'pdf') {
-            const img = canvas.toDataURL('image/png');
+        } else if (cleanFormat.includes('pdf')) {
+            const imgData = canvas.toDataURL('image/png');
             const pdf = new jsPDF('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            pdf.addImage(img, 'PNG', 0, 0, pdfWidth, pdfHeight);
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
             pdf.save('Report_Risparmio.pdf');
         }
+    }).catch(err => {
+        console.error("Errore durante l'esportazione:", err);
     });
 };
