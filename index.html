@@ -245,11 +245,14 @@
         <button type="submit" class="btn-calculate">GENERA ANALISI COMPARATIVA</button>
     </form>
 
-    <div id="result"></div>
+        <div id="result"></div>
     
     <div id="export-actions" class="hidden" style="text-align:center; margin-top:25px; padding-top:20px; border-top:1px solid #ddd;">
-    <button onclick="window.print()" class="btn-export" style="background-color: #2e7d32;">STAMPA O SALVA IN PDF</button>
+        <button onclick="exportDoc('pdf')" class="btn-export" style="margin-right: 10px;">ESPORTA IN PDF</button>
+        <button onclick="exportDoc('png')" class="btn-export" style="background-color: #4caf50;">SCARICA COME IMMAGINE (PNG)</button>
+    </div>
 </div>
+
 <script src="script.js"></script>
 </body>
 </html>
