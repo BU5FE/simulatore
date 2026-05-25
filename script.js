@@ -106,52 +106,60 @@ document.getElementById('calculator-form').onsubmit = function(e) {
 };
 
 // ==========================================
-// FUNZIONE DI ESPORTAZIONE FINALE (IN FONDO AL TUO SCRIPT.JS)
+// FUNZIONE DI ESPORTAZIONE (IN FONDO AL TUO SCRIPT.JS)
 // ==========================================
 window.exportDoc = function(type) {
     const el = document.getElementById('report-box');
     if (!el) return;
 
-    // Crea un frame temporaneo invisibile per isolare l'output mantenendo gli stili
-    const iframe = document.createElement('iframe');
-    iframe.style.position = 'fixed';
-    iframe.style.right = '100%';
-    iframe.style.bottom = '100%';
-    iframe.style.width = el.offsetWidth + 'px';
-    iframe.style.height = el.offsetHeight + 'px';
-    iframe.style.border = 'none';
-    document.body.appendChild(iframe);
+    if (type === 'png') {
+        // Usa la libreria sbloccata per fare una foto reale solo al riquadro dei risultati
+        html2canvas(el, { scale: 2, useCORS: true, logging: false }).then(canvas => {
+            canvas.toBlob(blob => { 
+                const link = document.createElement('a'); 
+                link.download = 'Report_Risparmio.png'; 
+                link.href = URL.createObjectURL(blob); 
+                document.body.appendChild(link); 
+                link.click(); 
+                document.body.removeChild(link); 
+                URL.revokeObjectURL(link.href); 
+            }, 'image/png');
+        }).catch(err => console.error("Errore PNG:", err));
+    } 
+    
+    else if (type === 'pdf') {
+        // Mantiene il sistema dell'iframe che hai visto funzionare perfettamente per il PDF pulito
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.right = '100%';
+        iframe.style.bottom = '100%';
+        iframe.style.width = el.offsetWidth + 'px';
+        iframe.style.height = el.offsetHeight + 'px';
+        iframe.style.border = 'none';
+        document.body.appendChild(iframe);
 
-    const doc = iframe.contentWindow.document;
-    doc.open();
-    doc.write(`
-        <html>
-        <head>
-            <link rel="stylesheet" href="style.css">
-            <style>
-                body { margin: 0; padding: 20px; background: white; }
-                #report-box { border: 3px solid #2e7d32; background: white; border-radius: 10px; font-family: 'Roboto', sans-serif; }
-            </style>
-        </head>
-        <body>
-            <div id="report-box">${el.innerHTML}</div>
-        </body>
-        </html>
-    `);
-    doc.close();
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(`
+            <html>
+            <head>
+                <link rel="stylesheet" href="style.css">
+                <style>
+                    body { margin: 0; padding: 20px; background: white; }
+                    #report-box { border: 3px solid #2e7d32; background: white; border-radius: 10px; font-family: 'Roboto', sans-serif; }
+                </style>
+            </head>
+            <body>
+                <div id="report-box">${el.innerHTML}</div>
+            </body>
+            </html>
+        `);
+        doc.close();
 
-    // Attende il caricamento del foglio di stile nel frame temporaneo
-    setTimeout(() => {
-        if (type === 'png') {
-            // Avvia la stampa nativa focalizzata unicamente sull'iframe dei risultati
+        setTimeout(() => {
             iframe.contentWindow.focus();
             iframe.contentWindow.print();
             document.body.removeChild(iframe);
-        } else if (type === 'pdf') {
-            // Esegue lo stesso isolamento mirato per il formato PDF
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-            document.body.removeChild(iframe);
-        }
-    }, 300);
+        }, 300);
+    }
 };
