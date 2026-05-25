@@ -105,3 +105,45 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
 };
 
+window.exportDoc = function(type) {
+    // Seleziona esclusivamente il riquadro dell'output dei risultati
+    const target = document.getElementById('report-box');
+    if (!target) return;
+
+    // Crea un SVG temporaneo per renderizzare l'HTML in modo nativo e sicuro
+    const ctxHtml = `<svg xmlns="http://w3.org" width="${target.offsetWidth}" height="${target.offsetHeight}">` +
+                    `<foreignObject width="100%" height="100%">` +
+                    `<div xmlns="http://w3.org" style="font-family:'Roboto',sans-serif; background:white; padding:10px;">` + 
+                    target.innerHTML + 
+                    `</div></foreignObject></svg>`;
+
+    const img = new Image();
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(ctxHtml);
+
+    img.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = target.offsetWidth * 2; // Scala 2 per alta definizione
+        canvas.height = target.offsetHeight * 2;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(2, 2);
+        ctx.drawImage(img, 0, 0);
+
+        if (type === 'png') {
+            // Genera e scarica l'immagine PNG dell'output
+            const link = document.createElement('a');
+            link.download = 'Report_Risparmio.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } else if (type === 'pdf') {
+            // Sfrutta la stampa nativa isolando temporaneamente solo l'immagine dell'output
+            const pdfWindow = window.open('', '_blank');
+            pdfWindow.document.write(`<html><head><title>Report Risparmio</title><style>body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh;} img{max-width:100%; max-height:100%;}</style></head><body><img src="${canvas.toDataURL('image/png')}" /></body></html>`);
+            pdfWindow.document.close();
+            pdfWindow.focus();
+            setTimeout(() => {
+                pdfWindow.print();
+                pdfWindow.close();
+            }, 250);
+        }
+    };
+};
