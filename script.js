@@ -62,8 +62,9 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     }
     if (utility === 'light' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqLuce').value), ann = parseFloat(document.getElementById('annuoLuce').value) || 0, sP = parseFloat(document.getElementById('costMateriaLuce').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0, tL = document.getElementById('tipoLettura').value;
-        let ogt = (oL==='ultraGreenCasaPun0')?19.95:(oL==='ultraGreenCasa'||oL==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oL==='ultraGreenPMI'||oL==='ultraGreenGrandiAziende')?19.95:14.95;
-        let cT = 0, cE = 0; const cL = OFFERTE_SPREAD[oL];
+        let oL_val = oL;
+        let ogt = (oL_val==='ultraGreenCasaPun0')?19.95:(oL_val==='ultraGreenCasa'||oL_val==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oL_val==='ultraGreenPMI'||oL_val==='ultraGreenGrandiAziende')?19.95:14.95;
+        let cT = 0, cE = 0; const cL = OFFERTE_SPREAD[oL_val];
         if (tL === 'fasce') { cT += (parseFloat(document.getElementById('kWhF1_M1').value)||0)+(parseFloat(document.getElementById('kWhF2_M1').value)||0)+(parseFloat(document.getElementById('kWhF3_M1').value)||0); } else { cT += parseFloat(document.getElementById('kWhTot1').value)||0; }
         if (fr === 2) { if (tL === 'fasce') { cT += (parseFloat(document.getElementById('kWhF1_M2').value)||0)+(parseFloat(document.getElementById('kWhF2_M2').value)||0)+(parseFloat(document.getElementById('kWhF3_M2').value)||0); } else { cT += parseFloat(document.getElementById('kWhTot2').value)||0; } }
         if (cL && cL.isFix) {
