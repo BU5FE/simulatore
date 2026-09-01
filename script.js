@@ -1,24 +1,25 @@
 const DB_PRICES = {
     pun: { 
-        '07': { mono: 0.112, f1: 0.121, f2: 0.118, f3: 0.102 }, '08': { mono: 0.128, f1: 0.138, f2: 0.135, f3: 0.116 },
+        '08': { mono: 0.128, f1: 0.138, f2: 0.135, f3: 0.116 },
         '09': { mono: 0.109, f1: 0.128, f2: 0.122, f3: 0.100 }, '10': { mono: 0.107, f1: 0.118, f2: 0.112, f3: 0.095 }, 
         '11': { mono: 0.117, f1: 0.130, f2: 0.124, f3: 0.108 }, '12': { mono: 0.124, f1: 0.145, f2: 0.138, f3: 0.115 }, 
         '01': { mono: 0.133, f1: 0.151, f2: 0.137, f3: 0.118 }, '02': { mono: 0.114, f1: 0.122, f2: 0.120, f3: 0.105 },
         '03': { mono: 0.143, f1: 0.143, f2: 0.153, f3: 0.138 }, '04': { mono: 0.119, f1: 0.111, f2: 0.138, f3: 0.116 },
-        '05': { mono: 0.119, f1: 0.107, f2: 0.131, f3: 0.120 }, '06': { mono: 0.132, f1: 0.125, f2: 0.151, f3: 0.127 }
+        '05': { mono: 0.119, f1: 0.107, f2: 0.131, f3: 0.120 }, '06': { mono: 0.132, f1: 0.125, f2: 0.151, f3: 0.127 },
+        '07': { mono: 0.157, f1: 0.154, f2: 0.169, f3: 0.152 }
     }, psv: { 
-        '07': 0.38, '08': 0.43, '09': 0.40, '10': 0.42, '11': 0.45, '12': 0.48, '01': 0.45, '02': 0.377, '03': 0.558, '04': 0.493, '05': 0.502, '06': 0.505
+        '08': 0.43, '09': 0.40, '10': 0.42, '11': 0.45, '12': 0.48, '01': 0.45, '02': 0.377, '03': 0.558, '04': 0.493, '05': 0.502, '06': 0.505, '07': 0.606
     }
 };
 const OFFERTE_SPREAD = {
-    'ultraGreenCasa': { luce: 0.061, gas: 0.35 }, 'ultraGreenCasaPun0': { luce: 0.058, gas: 0.287 },
+    'ultraGreenCasa': { luce: 0.061, gas: 0.35 },
     'ultraGreen': { luce: 0.061, gas: 0.32 }, 'revolutionTax': { luce: 0.061, gas: 0.32 },
     'ultraGreenPMI': { luce: 0.059, gas: 0.30 }, 'ultraGreenGrandiAziende': { luce: 0.043, gas: 0.28 },
-    'ultraGreenFixCasa': { isFix: true, luceFix: 0.163, gasFix: 0.699 }, 'ultraGreenFixBusiness': { isFix: true, luceFix: 0.139, gasFix: 0.595 }
+    'ultraGreenFixCasa': { isFix: true, luceFix: 0.178, gasFix: 0.889 }, 'ultraGreenFixBusiness': { isFix: true, luceFix: 0.149, gasFix: 0.769 }
 };
 const months = [
-    {v:'07', t:'Luglio 2025'}, {v:'08', t:'Agosto 2025'}, {v:'09', t:'Settembre 2025'}, {v:'10', t:'Ottobre 2025'}, {v:'11', t:'Novembre 2025'},
-    {v:'12', t:'Dicembre 2025'}, {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}, {v:'03', t:'Marzo 2026'}, {v:'04', t:'Aprile 2026'}, {v:'05', t:'Maggio 2026'}, {v:'06', t:'Giugno 2026'}
+    {v:'08', t:'Agosto 2025'}, {v:'09', t:'Settembre 2025'}, {v:'10', t:'Ottobre 2025'}, {v:'11', t:'Novembre 2025'},
+    {v:'12', t:'Dicembre 2025'}, {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}, {v:'03', t:'Marzo 2026'}, {v:'04', t:'Aprile 2026'}, {v:'05', t:'Maggio 2026'}, {v:'06', t:'Giugno 2026'}, {v:'07', t:'Luglio 2026'}
 ];
 function toggleSections() {
     const u = document.getElementById('utilityType').value, l = document.getElementById('tipoLettura').value;
@@ -35,10 +36,10 @@ function toggleSections() {
 function updateOffersDropdown() {
     const t = document.getElementById('userType').value, sL = document.getElementById('selectedOfferLuce'), sG = document.getElementById('selectedOfferGas');
     const dispB = (t === 'business') ? 'none' : 'block', dispF = (t === 'business') ? 'block' : 'none';
-    ['opt-casa-luce', 'opt-casa-gas', 'opt-casa-pun0-luce', 'opt-casa-pun0-gas', 'opt-fix-casa-luce', 'opt-fix-casa-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispB; });
+    ['opt-casa-luce', 'opt-casa-gas', 'opt-fix-casa-luce', 'opt-fix-casa-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispB; });
     ['opt-fix-biz-luce', 'opt-fix-biz-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispF; });
-    if (t === 'business' && ['ultraGreenCasa', 'ultraGreenCasaPun0', 'ultraGreenFixCasa'].includes(sL.value)) sL.value = '';
-    if (t === 'business' && ['ultraGreenCasa', 'ultraGreenCasaPun0', 'ultraGreenFixCasa'].includes(sG.value)) sG.value = '';
+    if (t === 'business' && ['ultraGreenCasa', 'ultraGreenFixCasa'].includes(sL.value)) sL.value = '';
+    if (t === 'business' && ['ultraGreenCasa', 'ultraGreenFixCasa'].includes(sG.value)) sG.value = '';
     if (t !== 'business' && sL.value === 'ultraGreenFixBusiness') sL.value = '';
     if (t !== 'business' && sG.value === 'ultraGreenFixBusiness') sG.value = '';
 }
