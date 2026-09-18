@@ -1,25 +1,21 @@
 const DB_PRICES = {
     pun: { 
-        '08': { mono: 0.128, f1: 0.138, f2: 0.135, f3: 0.116 },
-        '09': { mono: 0.109, f1: 0.128, f2: 0.122, f3: 0.100 }, '10': { mono: 0.107, f1: 0.118, f2: 0.112, f3: 0.095 }, 
-        '11': { mono: 0.117, f1: 0.130, f2: 0.124, f3: 0.108 }, '12': { mono: 0.124, f1: 0.145, f2: 0.138, f3: 0.115 }, 
         '01': { mono: 0.133, f1: 0.151, f2: 0.137, f3: 0.118 }, '02': { mono: 0.114, f1: 0.122, f2: 0.120, f3: 0.105 },
         '03': { mono: 0.143, f1: 0.143, f2: 0.153, f3: 0.138 }, '04': { mono: 0.119, f1: 0.111, f2: 0.138, f3: 0.116 },
         '05': { mono: 0.119, f1: 0.107, f2: 0.131, f3: 0.120 }, '06': { mono: 0.132, f1: 0.125, f2: 0.151, f3: 0.127 },
-        '07': { mono: 0.157, f1: 0.154, f2: 0.169, f3: 0.152 }
+        '07': { mono: 0.157, f1: 0.154, f2: 0.169, f3: 0.152 }, '08': { mono: 0.180, f1: 0.174, f2: 0.204, f3: 0.171 }
     }, psv: { 
-        '08': 0.43, '09': 0.40, '10': 0.42, '11': 0.45, '12': 0.48, '01': 0.45, '02': 0.377, '03': 0.558, '04': 0.493, '05': 0.502, '06': 0.505, '07': 0.606
+        '01': 0.45, '02': 0.377, '03': 0.558, '04': 0.493, '05': 0.502, '06': 0.505, '07': 0.606, '08': 0.686
     }
 };
 const OFFERTE_SPREAD = {
     'ultraGreenCasa': { luce: 0.061, gas: 0.35 },
-    'ultraGreen': { luce: 0.061, gas: 0.32 }, 'revolutionTax': { luce: 0.061, gas: 0.32 },
+    'ultraGreen': { luce: 0.061, gas: 0.32 }, 'revolutionTax': { luce: 0.0375, gas: 0.2275 },
     'ultraGreenPMI': { luce: 0.059, gas: 0.30 }, 'ultraGreenGrandiAziende': { luce: 0.043, gas: 0.28 },
     'ultraGreenFixCasa': { isFix: true, luceFix: 0.178, gasFix: 0.889 }, 'ultraGreenFixBusiness': { isFix: true, luceFix: 0.149, gasFix: 0.769 }
 };
 const months = [
-    {v:'08', t:'Agosto 2025'}, {v:'09', t:'Settembre 2025'}, {v:'10', t:'Ottobre 2025'}, {v:'11', t:'Novembre 2025'},
-    {v:'12', t:'Dicembre 2025'}, {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}, {v:'03', t:'Marzo 2026'}, {v:'04', t:'Aprile 2026'}, {v:'05', t:'Maggio 2026'}, {v:'06', t:'Giugno 2026'}, {v:'07', t:'Luglio 2026'}
+    {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}, {v:'03', t:'Marzo 2026'}, {v:'04', t:'Aprile 2026'}, {v:'05', t:'Maggio 2026'}, {v:'06', t:'Giugno 2026'}, {v:'07', t:'Luglio 2026'}, {v:'08', t:'Agosto 2026'}
 ];
 function toggleSections() {
     const u = document.getElementById('utilityType').value, l = document.getElementById('tipoLettura').value;
@@ -53,7 +49,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const userType = document.getElementById('userType').value, utente = document.getElementById('clientName').value, utility = document.getElementById('utilityType').value;
     const oL = document.getElementById('selectedOfferLuce').value, nL = document.getElementById('selectedOfferLuce').options[document.getElementById('selectedOfferLuce').selectedIndex].text, hL = document.getElementById('hasCapLuce').value === 'si';
     const oG = document.getElementById('selectedOfferGas').value, nG = document.getElementById('selectedOfferGas').options[document.getElementById('selectedOfferGas').selectedIndex].text, hG = document.getElementById('hasCapGas').value === 'si';
-    const LIM_L = 0.170, LIM_G = 0.630, oggi = new Date(), uG = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0), dS = `${String(uG.getDate()).padStart(2,'0')}/${String(uG.getMonth()+1).padStart(2,'0')}/${uG.getFullYear()}`;
+    const LIM_L = 0.250, LIM_G = 1.000, oggi = new Date(), uG = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0), dS = `${String(uG.getDate()).padStart(2,'0')}/${String(uG.getMonth()+1).padStart(2,'0')}/${uG.getFullYear()}`;
     let totSave = 0, dCap = '';
     if ((utility === 'light' || utility === 'lightAndGas') && hL) dCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Luce Attivo</strong> (€ ${LIM_L.toFixed(3)})</p>`;
     if ((utility === 'gas' || utility === 'lightAndGas') && hG) dCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Gas Attivo</strong> (€ ${LIM_G.toFixed(3)})</p>`;
