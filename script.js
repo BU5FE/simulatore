@@ -12,7 +12,7 @@ const OFFERTE_SPREAD = {
     'ultraGreenCasa': { luce: 0.061, gas: 0.35 },
     'ultraGreen': { luce: 0.061, gas: 0.32 }, 'revolutionTax': { luce: 0.0375, gas: 0.2275 },
     'ultraGreenPMI': { luce: 0.059, gas: 0.30 }, 'ultraGreenGrandiAziende': { luce: 0.043, gas: 0.28 },
-    'ultraGreenFixCasa': { isFix: true, luceFix: 0.178, gasFix: 0.889 }, 'ultraGreenFixBusiness': { isFix: true, luceFix: 0.149, gasFix: 0.769 }
+    'ultraGreenFixCasa': { isFix: true, luceFix: 0.198, gasFix: 0.889 }, 'ultraGreenFixBusiness': { isFix: true, luceFix: 0.169, gasFix: 0.769 }
 };
 const months = [
     {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}, {v:'03', t:'Marzo 2026'}, {v:'04', t:'Aprile 2026'}, {v:'05', t:'Maggio 2026'}, {v:'06', t:'Giugno 2026'}, {v:'07', t:'Luglio 2026'}, {v:'08', t:'Agosto 2026'}
