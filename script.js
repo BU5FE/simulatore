@@ -138,15 +138,15 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">⚡ <strong>Sconto Accise Revolution Tax (${userType === 'business' ? 'Business' : 'Residenziale'}):</strong></p><p style="margin: 2px 0; color: #444;">Risparmio aggiuntivo annuo sulle accise (${tariffaAccisa.toFixed(4)} €/kWh × ${ann} kWh): <strong style="color: green;">€ -${totaleScontoAccise.toFixed(2)}</strong></p></div>`;
         }
 
-        // Scenario di picco Luce (frase personalizzata e colori dinamici)
+        // Scenario di picco Luce
         if (hL && cL && !cL.isFix) {
             let sUG_Worst = cE_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
             let isWorstSave = svA_Worst >= 0;
             let colWorst = isWorstSave ? "green" : "red";
             
             let descWorst = isWorstSave 
-                ? `In caso di forti rincari di mercato sopra i 0,250 €/kWh, avrai un risparmio stimato di <strong style="color: ${colWorst};">€ -${Math.abs(svA_Worst).toFixed(2)}</strong>`
-                : `In caso di forti rincari di mercato sopra i 0,250 €/kWh, non avrai un risparmio stimato ma un delta di <strong style="color: ${colWorst};">€ +${Math.abs(svA_Worst).toFixed(2)}</strong>`;
+                ? `In caso di forti rincari di mercato sopra i 0,200 €/kWh, avrai un risparmio stimato di <strong style="color: ${colWorst};">€ -${Math.abs(svA_Worst).toFixed(2)}</strong>`
+                : `In caso di forti rincari di mercato sopra i 0,200 €/kWh, non avrai un risparmio stimato ma un delta di <strong style="color: ${colWorst};">€ +${Math.abs(svA_Worst).toFixed(2)}</strong>`;
             
             rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid ${colWorst}; background: ${isWorstSave ? '#e8f5e9' : '#ffebee'}; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: ${isWorstSave ? '#1b5e20' : '#d32f2f'};">🛡️ <strong>Scenario di picco (PUN ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">${descWorst}</p></div>`;
         }
@@ -168,15 +168,15 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         }
         let sAt = sP + (pP * fr), sUG = cG + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "🔥 Fornitura Gas", sAt, sUG, nG, fr);
         
-        // Scenario di picco Gas (frase personalizzata e colori dinamici)
+        // Scenario di picco Gas (corretto a 0,95 €/smc)
         if (hG && cGConf && !cGConf.isFix) {
             let sUG_Worst = cG_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
             let isWorstSaveGas = svA_Worst >= 0;
             let colWorstGas = isWorstSaveGas ? "green" : "red";
             
             let descWorstGas = isWorstSaveGas 
-                ? `In caso di forti rincari di mercato sopra i 1,000 €/smc, avrai un risparmio stimato di <strong style="color: ${colWorstGas};">€ -${Math.abs(svA_Worst).toFixed(2)}</strong>`
-                : `In caso di forti rincari di mercato sopra i 1,000 €/smc, non avrai un risparmio stimato ma un delta di <strong style="color: ${colWorstGas};">€ +${Math.abs(svA_Worst).toFixed(2)}</strong>`;
+                ? `In caso di forti rincari di mercato sopra i 0,95 €/smc, avrai un risparmio stimato di <strong style="color: ${colWorstGas};">€ -${Math.abs(svA_Worst).toFixed(2)}</strong>`
+                : `In caso di forti rincari di mercato sopra i 0,95 €/smc, non avrai un risparmio stimato ma un delta di <strong style="color: ${colWorstGas};">€ +${Math.abs(svA_Worst).toFixed(2)}</strong>`;
             
             rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid ${colWorstGas}; background: ${isWorstSaveGas ? '#e8f5e9' : '#ffebee'}; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: ${isWorstSaveGas ? '#1b5e20' : '#d32f2f'};">🛡️ <strong>Scenario di picco (PSV ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">${descWorstGas}</p></div>`;
         }
