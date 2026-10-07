@@ -46,6 +46,7 @@ function gestisciVisibilitaCap() {
     }
 }
 
+
 function toggleSections() {
     const u = document.getElementById('utilityType').value, l = document.getElementById('tipoLettura').value;
     const fL = document.getElementById('freqLuce').value, fG = document.getElementById('freqGas').value;
@@ -96,6 +97,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         return `<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${bCol}; background: ${bg}; border-radius: 0 5px 5px 0;"><p style="font-size:1.15em; margin: 5px 0; color: ${col}; text-transform: uppercase;"><strong>${et}</strong></p><div style="font-size:0.95em; color: #444; margin-bottom: 10px;"><p style="margin: 2px 0;">Attuale (${tP}): <strong>€ ${sA.toFixed(2)}</strong></p><p style="margin: 2px 0;">Con ${nO} (${tP}): <strong>€ ${sN.toFixed(2)}</strong></p></div><div style="border-top: 1px dotted #ccc; padding-top: 10px;"><p style="font-size:1.05em; margin: 3px 0;">${lbl} Mensile: <strong style="color:${bCol};">€ ${seg}${Math.abs(vM).toFixed(2)}</strong></p><p style="font-size:1.05em; margin: 3px 0;">${lbl} Annuo: <strong style="color:${bCol};">€ ${seg}${Math.abs(vA).toFixed(2)}</strong></p></div></div>`;
     }
 
+
         if (utility === 'light' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqLuce').value), ann = parseFloat(document.getElementById('annuoLuce').value) || 0, sP = parseFloat(document.getElementById('costMateriaLuce').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0, tL = document.getElementById('tipoLettura').value;
         let ogt = (oL==='ultraGreenCasaPun0')?19.95:(oL==='ultraGreenCasa'||oL==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oL==='ultraGreenPMI'||oL==='ultraGreenGrandiAziende')?19.95:14.95;
@@ -145,7 +147,17 @@ window.exportDoc = function(t) {
     const el = document.getElementById('report-box');
     if (!el) return;
 
-        html2canvas(el, { scale: 2, useCORS: true, logging: false }).then(canvas => {
+
+        // BLINDATURA: Forza l'inizializzazione globale delle istanze di libreria al momento del clic
+    const h2c = window.html2canvas || html2canvas;
+    const jsp = window.jspdf ? window.jspdf.jsPDF : (window.jsPDF || (window.window?.jspdf?.jsPDF));
+
+    if (!h2c) {
+        console.error("Libreria html2canvas non rilevata nell'head.");
+        return;
+    }
+
+    h2c(el, { scale: 2, useCORS: true, logging: false }).then(canvas => {
         if (t === 'png') {
             canvas.toBlob(blob => { 
                 const l = document.createElement('a'); 
@@ -157,11 +169,12 @@ window.exportDoc = function(t) {
                 URL.revokeObjectURL(l.href); 
             }, 'image/png');
         } else if (t === 'pdf') {
+            if (!jsp) {
+                console.error("Libreria jsPDF non rilevata nell'head.");
+                return;
+            }
             const img = canvas.toDataURL('image/png');
-            
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
-            
+            const pdf = new jsp('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             
