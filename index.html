@@ -59,7 +59,46 @@
                 <option value="lightAndGas">Luce & Gas</option>
             </select>
         </div>
-        <div id="light-mese2" class="meseblock hidden" style="background: #edf7ed;">
+        <div id="light-section" class="section-box" style="display:none;">
+            <h3>⚡ CONSUMI LUCE</h3>
+            <div class="row">
+                <div class="col">
+                    <label for="freqLuce">Ciclo Fatturazione</label>
+                    <select id="freqLuce">
+                        <option value="1">Mensile</option>
+                        <option value="2">Bimestrale</option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="tipoLettura">Profilo Lettura</label>
+                    <select id="tipoLettura">
+                        <option value="monoraria">Monoraria</option>
+                        <option value="fasce">A Fasce (F1, F2, F3)</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="meseblock">
+                <div class="row">
+                    <div class="col">
+                        <label for="monthLuce1">Mese Bolletta (1° Mese)</label>
+                        <select id="monthLuce1"></select>
+                    </div>
+                </div>
+                <div id="div-mono1">
+                    <label for="kWhTot1">Consumo Totale Mese 1 (kWh)</label>
+                    <input type="number" id="kWhTot1" placeholder="kWh totali 1° mese">
+                </div>
+                <div id="div-fasce1" class="hidden">
+                    <div class="row">
+                        <div class="col"><label for="kWhF1_M1">F1 (Mese 1)</label><input type="number" id="kWhF1_M1" placeholder="kWh"></div>
+                        <div class="col"><label for="kWhF2_M1">F2 (Mese 1)</label><input type="number" id="kWhF2_M1" placeholder="kWh"></div>
+                        <div class="col"><label for="kWhF3_M1">F3 (Mese 1)</label><input type="number" id="kWhF3_M1" placeholder="kWh"></div>
+                    </div>
+                </div>
+            </div>
+
+                        <div id="light-mese2" class="meseblock hidden" style="background: #edf7ed;">
                 <div class="row">
                     <div class="col">
                         <label for="monthLuce2">Mese Bolletta (2° Mese)</label>
@@ -91,7 +130,11 @@
                 <div class="col">
                     <label for="pcvAttualeLuce">PCV / OGT Attuale (€/Mese)</label>
                     <input type="number" step="0.01" id="pcvAttualeLuce" placeholder="Costo fisso mensile attuale">
-                    <div id="gas-section" class="section-box" style="display:none;">
+                </div>
+            </div>
+        </div>
+
+        <div id="gas-section" class="section-box" style="display:none;">
             <h3>🔥 CONSUMI GAS</h3>
             <div class="row">
                 <div class="col">
@@ -143,7 +186,6 @@
                 </div>
             </div>
         </div>
-
         <div class="section-box" style="border: 2px solid #2e7d32; background: #f1f8e9;">
             <h3>🎯 SCELTA OFFERTE COMMERCIALI</h3>
             
@@ -161,8 +203,8 @@
                         <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
                     </select>
                 </div>
-                <!-- Contenitore CAP Luce: nascosto di base con la classe hidden e ID dedicato -->
-                <div class="col hidden" id="wrapperCapLuce">
+
+                                <div class="col">
                     <label for="hasCapLuce">CAP Luce</label>
                     <select id="hasCapLuce">
                         <option value="no">No</option>
@@ -185,8 +227,7 @@
                         <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
                     </select>
                 </div>
-                <!-- Contenitore CAP Gas: nascosto di base con la classe hidden e ID dedicato -->
-                <div class="col hidden" id="wrapperCapGas">
+                <div class="col">
                     <label for="hasCapGas">CAP Gas</label>
                     <select id="hasCapGas">
                         <option value="no">No</option>
@@ -210,4 +251,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-                
