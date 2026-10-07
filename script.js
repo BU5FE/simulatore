@@ -75,8 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('selectedOfferGas').addEventListener('change', gestisciVisibilitaCap);
     toggleSections(); updateOffersDropdown(); gestisciVisibilitaCap();
 });
-
-
 document.getElementById('calculator-form').onsubmit = function(e) {
     e.preventDefault();
     const userType = document.getElementById('userType').value, utente = document.getElementById('clientName').value, utility = document.getElementById('utilityType').value;
@@ -91,7 +89,9 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         const vM = vA / 12, isR = vA >= 0, col = isR ? "#1b5e20" : "#d32f2f", bg = isR ? "#f1f8e9" : "#ffebee", bCol = isR ? "green" : "red", seg = isR ? "-" : "+", lbl = isR ? "Risparmio Medio" : "Differenza Media", tP = (fr === 1) ? "Mensile" : "Bimestrale";
         return `<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${bCol}; background: ${bg}; border-radius: 0 5px 5px 0;"><p style="font-size:1.15em; margin: 5px 0; color: ${col}; text-transform: uppercase;"><strong>${et}</strong></p><div style="font-size:0.95em; color: #444; margin-bottom: 10px;"><p style="margin: 2px 0;">Attuale (${tP}): <strong>€ ${sA.toFixed(2)}</strong></p><p style="margin: 2px 0;">Con ${nO} (${tP}): <strong>€ ${sN.toFixed(2)}</strong></p></div><div style="border-top: 1px dotted #ccc; padding-top: 10px;"><p style="font-size:1.05em; margin: 3px 0;">${lbl} Mensile: <strong style="color:${bCol};">€ ${seg}${Math.abs(vM).toFixed(2)}</strong></p><p style="font-size:1.05em; margin: 3px 0;">${lbl} Annuo: <strong style="color:${bCol};">€ ${seg}${Math.abs(vA).toFixed(2)}</strong></p></div></div>`;
     }
-    if (utility === 'light' || utility === 'lightAndGas') {
+
+
+        if (utility === 'light' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqLuce').value), ann = parseFloat(document.getElementById('annuoLuce').value) || 0, sP = parseFloat(document.getElementById('costMateriaLuce').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0, tL = document.getElementById('tipoLettura').value;
         let ogt = (oL==='ultraGreenCasaPun0')?19.95:(oL==='ultraGreenCasa'||oL==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oL==='ultraGreenPMI'||oL==='ultraGreenGrandiAziende')?19.95:14.95;
         let cT = 0, cE = 0; const cL = OFFERTE_SPREAD[oL];
@@ -162,5 +162,4 @@ window.exportDoc = function(t) {
         }
     }).catch(err => console.error("Errore esportazione:", err));
 };
-
 
