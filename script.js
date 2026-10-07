@@ -138,6 +138,9 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
 }; // Parentesi graffa di chiusura fissata correttamente qui!
 
+
+}; // Assicurati che questa parentesi chiuda correttamente la funzione onsubmit precedente
+
 window.exportDoc = function(t) {
     const el = document.getElementById('report-box');
     if (!el) return;
@@ -154,8 +157,13 @@ window.exportDoc = function(t) {
             }, 'image/png');
         } else if (t === 'pdf') {
             const img = canvas.toDataURL('image/png');
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF('p', 'mm', 'a4');
+            // MODIFICATO QUI: Estrae jsPDF in modo sicuro e compatibile con l'istanza di GitHub Pages
+            const jsp = window.jspdf ? window.jspdf.jsPDF : (window.jsPDF || window.window?.jspdf?.jsPDF);
+            if (!jsp) {
+                console.error("Libreria PDF non configurata.");
+                return;
+            }
+            const pdf = new jsp('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(img, 'PNG', 0, 0, pdfWidth, pdfHeight);
