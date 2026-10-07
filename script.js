@@ -12,7 +12,7 @@ const OFFERTE_SPREAD = {
     'ultraGreenCasa': { luce: 0.061, gas: 0.35 },
     'ultraGreen': { luce: 0.061, gas: 0.32 }, 'revolutionTax': { luce: 0.0375, gas: 0.2275 },
     'ultraGreenPMI': { luce: 0.059, gas: 0.30 }, 'ultraGreenGrandiAziende': { luce: 0.043, gas: 0.28 },
-    'ultraGreenFixCasa': { isFix: true, luceFix: 0.198, gasFix: 0.889 }, 'ultraGreenFixBusiness': { isFix: true, luceFix: 0.169, gasFix: 0.769 }
+    'ultraGreenFixCasa': { isFix: true, luceFix: 0.149, gasFix: 0.69 }, 'ultraGreenFixBusiness': { isFix: true, luceFix: 0.169, gasFix: 0.769 }
 };
 const months = [
     {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}, {v:'03', t:'Marzo 2026'}, {v:'04', t:'Aprile 2026'}, {v:'05', t:'Maggio 2026'}, {v:'06', t:'Giugno 2026'}, {v:'07', t:'Luglio 2026'}, {v:'08', t:'Agosto 2026'}, {v:'09', t:'Settembre 2026'}
@@ -88,7 +88,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const userType = document.getElementById('userType').value, utente = document.getElementById('clientName').value, utility = document.getElementById('utilityType').value;
     const oL = document.getElementById('selectedOfferLuce').value, nL = document.getElementById('selectedOfferLuce').options[document.getElementById('selectedOfferLuce').selectedIndex].text, hL = document.getElementById('hasCapLuce').value === 'si';
     const oG = document.getElementById('selectedOfferGas').value, nG = document.getElementById('selectedOfferGas').options[document.getElementById('selectedOfferGas').selectedIndex].text, hG = document.getElementById('hasCapGas').value === 'si';
-    const LIM_L = 0.250, LIM_G = 1.000, oggi = new Date(), uG = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0), dS = `${String(uG.getDate()).padStart(2,'0')}/${String(uG.getMonth()+1).padStart(2,'0')}/${uG.getFullYear()}`;
+    const LIM_L = 0.200, LIM_G = 0,95, oggi = new Date(), uG = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0), dS = `${String(uG.getDate()).padStart(2,'0')}/${String(uG.getMonth()+1).padStart(2,'0')}/${uG.getFullYear()}`;
     let totSave = 0, dCap = '';
     if ((utility === 'light' || utility === 'lightAndGas') && hL) dCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Luce Attivo</strong> (€ ${LIM_L.toFixed(3)})</p>`;
     if ((utility === 'gas' || utility === 'lightAndGas') && hG) dCap += `<p style="font-size:0.9em; color:#1b5e20; margin:3px 0;">🛡️ <strong>CAP Gas Attivo</strong> (€ ${LIM_G.toFixed(3)})</p>`;
