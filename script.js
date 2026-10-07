@@ -129,16 +129,16 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         }
         let sAt = sP + (pP * fr), sUG = cE + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "⚡ Fornitura Luce", sAt, sUG, nL, fr);
         
-        // REQUISITO 2: Sconto Accise Revolution Tax (solo per la parte luce)
+        // Sconto Accise Revolution Tax
         if (oL === 'revolutionTax') {
             const tariffaAccisa = (userType === 'business') ? 0.0125 : 0.0227;
             const totaleScontoAccise = ann * tariffaAccisa;
-            totSave += totaleScontoAccise; // Aggiunge lo sconto al risparmio totale stimato in fondo
+            totSave += totaleScontoAccise;
             
             rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">⚡ <strong>Sconto Accise Revolution Tax (${userType === 'business' ? 'Business' : 'Residenziale'}):</strong></p><p style="margin: 2px 0; color: #444;">Risparmio aggiuntivo annuo sulle accise (${tariffaAccisa.toFixed(4)} €/kWh × ${ann} kWh): <strong style="color: green;">€ -${totaleScontoAccise.toFixed(2)}</strong></p></div>`;
         }
 
-        // REQUISITO 1: Scenario di picco (colore dinamico in base a se c'è risparmio o meno)
+        // Scenario di picco Luce (colore dinamico)
         if (hL && cL && !cL.isFix) {
             let sUG_Worst = cE_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
             let isWorstSave = svA_Worst >= 0;
@@ -165,7 +165,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         }
         let sAt = sP + (pP * fr), sUG = cG + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "🔥 Fornitura Gas", sAt, sUG, nG, fr);
         
-        // REQUISITO 1: Scenario di picco Gas (colore dinamico)
+        // Scenario di picco Gas (colore dinamico)
         if (hG && cGConf && !cGConf.isFix) {
             let sUG_Worst = cG_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
             let isWorstSaveGas = svA_Worst >= 0;
@@ -188,12 +188,24 @@ window.exportDoc = function(t) {
     const el = document.getElementById('report-box');
     if (!el) return;
     
-    const paginaIntera = document.body.innerHTML;
-    const codiceReport = el.outerHTML;
-    
-    document.body.innerHTML = `<div style="padding:20px; max-width:850px; margin:auto;">${codiceReport}</div>`;
-    window.print();
-    document.body.innerHTML = paginaIntera;
-    
-    window.location.reload();
+    if (t === 'pdf') {
+        const paginaIntera = document.body.innerHTML;
+        const codiceReport = el.outerHTML;
+        
+        document.body.innerHTML = `<div style="padding:20px; max-width:850px; margin:auto;">${codiceReport}</div>`;
+        window.print();
+        document.body.innerHTML = paginaIntera;
+        
+        window.location.reload();
+    } else if (t === 'png') {
+        html2canvas(el, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'Analisi_Risparmio_UltraGreen.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }).catch(err => {
+            console.error("Errore durante la generazione dell'immagine:", err);
+            alert("Impossibile generare l'immagine PNG.");
+        });
+    }
 };
