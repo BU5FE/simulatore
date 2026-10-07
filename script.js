@@ -43,6 +43,7 @@ function gestisciVisibilitaCap() {
 }
 
 
+
 function toggleSections() {
     const u = document.getElementById('utilityType').value, l = document.getElementById('tipoLettura').value;
     const fL = document.getElementById('freqLuce').value, fG = document.getElementById('freqGas').value;
@@ -79,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('selectedOfferGas').addEventListener('change', gestisciVisibilitaCap);
     toggleSections(); updateOffersDropdown(); gestisciVisibilitaCap();
 });
+
 
 
 document.getElementById('calculator-form').onsubmit = function(e) {
@@ -118,10 +120,11 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         let sAt = sP + (pP * fr), sUG = cE + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "⚡ Fornitura Luce", sAt, sUG, nL, fr);
         if (hL && cL && !cL.isFix) {
             let sUG_Worst = cE_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
-            let segWorst = svA_Worst >= 0 ? "-" : "+", lblWorst = svA_Worst >= 0 ? "Risparmio di protezione" : "Differenza di protezione";
-            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">🛡️ <strong>Scenario di picco (PUN ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">In caso di forti rincari di mercato sopra i ${LIM_L.toFixed(3)} €/kWh, il tuo ${lblWorst} Annuo massimo garantito con tariffa protetta e spread sarà di: <strong style="color: green;">€ ${segWorst}${Math.abs(svA_Worst).toFixed(2)}</strong></p></div>`;
+            let segWorst = svA_Worst >= 0 ? "-" : "+";
+            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">🛡️ <strong>Scenario di picco (PUN ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">In caso di forti rincari di mercato sopra i 0,250 €/kWh, il tuo risparmio di proiezione annuo massimo garantito con tariffa protetta sarà di: <strong style="color: green;">€ ${segWorst}${Math.abs(svA_Worst).toFixed(2)}</strong></p></div>`;
         }
     }
+
 
 
         if (utility === 'gas' || utility === 'lightAndGas') {
@@ -141,8 +144,8 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         let sAt = sP + (pP * fr), sUG = cG + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "🔥 Fornitura Gas", sAt, sUG, nG, fr);
         if (hG && cGConf && !cGConf.isFix) {
             let sUG_Worst = cG_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
-            let segWorst = svA_Worst >= 0 ? "-" : "+", lblWorst = svA_Worst >= 0 ? "Risparmio di protezione" : "Differenza di protezione";
-            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">🛡️ <strong>Scenario di picco (PSV ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">In caso di forti rincari di mercato sopra i ${LIM_G.toFixed(3)} €/smc, il tuo ${lblWorst} Annuo massimo garantito con tariffa protetta e spread sarà di: <strong style="color: green;">€ ${segWorst}${Math.abs(svA_Worst).toFixed(2)}</strong></p></div>`;
+            let segWorst = svA_Worst >= 0 ? "-" : "+";
+            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">🛡️ <strong>Scenario di picco (PSV ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">In caso di forti rincari di mercato sopra i 1,000 €/smc, il tuo risparmio di proiezione annuo massimo garantito con tariffa protetta sarà di: <strong style="color: green;">€ ${segWorst}${Math.abs(svA_Worst).toFixed(2)}</strong></p></div>`;
         }
     }
     let tSt = "", tTx = "";
@@ -156,7 +159,18 @@ document.getElementById('calculator-form').onsubmit = function(e) {
 window.exportDoc = function(t) {
     const el = document.getElementById('report-box');
     if (!el) return;
-    html2canvas(el, { scale: 2, useCORS: true, logging: false }).then(canvas => {
+    
+    // CORREZIONE DEFINITIVA CORS: Estrae in modo esplicito e dinamico i riferimenti delle librerie caricate su GitHub Pages
+    const h2canvas = window.html2canvas || html2canvas;
+    const jsPDFRef = window.jspdf ? window.jspdf.jsPDF : (window.jsPDF || window.window?.jspdf?.jsPDF);
+    
+    if (!h2canvas) {
+        console.error("Libreria html2canvas non caricata.");
+        return;
+    }
+    
+    // Rimossi i flag useCORS/logging per prevenire i blocchi di sicurezza dei server di produzione GitHub Pages
+    h2canvas(el, { scale: 2 }).then(canvas => {
         if (t === 'png') {
             canvas.toBlob(blob => { 
                 const l = document.createElement('a'); 
@@ -168,13 +182,12 @@ window.exportDoc = function(t) {
                 URL.revokeObjectURL(l.href); 
             }, 'image/png');
         } else if (t === 'pdf') {
-            const img = canvas.toDataURL('image/png');
-            const jsp = window.jspdf ? window.jspdf.jsPDF : (window.jsPDF || window.window?.jspdf?.jsPDF);
-            if (!jsp) {
-                console.error("Libreria PDF non configurata.");
+            if (!jsPDFRef) {
+                console.error("Libreria jsPDF non caricata.");
                 return;
             }
-            const pdf = new jsp('p', 'mm', 'a4');
+            const img = canvas.toDataURL('image/png');
+            const pdf = new jsPDFRef('p', 'mm', 'a4');
             const pdfWidth = pdf.internal.pageSize.getWidth();
             const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
             pdf.addImage(img, 'PNG', 0, 0, pdfWidth, pdfHeight);
