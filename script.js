@@ -46,24 +46,20 @@ function gestisciVisibilitaCap() {
 function toggleSections() {
     const u = document.getElementById('utilityType').value, l = document.getElementById('tipoLettura').value;
     const fL = document.getElementById('freqLuce').value, fG = document.getElementById('freqGas').value;
-    
     document.getElementById('light-section').style.display = (u === 'light' || u === 'lightAndGas') ? 'block' : 'none';
     document.getElementById('gas-section').style.display = (u === 'gas' || u === 'lightAndGas') ? 'block' : 'none';
-    
     if (document.getElementById('offer-light-row')) {
         document.getElementById('offer-light-row').style.display = (u === 'light' || u === 'lightAndGas') ? 'flex' : 'none';
     }
     if (document.getElementById('offer-gas-row')) {
         document.getElementById('offer-gas-row').style.display = (u === 'gas' || u === 'lightAndGas') ? 'flex' : 'none';
     }
-    
     if (fL === "2" && (u === 'light' || u === 'lightAndGas')) { document.getElementById('light-mese2').classList.remove('hidden'); } else { document.getElementById('light-mese2').classList.add('hidden'); }
     if (fG === "2" && (u === 'gas' || u === 'lightAndGas')) { document.getElementById('gas-mese2').classList.remove('hidden'); } else { document.getElementById('gas-mese2').classList.add('hidden'); }
     if (l === 'fasce') { document.getElementById('div-fasce1').classList.remove('hidden'); document.getElementById('div-mono1').classList.add('hidden'); document.getElementById('div-fasce2').classList.remove('hidden'); document.getElementById('div-mono2').classList.add('hidden'); }
     else { document.getElementById('div-fasce1').classList.add('hidden'); document.getElementById('div-mono1').classList.remove('hidden'); document.getElementById('div-fasce2').classList.add('hidden'); document.getElementById('div-mono2').classList.remove('hidden'); }
     gestisciVisibilitaCap();
 }
-
 function updateOffersDropdown() {
     const t = document.getElementById('userType').value, sL = document.getElementById('selectedOfferLuce'), sG = document.getElementById('selectedOfferGas');
     const dispB = (t === 'business') ? 'none' : 'block', dispF = (t === 'business') ? 'block' : 'none';
@@ -75,7 +71,6 @@ function updateOffersDropdown() {
     if (t !== 'business' && sG.value === 'ultraGreenFixBusiness') sG.value = '';
     gestisciVisibilitaCap();
 }
-
 document.addEventListener('DOMContentLoaded', () => {
     ['monthLuce1', 'monthLuce2', 'monthGas1', 'monthGas2'].forEach(id => { const el = document.getElementById(id); if (el) months.forEach(m => el.add(new Option(m.t, m.v))); });
     ['utilityType', 'tipoLettura', 'freqLuce', 'freqGas'].forEach(id => document.getElementById(id).addEventListener('change', toggleSections));
@@ -103,7 +98,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     if (utility === 'light' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqLuce').value), ann = parseFloat(document.getElementById('annuoLuce').value) || 0, sP = parseFloat(document.getElementById('costMateriaLuce').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0, tL = document.getElementById('tipoLettura').value;
         let ogt = (oL==='ultraGreenCasaPun0')?19.95:(oL==='ultraGreenCasa'||oL==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oL==='ultraGreenPMI'||oL==='ultraGreenGrandiAziende')?19.95:14.95;
-        let cT = 0, cE = 0; const cL = OFFERTE_SPREAD[oL];
+        let cT = 0, cE = 0, cE_WorstCase = 0; const cL = OFFERTE_SPREAD[oL];
         if (tL === 'fasce') { cT += (parseFloat(document.getElementById('kWhF1_M1').value)||0)+(parseFloat(document.getElementById('kWhF2_M1').value)||0)+(parseFloat(document.getElementById('kWhF3_M1').value)||0); } else { cT += parseFloat(document.getElementById('kWhTot1').value)||0; }
         if (fr === 2) { if (tL === 'fasce') { cT += (parseFloat(document.getElementById('kWhF1_M2').value)||0)+(parseFloat(document.getElementById('kWhF2_M2').value)||0)+(parseFloat(document.getElementById('kWhF3_M2').value)||0); } else { cT += parseFloat(document.getElementById('kWhTot2').value)||0; } }
         if (cL && cL.isFix) {
@@ -118,15 +113,21 @@ document.getElementById('calculator-form').onsubmit = function(e) {
                 if (tL === 'fasce') { cE += ((parseFloat(document.getElementById('kWhF1_M2').value)||0)*f12)+((parseFloat(document.getElementById('kWhF2_M2').value)||0)*f22)+((parseFloat(document.getElementById('kWhF3_M2').value)||0)*f32); } else { cE += (parseFloat(document.getElementById('kWhTot2').value)||0)*mo2; }
             }
             cE += (cT * sE);
+            if (hL) { cE_WorstCase = cT * (LIM_L + sE); }
         }
         let sAt = sP + (pP * fr), sUG = cE + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "⚡ Fornitura Luce", sAt, sUG, nL, fr);
+        if (hL && cL && !cL.isFix) {
+            let sUG_Worst = cE_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
+            let segWorst = svA_Worst >= 0 ? "-" : "+", lblWorst = svA_Worst >= 0 ? "Risparmio di protezione" : "Differenza di protezione";
+            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">🛡️ <strong>Scenario di picco (PUN ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">In caso di forti rincari di mercato sopra i ${LIM_L.toFixed(3)} €/kWh, il tuo ${lblWorst} Annuo massimo garantito con tariffa protetta e spread sarà di: <strong style="color: green;">€ ${segWorst}${Math.abs(svA_Worst).toFixed(2)}</strong></p></div>`;
+        }
     }
 
 
         if (utility === 'gas' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqGas').value), ann = parseFloat(document.getElementById('annuoGas').value) || 0, sP = parseFloat(document.getElementById('costMateriaGas').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeGas').value) || 0;
         let ogt = (oG==='ultraGreenCasaPun0')?19.95:(oG==='ultraGreenCasa'||oG==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oG==='ultraGreenPMI'||oG==='ultraGreenGrandiAziende')?19.95:14.95;
-        let cT = 0, cG = 0; const cGConf = OFFERTE_SPREAD[oG];
+        let cT = 0, cG = 0, cG_WorstCase = 0; const cGConf = OFFERTE_SPREAD[oG];
         if (cGConf && cGConf.isFix) {
             cT += parseFloat(document.getElementById('smcTot1').value) || 0; if (fr === 2) cT += parseFloat(document.getElementById('smcTot2').value) || 0;
             cG = cT * cGConf.gasFix;
@@ -135,8 +136,14 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             cT += c1; let psv1 = hG ? Math.min(DB_PRICES.psv[m1], LIM_G) : DB_PRICES.psv[m1]; cG += c1 * psv1;
             if (fr === 2) { const m2 = document.getElementById('monthGas2').value, c2 = parseFloat(document.getElementById('smcTot2').value) || 0; cT += c2; let psv2 = hG ? Math.min(DB_PRICES.psv[m2], LIM_G) : DB_PRICES.psv[m2]; cG += c2 * psv2; }
             cG += (cT * sE);
+            if (hG) { cG_WorstCase = cT * (LIM_G + sE); }
         }
         let sAt = sP + (pP * fr), sUG = cG + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "🔥 Fornitura Gas", sAt, sUG, nG, fr);
+        if (hG && cGConf && !cGConf.isFix) {
+            let sUG_Worst = cG_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
+            let segWorst = svA_Worst >= 0 ? "-" : "+", lblWorst = svA_Worst >= 0 ? "Risparmio di protezione" : "Differenza di protezione";
+            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">🛡️ <strong>Scenario di picco (PSV ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">In caso di forti rincari di mercato sopra i ${LIM_G.toFixed(3)} €/smc, il tuo ${lblWorst} Annuo massimo garantito con tariffa protetta e spread sarà di: <strong style="color: green;">€ ${segWorst}${Math.abs(svA_Worst).toFixed(2)}</strong></p></div>`;
+        }
     }
     let tSt = "", tTx = "";
     if (totSave > 0) { tSt = "background:#2e7d32; color:white;"; tTx = `RISPARMIO ANNUO STIMATO<br><span style='font-size:2.5em; font-weight:bold;'>€ -${Math.abs(totSave).toFixed(2)}</span>`; }
@@ -146,7 +153,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     document.getElementById('result').innerHTML = rHtml; document.getElementById('result').style.display = 'block';
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
 };
-
 window.exportDoc = function(t) {
     const el = document.getElementById('report-box');
     if (!el) return;
@@ -176,5 +182,4 @@ window.exportDoc = function(t) {
         }
     }).catch(err => console.error("Errore esportazione:", err));
 };
-
 
