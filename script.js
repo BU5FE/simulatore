@@ -156,43 +156,22 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     document.getElementById('result').innerHTML = rHtml; document.getElementById('result').style.display = 'block';
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
 };
+
 window.exportDoc = function(t) {
     const el = document.getElementById('report-box');
     if (!el) return;
     
-    // CORREZIONE DEFINITIVA CORS: Estrae in modo esplicito e dinamico i riferimenti delle librerie caricate su GitHub Pages
-    const h2canvas = window.html2canvas || html2canvas;
-    const jsPDFRef = window.jspdf ? window.jspdf.jsPDF : (window.jsPDF || window.window?.jspdf?.jsPDF);
+    // SISTEMA NATIVO INFALLIBILE: Isola temporaneamente l'area del report e lancia la stampa integrata del browser.
+    // L'utente potrà cliccare su "Salva come PDF" o inviare alla stampante fisica mantenendo il layout perfetto.
+    const paginaIntera = document.body.innerHTML;
+    const codiceReport = el.outerHTML;
     
-    if (!h2canvas) {
-        console.error("Libreria html2canvas non caricata.");
-        return;
-    }
+    document.body.innerHTML = `<div style="padding:20px; max-width:850px; margin:auto;">${codiceReport}</div>`;
+    window.print();
+    document.body.innerHTML = paginaIntera;
     
-    // Rimossi i flag useCORS/logging per prevenire i blocchi di sicurezza dei server di produzione GitHub Pages
-    h2canvas(el, { scale: 2 }).then(canvas => {
-        if (t === 'png') {
-            canvas.toBlob(blob => { 
-                const l = document.createElement('a'); 
-                l.download = 'Report_Risparmio.png'; 
-                l.href = URL.createObjectURL(blob); 
-                document.body.appendChild(l); 
-                l.click(); 
-                document.body.removeChild(l); 
-                URL.revokeObjectURL(l.href); 
-            }, 'image/png');
-        } else if (t === 'pdf') {
-            if (!jsPDFRef) {
-                console.error("Libreria jsPDF non caricata.");
-                return;
-            }
-            const img = canvas.toDataURL('image/png');
-            const pdf = new jsPDFRef('p', 'mm', 'a4');
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-            pdf.addImage(img, 'PNG', 0, 0, pdfWidth, pdfHeight);
-            pdf.save('Report_Risparmio.pdf');
-        }
-    }).catch(err => console.error("Errore esportazione:", err));
+    // Esegue un reload istantaneo in background per riattivare tutti i listener del form subito dopo la stampa
+    window.location.reload();
 };
+
 
