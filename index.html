@@ -59,6 +59,7 @@
                 <option value="lightAndGas">Luce & Gas</option>
             </select>
         </div>
+
         <div id="light-section" class="section-box" style="display:none;">
             <h3>⚡ CONSUMI LUCE</h3>
             <div class="row">
@@ -98,8 +99,7 @@
                 </div>
             </div>
 
-
-                        <div id="light-mese2" class="meseblock hidden" style="background: #edf7ed;">
+            <div id="light-mese2" class="meseblock hidden" style="background: #edf7ed;">
                 <div class="row">
                     <div class="col">
                         <label for="monthLuce2">Mese Bolletta (2° Mese)</label>
@@ -187,7 +187,9 @@
                 </div>
             </div>
         </div>
-        <div class="section-box" style="border: 2px solid #2e7d32; background: #f1f8e9;">
+
+        <!-- Blocco Offerte corretto con ID e nascosto di default -->
+        <div id="offers-section" class="section-box" style="display:none; border: 2px solid #2e7d32; background: #f1f8e9;">
             <h3>🎯 SCELTA OFFERTE COMMERCIALI</h3>
             
             <div id="offer-light-row" class="row" style="border-bottom: 1px solid #c8e6c9; padding-bottom: 15px; margin-bottom: 15px;">
@@ -204,9 +206,7 @@
                         <option value="ultraGreenGrandiAziende">UltraGreen Grandi Aziende</option>
                     </select>
                 </div>
-
-
-                                <div class="col">
+                <div class="col">
                     <label for="hasCapLuce">CAP Luce</label>
                     <select id="hasCapLuce">
                         <option value="no">No</option>
@@ -253,4 +253,3 @@
 <script src="script.js"></script>
 </body>
 </html>
-
