@@ -46,11 +46,9 @@ function toggleSections() {
     const u = document.getElementById('utilityType').value, l = document.getElementById('tipoLettura').value;
     const fL = document.getElementById('freqLuce').value, fG = document.getElementById('freqGas').value;
     
-    // Gestione visibilità sezioni Luce e Gas
     document.getElementById('light-section').style.display = (u === 'light' || u === 'lightAndGas') ? 'block' : 'none';
     document.getElementById('gas-section').style.display = (u === 'gas' || u === 'lightAndGas') ? 'block' : 'none';
     
-    // CORRETTO: Gestione visibilità del blocco principale delle Offerte Commerciali
     const offersSection = document.getElementById('offers-section');
     if (offersSection) {
         offersSection.style.display = (u === 'light' || u === 'gas' || u === 'lightAndGas') ? 'block' : 'none';
@@ -96,7 +94,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     const oL = document.getElementById('selectedOfferLuce').value, nL = document.getElementById('selectedOfferLuce').options[document.getElementById('selectedOfferLuce').selectedIndex].text, hL = document.getElementById('hasCapLuce').value === 'si';
     const oG = document.getElementById('selectedOfferGas').value, nG = document.getElementById('selectedOfferGas').options[document.getElementById('selectedOfferGas').selectedIndex].text, hG = document.getElementById('hasCapGas').value === 'si';
     
-    // CORRETTO: 0,95 sostituito con 0.95 (punto decimale)
     const LIM_L = 0.200, LIM_G = 0.95, oggi = new Date(), uG = new Date(oggi.getFullYear(), oggi.getMonth() + 1, 0), dS = `${String(uG.getDate()).padStart(2,'0')}/${String(uG.getMonth()+1).padStart(2,'0')}/${uG.getFullYear()}`;
     
     let totSave = 0, dCap = '';
@@ -131,10 +128,24 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             if (hL) { cE_WorstCase = cT * (LIM_L + sE); }
         }
         let sAt = sP + (pP * fr), sUG = cE + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "⚡ Fornitura Luce", sAt, sUG, nL, fr);
+        
+        // REQUISITO 2: Sconto Accise Revolution Tax (solo per la parte luce)
+        if (oL === 'revolutionTax') {
+            const tariffaAccisa = (userType === 'business') ? 0.0125 : 0.0227;
+            const totaleScontoAccise = ann * tariffaAccisa;
+            totSave += totaleScontoAccise; // Aggiunge lo sconto al risparmio totale stimato in fondo
+            
+            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">⚡ <strong>Sconto Accise Revolution Tax (${userType === 'business' ? 'Business' : 'Residenziale'}):</strong></p><p style="margin: 2px 0; color: #444;">Risparmio aggiuntivo annuo sulle accise (${tariffaAccisa.toFixed(4)} €/kWh × ${ann} kWh): <strong style="color: green;">€ -${totaleScontoAccise.toFixed(2)}</strong></p></div>`;
+        }
+
+        // REQUISITO 1: Scenario di picco (colore dinamico in base a se c'è risparmio o meno)
         if (hL && cL && !cL.isFix) {
             let sUG_Worst = cE_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
-            let segWorst = svA_Worst >= 0 ? "-" : "+";
-            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">🛡️ <strong>Scenario di picco (PUN ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">In caso di forti rincari di mercato sopra i 0,250 €/kWh, il tuo risparmio di proiezione annuo massimo garantito con tariffa protetta sarà di: <strong style="color: green;">€ ${segWorst}${Math.abs(svA_Worst).toFixed(2)}</strong></p></div>`;
+            let isWorstSave = svA_Worst >= 0;
+            let segWorst = isWorstSave ? "-" : "+";
+            let colWorst = isWorstSave ? "green" : "red";
+            
+            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid ${colWorst}; background: ${isWorstSave ? '#e8f5e9' : '#ffebee'}; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: ${isWorstSave ? '#1b5e20' : '#d32f2f'};">🛡️ <strong>Scenario di picco (PUN ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">In caso di forti rincari di mercato sopra i 0,250 €/kWh, il tuo risparmio di proiezione annuo massimo garantito con tariffa protetta sarà di: <strong style="color: ${colWorst};">€ ${segWorst}${Math.abs(svA_Worst).toFixed(2)}</strong></p></div>`;
         }
     }
 
@@ -153,10 +164,15 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             if (hG) { cG_WorstCase = cT * (LIM_G + sE); }
         }
         let sAt = sP + (pP * fr), sUG = cG + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "🔥 Fornitura Gas", sAt, sUG, nG, fr);
+        
+        // REQUISITO 1: Scenario di picco Gas (colore dinamico)
         if (hG && cGConf && !cGConf.isFix) {
             let sUG_Worst = cG_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
-            let segWorst = svA_Worst >= 0 ? "-" : "+";
-            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">🛡️ <strong>Scenario di picco (PSV ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">In caso di forti rincari di mercato sopra i 1,000 €/smc, il tuo risparmio di proiezione annuo massimo garantito con tariffa protetta sarà di: <strong style="color: green;">€ ${segWorst}${Math.abs(svA_Worst).toFixed(2)}</strong></p></div>`;
+            let isWorstSaveGas = svA_Worst >= 0;
+            let segWorstGas = isWorstSaveGas ? "-" : "+";
+            let colWorstGas = isWorstSaveGas ? "green" : "red";
+            
+            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid ${colWorstGas}; background: ${isWorstSaveGas ? '#e8f5e9' : '#ffebee'}; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: ${isWorstSaveGas ? '#1b5e20' : '#d32f2f'};">🛡️ <strong>Scenario di picco (PSV ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">In caso di forti rincari di mercato sopra i 1,000 €/smc, il tuo risparmio di proiezione annuo massimo garantito con tariffa protetta sarà di: <strong style="color: ${colWorstGas};">€ ${segWorstGas}${Math.abs(svA_Worst).toFixed(2)}</strong></p></div>`;
         }
     }
     let tSt = "", tTx = "";
