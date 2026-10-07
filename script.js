@@ -114,7 +114,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     }
 
 
-        if (utility === 'gas' || utility === 'lightAndGas') {
+            if (utility === 'gas' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqGas').value), ann = parseFloat(document.getElementById('annuoGas').value) || 0, sP = parseFloat(document.getElementById('costMateriaGas').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeGas').value) || 0;
         let ogt = (oG==='ultraGreenCasaPun0')?19.95:(oG==='ultraGreenCasa'||oG==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oG==='ultraGreenPMI'||oG==='ultraGreenGrandiAziende')?19.95:14.95;
         let cT = 0, cG = 0; const cGConf = OFFERTE_SPREAD[oG];
@@ -136,7 +136,8 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     rHtml += `<div style="${tSt} padding:20px; text-align:center; border-radius:8px; margin-top:20px;"><span style='text-transform:uppercase; font-size:0.9em;'>${tTx}</span></div></div>`;
     document.getElementById('result').innerHTML = rHtml; document.getElementById('result').style.display = 'block';
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
-};
+}; // Parentesi graffa di chiusura fissata correttamente qui!
+
 window.exportDoc = function(t) {
     const el = document.getElementById('report-box');
     if (!el) return;
