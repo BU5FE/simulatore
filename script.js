@@ -46,14 +46,15 @@ function gestisciVisibilitaCap() {
 function toggleSections() {
     const u = document.getElementById('utilityType').value, l = document.getElementById('tipoLettura').value;
     const fL = document.getElementById('freqLuce').value, fG = document.getElementById('freqGas').value;
+    
     document.getElementById('light-section').style.display = (u === 'light' || u === 'lightAndGas') ? 'block' : 'none';
     document.getElementById('gas-section').style.display = (u === 'gas' || u === 'lightAndGas') ? 'block' : 'none';
-    document.getElementById('offer-light-row').style.display = (u === 'light' || u === 'lightAndGas') ? 'flex' : 'none';
-    document.getElementById('offer-gas-row').style.display = (u === 'gas' || u === 'lightAndGas') ? 'flex' : 'none';
     
-    const offertaBox = document.getElementById('offer-light-row') ? document.getElementById('offer-light-row').closest('.section-box') : null;
-    if (offertaBox) {
-        offertaBox.style.display = (u === '') ? 'none' : 'block';
+    if (document.getElementById('offer-light-row')) {
+        document.getElementById('offer-light-row').style.display = (u === 'light' || u === 'lightAndGas') ? 'flex' : 'none';
+    }
+    if (document.getElementById('offer-gas-row')) {
+        document.getElementById('offer-gas-row').style.display = (u === 'gas' || u === 'lightAndGas') ? 'flex' : 'none';
     }
     
     if (fL === "2" && (u === 'light' || u === 'lightAndGas')) { document.getElementById('light-mese2').classList.remove('hidden'); } else { document.getElementById('light-mese2').classList.add('hidden'); }
@@ -62,6 +63,7 @@ function toggleSections() {
     else { document.getElementById('div-fasce1').classList.add('hidden'); document.getElementById('div-mono1').classList.remove('hidden'); document.getElementById('div-fasce2').classList.add('hidden'); document.getElementById('div-mono2').classList.remove('hidden'); }
     gestisciVisibilitaCap();
 }
+
 function updateOffersDropdown() {
     const t = document.getElementById('userType').value, sL = document.getElementById('selectedOfferLuce'), sG = document.getElementById('selectedOfferGas');
     const dispB = (t === 'business') ? 'none' : 'block', dispF = (t === 'business') ? 'block' : 'none';
@@ -73,6 +75,7 @@ function updateOffersDropdown() {
     if (t !== 'business' && sG.value === 'ultraGreenFixBusiness') sG.value = '';
     gestisciVisibilitaCap();
 }
+
 document.addEventListener('DOMContentLoaded', () => {
     ['monthLuce1', 'monthLuce2', 'monthGas1', 'monthGas2'].forEach(id => { const el = document.getElementById(id); if (el) months.forEach(m => el.add(new Option(m.t, m.v))); });
     ['utilityType', 'tipoLettura', 'freqLuce', 'freqGas'].forEach(id => document.getElementById(id).addEventListener('change', toggleSections));
