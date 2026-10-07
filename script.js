@@ -168,7 +168,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         }
         let sAt = sP + (pP * fr), sUG = cG + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "🔥 Fornitura Gas", sAt, sUG, nG, fr);
         
-        // Scenario di picco Gas (corretto a 0,95 €/smc)
+        // Scenario di picco Gas
         if (hG && cGConf && !cGConf.isFix) {
             let sUG_Worst = cG_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
             let isWorstSaveGas = svA_Worst >= 0;
@@ -195,14 +195,8 @@ window.exportDoc = function(t) {
     if (!el) return;
     
     if (t === 'pdf') {
-        const paginaIntera = document.body.innerHTML;
-        const codiceReport = el.outerHTML;
-        
-        document.body.innerHTML = `<div style="padding:20px; max-width:850px; margin:auto;">${codiceReport}</div>`;
+        // Stampa nativa gestita dal CSS @media print, la pagina resta intatta con tutti i dati inseriti
         window.print();
-        document.body.innerHTML = paginaIntera;
-        
-        window.location.reload();
     } else if (t === 'png') {
         html2canvas(el, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
             const link = document.createElement('a');
