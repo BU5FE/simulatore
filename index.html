@@ -29,6 +29,13 @@
         .hidden { display: none !important; }
         .meseblock { background: #f9f9f9; padding: 15px; border-radius: 8px; border: 1px solid #eee; margin-top: 10px; }
         #result { margin-top: 30px; }
+
+        /* Stile di stampa: stampa pulita del solo report senza azzerare la pagina */
+        @media print {
+            body * { visibility: hidden; }
+            #report-box, #report-box * { visibility: visible; }
+            #report-box { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 10px; border: none !important; box-shadow: none !important; }
+        }
     </style>
 </head>
 <body>
