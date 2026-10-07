@@ -20,24 +20,31 @@ const months = [
 
 function gestisciVisibilitaCap() {
     const sL = document.getElementById('selectedOfferLuce');
-    const wL = document.getElementById('wrapperCapLuce');
     const hL = document.getElementById('hasCapLuce');
-    if (sL && wL && hL) {
+    const labelL = document.querySelector('label[for="hasCapLuce"]');
+    
+    if (sL && hL) {
         if (sL.value !== "" && !sL.value.toLowerCase().includes("fix")) {
-            wL.classList.remove('hidden');
+            hL.style.display = 'block';
+            if(labelL) labelL.style.display = 'block';
         } else {
-            wL.classList.add('hidden');
+            hL.style.display = 'none';
+            if(labelL) labelL.style.display = 'none';
             hL.value = 'no';
         }
     }
+    
     const sG = document.getElementById('selectedOfferGas');
-    const wG = document.getElementById('wrapperCapGas');
     const hG = document.getElementById('hasCapGas');
-    if (sG && wG && hG) {
+    const labelG = document.querySelector('label[for="hasCapGas"]');
+    
+    if (sG && hG) {
         if (sG.value !== "" && !sG.value.toLowerCase().includes("fix")) {
-            wG.classList.remove('hidden');
+            hG.style.display = 'block';
+            if(labelG) labelG.style.display = 'block';
         } else {
-            wG.classList.add('hidden');
+            hG.style.display = 'none';
+            if(labelG) labelG.style.display = 'none';
             hG.value = 'no';
         }
     }
@@ -92,6 +99,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         const vM = vA / 12, isR = vA >= 0, col = isR ? "#1b5e20" : "#d32f2f", bg = isR ? "#f1f8e9" : "#ffebee", bCol = isR ? "green" : "red", seg = isR ? "-" : "+", lbl = isR ? "Risparmio Medio" : "Differenza Media", tP = (fr === 1) ? "Mensile" : "Bimestrale";
         return `<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${bCol}; background: ${bg}; border-radius: 0 5px 5px 0;"><p style="font-size:1.15em; margin: 5px 0; color: ${col}; text-transform: uppercase;"><strong>${et}</strong></p><div style="font-size:0.95em; color: #444; margin-bottom: 10px;"><p style="margin: 2px 0;">Attuale (${tP}): <strong>€ ${sA.toFixed(2)}</strong></p><p style="margin: 2px 0;">Con ${nO} (${tP}): <strong>€ ${sN.toFixed(2)}</strong></p></div><div style="border-top: 1px dotted #ccc; padding-top: 10px;"><p style="font-size:1.05em; margin: 3px 0;">${lbl} Mensile: <strong style="color:${bCol};">€ ${seg}${Math.abs(vM).toFixed(2)}</strong></p><p style="font-size:1.05em; margin: 3px 0;">${lbl} Annuo: <strong style="color:${bCol};">€ ${seg}${Math.abs(vA).toFixed(2)}</strong></p></div></div>`;
     }
+
         if (utility === 'light' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqLuce').value), ann = parseFloat(document.getElementById('annuoLuce').value) || 0, sP = parseFloat(document.getElementById('costMateriaLuce').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0, tL = document.getElementById('tipoLettura').value;
         let ogt = (oL==='ultraGreenCasaPun0')?19.95:(oL==='ultraGreenCasa'||oL==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oL==='ultraGreenPMI'||oL==='ultraGreenGrandiAziende')?19.95:14.95;
@@ -117,7 +125,8 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         const fr = parseInt(document.getElementById('freqGas').value), ann = parseFloat(document.getElementById('annuoGas').value) || 0, sP = parseFloat(document.getElementById('costMateriaGas').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeGas').value) || 0;
         let ogt = (oG==='ultraGreenCasaPun0')?19.95:(oG==='ultraGreenCasa'||oG==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oG==='ultraGreenPMI'||oG==='ultraGreenGrandiAziende')?19.95:14.95;
         let cT = 0, cG = 0; const cGConf = OFFERTE_SPREAD[oG];
-        if (cGConf && cGConf.isFix) {
+
+            if (cGConf && cGConf.isFix) {
             cT += parseFloat(document.getElementById('smcTot1').value) || 0; if (fr === 2) cT += parseFloat(document.getElementById('smcTot2').value) || 0;
             cG = cT * cGConf.gasFix;
         } else {
