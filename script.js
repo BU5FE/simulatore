@@ -50,6 +50,12 @@ function toggleSections() {
     document.getElementById('gas-section').style.display = (u === 'gas' || u === 'lightAndGas') ? 'block' : 'none';
     document.getElementById('offer-light-row').style.display = (u === 'light' || u === 'lightAndGas') ? 'flex' : 'none';
     document.getElementById('offer-gas-row').style.display = (u === 'gas' || u === 'lightAndGas') ? 'flex' : 'none';
+    
+    const offertaBox = document.getElementById('offer-light-row') ? document.getElementById('offer-light-row').closest('.section-box') : null;
+    if (offertaBox) {
+        offertaBox.style.display = (u === '') ? 'none' : 'block';
+    }
+    
     if (fL === "2" && (u === 'light' || u === 'lightAndGas')) { document.getElementById('light-mese2').classList.remove('hidden'); } else { document.getElementById('light-mese2').classList.add('hidden'); }
     if (fG === "2" && (u === 'gas' || u === 'lightAndGas')) { document.getElementById('gas-mese2').classList.remove('hidden'); } else { document.getElementById('gas-mese2').classList.add('hidden'); }
     if (l === 'fasce') { document.getElementById('div-fasce1').classList.remove('hidden'); document.getElementById('div-mono1').classList.add('hidden'); document.getElementById('div-fasce2').classList.remove('hidden'); document.getElementById('div-mono2').classList.add('hidden'); }
@@ -75,6 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('selectedOfferGas').addEventListener('change', gestisciVisibilitaCap);
     toggleSections(); updateOffersDropdown(); gestisciVisibilitaCap();
 });
+
+
 document.getElementById('calculator-form').onsubmit = function(e) {
     e.preventDefault();
     const userType = document.getElementById('userType').value, utente = document.getElementById('clientName').value, utility = document.getElementById('utilityType').value;
@@ -89,9 +97,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         const vM = vA / 12, isR = vA >= 0, col = isR ? "#1b5e20" : "#d32f2f", bg = isR ? "#f1f8e9" : "#ffebee", bCol = isR ? "green" : "red", seg = isR ? "-" : "+", lbl = isR ? "Risparmio Medio" : "Differenza Media", tP = (fr === 1) ? "Mensile" : "Bimestrale";
         return `<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${bCol}; background: ${bg}; border-radius: 0 5px 5px 0;"><p style="font-size:1.15em; margin: 5px 0; color: ${col}; text-transform: uppercase;"><strong>${et}</strong></p><div style="font-size:0.95em; color: #444; margin-bottom: 10px;"><p style="margin: 2px 0;">Attuale (${tP}): <strong>€ ${sA.toFixed(2)}</strong></p><p style="margin: 2px 0;">Con ${nO} (${tP}): <strong>€ ${sN.toFixed(2)}</strong></p></div><div style="border-top: 1px dotted #ccc; padding-top: 10px;"><p style="font-size:1.05em; margin: 3px 0;">${lbl} Mensile: <strong style="color:${bCol};">€ ${seg}${Math.abs(vM).toFixed(2)}</strong></p><p style="font-size:1.05em; margin: 3px 0;">${lbl} Annuo: <strong style="color:${bCol};">€ ${seg}${Math.abs(vA).toFixed(2)}</strong></p></div></div>`;
     }
-
-
-        if (utility === 'light' || utility === 'lightAndGas') {
+    if (utility === 'light' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqLuce').value), ann = parseFloat(document.getElementById('annuoLuce').value) || 0, sP = parseFloat(document.getElementById('costMateriaLuce').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0, tL = document.getElementById('tipoLettura').value;
         let ogt = (oL==='ultraGreenCasaPun0')?19.95:(oL==='ultraGreenCasa'||oL==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oL==='ultraGreenPMI'||oL==='ultraGreenGrandiAziende')?19.95:14.95;
         let cT = 0, cE = 0; const cL = OFFERTE_SPREAD[oL];
@@ -114,7 +120,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     }
 
 
-            if (utility === 'gas' || utility === 'lightAndGas') {
+        if (utility === 'gas' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqGas').value), ann = parseFloat(document.getElementById('annuoGas').value) || 0, sP = parseFloat(document.getElementById('costMateriaGas').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeGas').value) || 0;
         let ogt = (oG==='ultraGreenCasaPun0')?19.95:(oG==='ultraGreenCasa'||oG==='ultraGreenFixCasa'||userType==='consumer')?8.95:(oG==='ultraGreenPMI'||oG==='ultraGreenGrandiAziende')?19.95:14.95;
         let cT = 0, cG = 0; const cGConf = OFFERTE_SPREAD[oG];
@@ -136,10 +142,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     rHtml += `<div style="${tSt} padding:20px; text-align:center; border-radius:8px; margin-top:20px;"><span style='text-transform:uppercase; font-size:0.9em;'>${tTx}</span></div></div>`;
     document.getElementById('result').innerHTML = rHtml; document.getElementById('result').style.display = 'block';
     document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
-}; // Parentesi graffa di chiusura fissata correttamente qui!
-
-
-}; // Assicurati che questa parentesi chiuda correttamente la funzione onsubmit precedente
+};
 
 window.exportDoc = function(t) {
     const el = document.getElementById('report-box');
@@ -157,7 +160,6 @@ window.exportDoc = function(t) {
             }, 'image/png');
         } else if (t === 'pdf') {
             const img = canvas.toDataURL('image/png');
-            // MODIFICATO QUI: Estrae jsPDF in modo sicuro e compatibile con l'istanza di GitHub Pages
             const jsp = window.jspdf ? window.jspdf.jsPDF : (window.jsPDF || window.window?.jspdf?.jsPDF);
             if (!jsp) {
                 console.error("Libreria PDF non configurata.");
@@ -171,4 +173,5 @@ window.exportDoc = function(t) {
         }
     }).catch(err => console.error("Errore esportazione:", err));
 };
+
 
