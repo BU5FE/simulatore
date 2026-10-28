@@ -68,14 +68,24 @@ function toggleSections() {
 }
 
 function updateOffersDropdown() {
-    const t = document.getElementById('userType').value, sL = document.getElementById('selectedOfferLuce'), sG = document.getElementById('selectedOfferGas');
-    const dispB = (t === 'business') ? 'none' : 'block', dispF = (t === 'business') ? 'block' : 'none';
+    const t = document.getElementById('userType').value;
+    const annLuce = parseFloat(document.getElementById('annuoLuce')?.value) || 0;
+    const sL = document.getElementById('selectedOfferLuce');
+    const sG = document.getElementById('selectedOfferGas');
+    
+    const dispB = (t === 'business') ? 'none' : 'block';
+    // Se è business e il consumo annuo luce è >= 10001, nascondiamo le offerte FIX business
+    const dispF = (t === 'business' && annLuce < 10001) ? 'block' : 'none';
+
     ['opt-casa-luce', 'opt-casa-gas', 'opt-fix-casa-luce', 'opt-fix-casa-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispB; });
     ['opt-fix-biz-luce', 'opt-fix-biz-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispF; });
+
     if (t === 'business' && ['ultraGreenCasa', 'ultraGreenFixCasa'].includes(sL.value)) sL.value = '';
     if (t === 'business' && ['ultraGreenCasa', 'ultraGreenFixCasa'].includes(sG.value)) sG.value = '';
     if (t !== 'business' && sL.value === 'ultraGreenFixBusiness') sL.value = '';
     if (t !== 'business' && sG.value === 'ultraGreenFixBusiness') sG.value = '';
+    if (t === 'business' && annLuce >= 10001 && sL.value === 'ultraGreenFixBusiness') sL.value = '';
+    
     gestisciVisibilitaCap();
 }
 
@@ -83,6 +93,13 @@ document.addEventListener('DOMContentLoaded', () => {
     ['monthLuce1', 'monthLuce2', 'monthGas1', 'monthGas2'].forEach(id => { const el = document.getElementById(id); if (el) months.forEach(m => el.add(new Option(m.t, m.v))); });
     ['utilityType', 'tipoLettura', 'freqLuce', 'freqGas'].forEach(id => document.getElementById(id).addEventListener('change', toggleSections));
     document.getElementById('userType').addEventListener('change', updateOffersDropdown);
+    
+    const annLuceInput = document.getElementById('annuoLuce');
+    if (annLuceInput) {
+        annLuceInput.addEventListener('input', updateOffersDropdown);
+        annLuceInput.addEventListener('change', updateOffersDropdown);
+    }
+
     document.getElementById('selectedOfferLuce').addEventListener('change', gestisciVisibilitaCap);
     document.getElementById('selectedOfferGas').addEventListener('change', gestisciVisibilitaCap);
     toggleSections(); updateOffersDropdown(); gestisciVisibilitaCap();
