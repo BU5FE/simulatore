@@ -70,38 +70,21 @@ function toggleSections() {
 function updateOffersDropdown() {
     const t = document.getElementById('userType').value;
     const annLuce = parseFloat(document.getElementById('annuoLuce')?.value) || 0;
-    const sL = document.getElementById('selectedOfferLuce');
-    const sG = document.getElementById('selectedOfferGas');
+    const sL = document.getElementById('selectedOfferLuce'), sG = document.getElementById('selectedOfferGas');
     
-    const hideCasa = (t === 'business');
-    const hideFixBiz = (t === 'business' && annLuce >= 10001);
+    const dispB = (t === 'business') ? 'none' : 'block';
+    // Se è business e consumo annuo luce >= 10001, nascondiamo le FIX business
+    const dispF = (t === 'business' && annLuce < 10001) ? 'block' : 'none';
 
-    // Gestione opzioni Casa
-    ['opt-casa-luce', 'opt-casa-gas', 'opt-fix-casa-luce', 'opt-fix-casa-gas'].forEach(id => { 
-        const el = document.getElementById(id); 
-        if(el) { 
-            el.style.display = hideCasa ? 'none' : 'block'; 
-            el.disabled = hideCasa;
-            el.hidden = hideCasa;
-        } 
-    });
-
-    // Gestione opzioni Fix Business
-    ['opt-fix-biz-luce', 'opt-fix-biz-gas'].forEach(id => { 
-        const el = document.getElementById(id); 
-        if(el) { 
-            el.style.display = hideFixBiz ? 'none' : 'block'; 
-            el.disabled = hideFixBiz;
-            el.hidden = hideFixBiz;
-        } 
-    });
+    ['opt-casa-luce', 'opt-casa-gas', 'opt-fix-casa-luce', 'opt-fix-casa-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispB; });
+    ['opt-fix-biz-luce', 'opt-fix-biz-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispF; });
 
     if (t === 'business' && ['ultraGreenCasa', 'ultraGreenFixCasa'].includes(sL.value)) sL.value = '';
     if (t === 'business' && ['ultraGreenCasa', 'ultraGreenFixCasa'].includes(sG.value)) sG.value = '';
     if (t !== 'business' && sL.value === 'ultraGreenFixBusiness') sL.value = '';
     if (t !== 'business' && sG.value === 'ultraGreenFixBusiness') sG.value = '';
-    if (hideFixBiz && sL.value === 'ultraGreenFixBusiness') sL.value = '';
-    if (hideFixBiz && sG.value === 'ultraGreenFixBusiness') sG.value = '';
+    if (t === 'business' && annLuce >= 10001 && sL.value === 'ultraGreenFixBusiness') sL.value = '';
+    if (t === 'business' && annLuce >= 10001 && sG.value === 'ultraGreenFixBusiness') sG.value = '';
     
     gestisciVisibilitaCap();
 }
@@ -114,7 +97,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const annLuceInput = document.getElementById('annuoLuce');
     if (annLuceInput) {
         annLuceInput.addEventListener('input', updateOffersDropdown);
-        annLuceInput.addEventListener('change', updateOffersDropdown);
     }
 
     document.getElementById('selectedOfferLuce').addEventListener('change', gestisciVisibilitaCap);
@@ -138,7 +120,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
     
     function fRes(vA, et, sA, sN, nO, fr) {
         const vM = vA / 12, isR = vA >= 0, col = isR ? "#1b5e20" : "#d32f2f", bg = isR ? "#f1f8e9" : "#ffebee", bCol = isR ? "green" : "red", seg = isR ? "-" : "+", lbl = isR ? "Proiezione di Risparmio" : "Proiezione di Differenza", tP = (fr === 1) ? "Mensile" : "Bimestrale";
-        return `<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${bCol}; background:${bg}; border-radius: 0 5px 5px 0;"><p style="font-size:1.15em; margin: 5px 0; color: ${col}; text-transform: uppercase;"><strong>${et}</strong></p><div style="font-size:0.95em; color: #444; margin-bottom: 10px;"><p style="margin: 2px 0;">Attuale (${tP}): <strong>€${sA.toFixed(2)}</strong></p><p style="margin: 2px 0;">Con ${nO} (${tP}): <strong>€${sN.toFixed(2)}</strong></p></div><div style="border-top: 1px dotted #ccc; padding-top: 10px;"><p style="font-size:1.05em; margin: 3px 0;">${lbl} Mensile: <strong style="color:${bCol};">€ ${seg}${Math.abs(vM).toFixed(2)}</strong></p><p style="font-size:1.05em; margin: 3px 0;">${lbl} Annuo: <strong style="color:${bCol};">€ ${seg}${Math.abs(vA).toFixed(2)}</strong></p></div></div>`;
+        return `<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${bCol}; background: ${bg}; border-radius: 0 5px 5px 0;"><p style="font-size:1.15em; margin: 5px 0; color: ${col}; text-transform: uppercase;"><strong>${et}</strong></p><div style="font-size:0.95em; color: #444; margin-bottom: 10px;"><p style="margin: 2px 0;">Attuale (${tP}): <strong>€ ${sA.toFixed(2)}</strong></p><p style="margin: 2px 0;">Con ${nO} (${tP}): <strong>€ ${sN.toFixed(2)}</strong></p></div><div style="border-top: 1px dotted #ccc; padding-top: 10px;"><p style="font-size:1.05em; margin: 3px 0;">${lbl} Mensile: <strong style="color:${bCol};">€ ${seg}${Math.abs(vM).toFixed(2)}</strong></p><p style="font-size:1.05em; margin: 3px 0;">${lbl} Annuo: <strong style="color:${bCol};">€ ${seg}${Math.abs(vA).toFixed(2)}</strong></p></div></div>`;
     }
     
     if (utility === 'light' || utility === 'lightAndGas') {
@@ -182,7 +164,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
                 ? `In caso di forti rincari di mercato sopra i 0,200 €/kWh, avrai un risparmio stimato di <strong style="color: ${colWorst};">€ -${Math.abs(svA_Worst).toFixed(2)}</strong>`
                 : `In caso di forti rincari di mercato sopra i 0,200 €/kWh, non avrai un risparmio stimato ma un delta di <strong style="color: ${colWorst};">€ +${Math.abs(svA_Worst).toFixed(2)}</strong>`;
             
-            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid ${colWorst}; background:${isWorstSave ? '#e8f5e9' : '#ffebee'}; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: ${isWorstSave ? '#1b5e20' : '#d32f2f'};">🛡️ <strong>Scenario di picco (PUN ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">${descWorst}</p></div>`;
+            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid ${colWorst}; background: ${isWorstSave ? '#e8f5e9' : '#ffebee'}; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: ${isWorstSave ? '#1b5e20' : '#d32f2f'};">🛡️ <strong>Scenario di picco (PUN ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">${descWorst}</p></div>`;
         }
     }
 
@@ -210,4 +192,35 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             
             let descWorstGas = isWorstSaveGas 
                 ? `In caso di forti rincari di mercato sopra i 0,95 €/smc, avrai un risparmio stimato di <strong style="color: ${colWorstGas};">€ -${Math.abs(svA_Worst).toFixed(2)}</strong>`
-                : `In caso di forti rincari di mercato sopra
+                : `In caso di forti rincari di mercato sopra i 0,95 €/smc, non avrai un risparmio stimato ma un delta di <strong style="color: ${colWorstGas};">€ +${Math.abs(svA_Worst).toFixed(2)}</strong>`;
+            
+            rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid ${colWorstGas}; background: ${isWorstSaveGas ? '#e8f5e9' : '#ffebee'}; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: ${isWorstSaveGas ? '#1b5e20' : '#d32f2f'};">🛡️ <strong>Scenario di picco (PSV ad un anno ≥ CAP):</strong></p><p style="margin: 2px 0; color: #444;">${descWorstGas}</p></div>`;
+        }
+    }
+    let tSt = "", tTx = "";
+    if (totSave > 0) { tSt = "background:#2e7d32; color:white;"; tTx = `RISPARMIO ANNUO STIMATO<br><span style='font-size:2.5em; font-weight:bold;'>€ -${Math.abs(totSave).toFixed(2)}</span>`; }
+    else if (totSave < 0) { tSt = "background:#d32f2f; color:white;"; tTx = `DIFFERENZA ANNUALE<br><span style='font-size:2.5em; font-weight:bold;'>+€ ${Math.abs(totSave).toFixed(2)}</span>`; }
+    else { tSt = "background:#757575; color:white;"; tTx = `RISPARMIO ANNUO<br><span style='font-size:2.5em; font-weight:bold;'>€ 0.00</span>`; }
+    rHtml += `<div style="${tSt} padding:20px; text-align:center; border-radius:8px; margin-top:20px;"><span style='text-transform:uppercase; font-size:0.9em;'>${tTx}</span></div></div>`;
+    document.getElementById('result').innerHTML = rHtml; document.getElementById('result').style.display = 'block';
+    document.getElementById('export-actions').classList.remove('hidden'); document.getElementById('export-actions').style.display = 'block';
+};
+
+window.exportDoc = function(t) {
+    const el = document.getElementById('report-box');
+    if (!el) return;
+    
+    if (t === 'pdf') {
+        window.print();
+    } else if (t === 'png') {
+        html2canvas(el, { scale: 2, backgroundColor: '#ffffff' }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = 'Analisi_Risparmio_UltraGreen.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }).catch(err => {
+            console.error("Errore durante la generazione dell'immagine:", err);
+            alert("Impossibile generare l'immagine PNG.");
+        });
+    }
+};
