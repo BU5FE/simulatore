@@ -21,12 +21,13 @@ const OFFERTE_SPREAD = {
 const months = [
     {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}, {v:'03', t:'Marzo 2026'}, {v:'04', t:'Aprile 2026'}, {v:'05', t:'Maggio 2026'}, {v:'06', t:'Giugno 2026'}, {v:'07', t:'Luglio 2026'}, {v:'08', t:'Agosto 2026'}, {v:'09', t:'Settembre 2026'}
 ];
+
 function gestisciVisibilitaCap() {
     const sL = document.getElementById('selectedOfferLuce');
     const hL = document.getElementById('hasCapLuce');
     const colonnaLuce = hL ? hL.closest('.col') : null;
     if (sL && hL && colonnaLuce) {
-        if (sL.value !== "" && !sL.value.toLowerCase().includes("fix")) {
+        if (sL.value !== "" && !sL.value.toLowerCase().includes("fix") && sL.value !== "dinamicoMicro" && sL.value !== "dinamicoPMI") {
             colonnaLuce.style.display = 'block';
         } else {
             colonnaLuce.style.display = 'none';
@@ -37,7 +38,7 @@ function gestisciVisibilitaCap() {
     const hG = document.getElementById('hasCapGas');
     const colonnaGas = hG ? hG.closest('.col') : null;
     if (sG && hG && colonnaGas) {
-        if (sG.value !== "" && !sG.value.toLowerCase().includes("fix")) {
+        if (sG.value !== "" && !sG.value.toLowerCase().includes("fix") && sG.value !== "dinamicoMicro" && sG.value !== "dinamicoPMI") {
             colonnaGas.style.display = 'block';
         } else {
             colonnaGas.style.display = 'none';
