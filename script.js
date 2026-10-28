@@ -75,34 +75,68 @@ function updateOffersDropdown() {
     const t = document.getElementById('userType').value;
     const annLuce = parseFloat(document.getElementById('annuoLuce')?.value) || 0;
     const annGas = parseFloat(document.getElementById('annuoGas')?.value) || 0;
-    const sL = document.getElementById('selectedOfferLuce'), sG = document.getElementById('selectedOfferGas');
+    const sL = document.getElementById('selectedOfferLuce');
+    const sG = document.getElementById('selectedOfferGas');
     
-    const dispCasa = (t === 'business') ? 'none' : 'block';
-    const dispFixBiz = (t === 'business' && annLuce <= 10000 && annGas <= 5000) ? 'block' : 'none';
-    const dispDinamicoBiz = (t === 'business' && (annLuce > 10000 || annGas > 5000)) ? 'block' : 'none';
+    // Regole di filtraggio per la Luce
+    let allowedLuce = [];
+    if (t === 'consumer') {
+        allowedLuce = ['', 'ultraGreenFixCasa', 'revolutionTax'];
+    } else { // business
+        if (annLuce <= 10000) {
+            allowedLuce = ['', 'revolutionTax', 'ultraGreenFixBusiness12', 'ultraGreenFixBusiness'];
+        } else {
+            allowedLuce = ['', 'dinamicoMicro', 'dinamicoPMI'];
+        }
+    }
 
-    // Gestione opzioni Casa
-    ['opt-casa-luce', 'opt-casa-gas', 'opt-fix-casa-luce', 'opt-fix-casa-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispCasa; });
-    
-    // Gestione offerte FIX (visibili solo business sotto o uguale a 10000 / 5000)
-    ['opt-fix-biz-luce', 'opt-fix-biz-gas', 'opt-fix-biz-12-luce', 'opt-fix-biz-12-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispFixBiz; });
+    // Regole di filtraggio per il Gas
+    let allowedGas = [];
+    if (t === 'consumer') {
+        allowedGas = ['', 'ultraGreenFixCasa', 'revolutionTax'];
+    } else { // business
+        if (annGas <= 5000) {
+            allowedGas = ['', 'revolutionTax', 'ultraGreenFixBusiness12', 'ultraGreenFixBusiness'];
+        } else {
+            allowedGas = ['', 'dinamicoMicro', 'dinamicoPMI'];
+        }
+    }
 
-    // Gestione offerte Dinamico (visibili solo business sopra 10000 o 5000)
-    ['opt-dinamico-micro-luce', 'opt-dinamico-micro-gas', 'opt-dinamico-pmi-luce', 'opt-dinamico-pmi-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispDinamicoBiz; });
+    // Aggiorna menu Luce
+    if (sL) {
+        Array.from(sL.options).forEach(opt => {
+            if (opt.value === "" || allowedLuce.includes(opt.value)) {
+                opt.style.display = 'block';
+                opt.disabled = false;
+                opt.hidden = false;
+            } else {
+                opt.style.display = 'none';
+                opt.disabled = true;
+                opt.hidden = true;
+            }
+        });
+        if (!allowedLuce.includes(sL.value)) {
+            sL.value = '';
+        }
+    }
 
-    // Reset selezioni non valide
-    const fixList = ['ultraGreenFixBusiness', 'ultraGreenFixBusiness12'];
-    const dinamicoList = ['dinamicoMicro', 'dinamicoPMI'];
-
-    if (t === 'business' && ['ultraGreenCasa', 'ultraGreenFixCasa'].includes(sL.value)) sL.value = '';
-    if (t === 'business' && ['ultraGreenCasa', 'ultraGreenFixCasa'].includes(sG.value)) sG.value = '';
-    if (t !== 'business' && [...fixList, ...dinamicoList].includes(sL.value)) sL.value = '';
-    if (t !== 'business' && [...fixList, ...dinamicoList].includes(sG.value)) sG.value = '';
-    
-    if (t === 'business' && (annLuce <= 10000 && annGas <= 5000) && dinamicoList.includes(sL.value)) sL.value = '';
-    if (t === 'business' && (annLuce <= 10000 && annGas <= 5000) && dinamicoList.includes(sG.value)) sG.value = '';
-    if (t === 'business' && (annLuce > 10000 || annGas > 5000) && fixList.includes(sL.value)) sL.value = '';
-    if (t === 'business' && (annLuce > 10000 || annGas > 5000) && fixList.includes(sG.value)) sG.value = '';
+    // Aggiorna menu Gas
+    if (sG) {
+        Array.from(sG.options).forEach(opt => {
+            if (opt.value === "" || allowedGas.includes(opt.value)) {
+                opt.style.display = 'block';
+                opt.disabled = false;
+                opt.hidden = false;
+            } else {
+                opt.style.display = 'none';
+                opt.disabled = true;
+                opt.hidden = true;
+            }
+        });
+        if (!allowedGas.includes(sG.value)) {
+            sG.value = '';
+        }
+    }
     
     gestisciVisibilitaCap();
 }
@@ -146,7 +180,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         return `<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${bCol}; background: ${bg}; border-radius: 0 5px 5px 0;"><p style="font-size:1.15em; margin: 5px 0; color: ${col}; text-transform: uppercase;"><strong>${et}</strong></p><div style="font-size:0.95em; color: #444; margin-bottom: 10px;"><p style="margin: 2px 0;">Attuale (${tP}): <strong>€ ${sA.toFixed(2)}</strong></p><p style="margin: 2px 0;">Con ${nO} (${tP}): <strong>€ ${sN.toFixed(2)}</strong></p></div><div style="border-top: 1px dotted #ccc; padding-top: 10px;"><p style="font-size:1.05em; margin: 3px 0;">${lbl} Mensile: <strong style="color:${bCol};">€ ${seg}${Math.abs(vM).toFixed(2)}</strong></p><p style="font-size:1.05em; margin: 3px 0;">${lbl} Annuo: <strong style="color:${bCol};">€ ${seg}${Math.abs(vA).toFixed(2)}</strong></p></div></div>`;
     }
     
-    // Funzione di supporto per determinare l'OGT in base all'offerta selezionata
     function getOgtValue(offerKey, userT) {
         if (offerKey === 'dinamicoMicro') return 25.00;
         if (offerKey === 'dinamicoPMI') return 12.50;
@@ -177,7 +210,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         }
         let sAt = sP + (pP * fr), sUG = cE + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "⚡ Fornitura Luce", sAt, sUG, nL, fr);
         
-        // Sconto Accise Revolution Tax
         if (oL === 'revolutionTax') {
             const tariffaAccisa = (userType === 'business') ? 0.0125 : 0.0227;
             const totaleScontoAccise = ann * tariffaAccisa;
@@ -186,7 +218,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
             rHtml += `<div style="margin-top: -15px; margin-bottom: 20px; padding: 10px 15px; border-left: 4px solid #1b5e20; background: #e8f5e9; border-radius: 0 5px 5px 0; font-size: 0.9em;"><p style="margin: 2px 0; color: #1b5e20;">⚡ <strong>Sconto Accise Revolution Tax (${userType === 'business' ? 'Business' : 'Residenziale'}):</strong></p><p style="margin: 2px 0; color: #444;">Risparmio aggiuntivo annuo sulle accise (${tariffaAccisa.toFixed(4)} €/kWh × ${ann} kWh): <strong style="color: green;">€ -${totaleScontoAccise.toFixed(2)}</strong></p></div>`;
         }
 
-        // Scenario di picco Luce
         if (hL && cL && !cL.isFix) {
             let sUG_Worst = cE_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
             let isWorstSave = svA_Worst >= 0;
@@ -216,7 +247,6 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         }
         let sAt = sP + (pP * fr), sUG = cG + (ogt * fr), svA = ((sAt - sUG) / (cT || 1)) * ann; totSave += svA; rHtml += fRes(svA, "🔥 Fornitura Gas", sAt, sUG, nG, fr);
         
-        // Scenario di picco Gas
         if (hG && cGConf && !cGConf.isFix) {
             let sUG_Worst = cG_WorstCase + (ogt * fr), svA_Worst = ((sAt - sUG_Worst) / (cT || 1)) * ann;
             let isWorstSaveGas = svA_Worst >= 0;
