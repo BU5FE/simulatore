@@ -14,7 +14,9 @@ const OFFERTE_SPREAD = {
     'ultraGreenPMI': { luce: 0.059, gas: 0.30 }, 'ultraGreenGrandiAziende': { luce: 0.043, gas: 0.28 },
     'ultraGreenFixCasa': { isFix: true, luceFix: 0.149, gasFix: 0.69 }, 
     'ultraGreenFixBusiness': { isFix: true, luceFix: 0.178, gasFix: 0.933 },
-    'ultraGreenFixBusiness12': { isFix: true, luceFix: 0.198, gasFix: 0.933 }
+    'ultraGreenFixBusiness12': { isFix: true, luceFix: 0.198, gasFix: 0.933 },
+    'dinamicoMicro': { luce: 0.0637, gas: 0.140 },
+    'dinamicoPMI': { luce: 0.0521, gas: 0.120 }
 };
 const months = [
     {v:'01', t:'Gennaio 2026'}, {v:'02', t:'Febbraio 2026'}, {v:'03', t:'Marzo 2026'}, {v:'04', t:'Aprile 2026'}, {v:'05', t:'Maggio 2026'}, {v:'06', t:'Giugno 2026'}, {v:'07', t:'Luglio 2026'}, {v:'08', t:'Agosto 2026'}, {v:'09', t:'Settembre 2026'}
@@ -75,18 +77,32 @@ function updateOffersDropdown() {
     const annGas = parseFloat(document.getElementById('annuoGas')?.value) || 0;
     const sL = document.getElementById('selectedOfferLuce'), sG = document.getElementById('selectedOfferGas');
     
-    const dispB = (t === 'business') ? 'none' : 'block';
-    const dispF = (t === 'business' && annLuce <= 10000 && annGas <= 5000) ? 'block' : 'none';
+    const dispCasa = (t === 'business') ? 'none' : 'block';
+    const dispFixBiz = (t === 'business' && annLuce <= 10000 && annGas <= 5000) ? 'block' : 'none';
+    const dispDinamicoBiz = (t === 'business' && (annLuce > 10000 || annGas > 5000)) ? 'block' : 'none';
 
-    ['opt-casa-luce', 'opt-casa-gas', 'opt-fix-casa-luce', 'opt-fix-casa-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispB; });
-    ['opt-fix-biz-luce', 'opt-fix-biz-gas', 'opt-fix-biz-12-luce', 'opt-fix-biz-12-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispF; });
+    // Gestione opzioni Casa
+    ['opt-casa-luce', 'opt-casa-gas', 'opt-fix-casa-luce', 'opt-fix-casa-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispCasa; });
+    
+    // Gestione offerte FIX (visibili solo business sotto o uguale a 10000 / 5000)
+    ['opt-fix-biz-luce', 'opt-fix-biz-gas', 'opt-fix-biz-12-luce', 'opt-fix-biz-12-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispFixBiz; });
+
+    // Gestione offerte Dinamico (visibili solo business sopra 10000 o 5000)
+    ['opt-dinamico-micro-luce', 'opt-dinamico-micro-gas', 'opt-dinamico-pmi-luce', 'opt-dinamico-pmi-gas'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).style.display = dispDinamicoBiz; });
+
+    // Reset selezioni non valide
+    const fixList = ['ultraGreenFixBusiness', 'ultraGreenFixBusiness12'];
+    const dinamicoList = ['dinamicoMicro', 'dinamicoPMI'];
 
     if (t === 'business' && ['ultraGreenCasa', 'ultraGreenFixCasa'].includes(sL.value)) sL.value = '';
     if (t === 'business' && ['ultraGreenCasa', 'ultraGreenFixCasa'].includes(sG.value)) sG.value = '';
-    if (t !== 'business' && ['ultraGreenFixBusiness', 'ultraGreenFixBusiness12'].includes(sL.value)) sL.value = '';
-    if (t !== 'business' && ['ultraGreenFixBusiness', 'ultraGreenFixBusiness12'].includes(sG.value)) sG.value = '';
-    if (t === 'business' && (annLuce > 10000 || annGas > 5000) && ['ultraGreenFixBusiness', 'ultraGreenFixBusiness12'].includes(sL.value)) sL.value = '';
-    if (t === 'business' && (annLuce > 10000 || annGas > 5000) && ['ultraGreenFixBusiness', 'ultraGreenFixBusiness12'].includes(sG.value)) sG.value = '';
+    if (t !== 'business' && [...fixList, ...dinamicoList].includes(sL.value)) sL.value = '';
+    if (t !== 'business' && [...fixList, ...dinamicoList].includes(sG.value)) sG.value = '';
+    
+    if (t === 'business' && (annLuce <= 10000 && annGas <= 5000) && dinamicoList.includes(sL.value)) sL.value = '';
+    if (t === 'business' && (annLuce <= 10000 && annGas <= 5000) && dinamicoList.includes(sG.value)) sG.value = '';
+    if (t === 'business' && (annLuce > 10000 || annGas > 5000) && fixList.includes(sL.value)) sL.value = '';
+    if (t === 'business' && (annLuce > 10000 || annGas > 5000) && fixList.includes(sG.value)) sG.value = '';
     
     gestisciVisibilitaCap();
 }
@@ -130,9 +146,18 @@ document.getElementById('calculator-form').onsubmit = function(e) {
         return `<div style="margin-bottom: 20px; padding: 15px; border-left: 4px solid ${bCol}; background: ${bg}; border-radius: 0 5px 5px 0;"><p style="font-size:1.15em; margin: 5px 0; color: ${col}; text-transform: uppercase;"><strong>${et}</strong></p><div style="font-size:0.95em; color: #444; margin-bottom: 10px;"><p style="margin: 2px 0;">Attuale (${tP}): <strong>€ ${sA.toFixed(2)}</strong></p><p style="margin: 2px 0;">Con ${nO} (${tP}): <strong>€ ${sN.toFixed(2)}</strong></p></div><div style="border-top: 1px dotted #ccc; padding-top: 10px;"><p style="font-size:1.05em; margin: 3px 0;">${lbl} Mensile: <strong style="color:${bCol};">€ ${seg}${Math.abs(vM).toFixed(2)}</strong></p><p style="font-size:1.05em; margin: 3px 0;">${lbl} Annuo: <strong style="color:${bCol};">€ ${seg}${Math.abs(vA).toFixed(2)}</strong></p></div></div>`;
     }
     
+    // Funzione di supporto per determinare l'OGT in base all'offerta selezionata
+    function getOgtValue(offerKey, userT) {
+        if (offerKey === 'dinamicoMicro') return 25.00;
+        if (offerKey === 'dinamicoPMI') return 12.50;
+        if (offerKey === 'ultraGreenCasa' || offerKey === 'ultraGreenFixCasa' || userT === 'consumer') return 8.95;
+        if (offerKey === 'ultraGreenPMI' || offerKey === 'ultraGreenGrandiAziende') return 19.95;
+        return 14.95;
+    }
+    
     if (utility === 'light' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqLuce').value), ann = parseFloat(document.getElementById('annuoLuce').value) || 0, sP = parseFloat(document.getElementById('costMateriaLuce').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeLuce').value) || 0, tL = document.getElementById('tipoLettura').value;
-        let ogt = (oL === 'ultraGreenCasa' || oL === 'ultraGreenFixCasa' || userType === 'consumer') ? 8.95 : (oL === 'ultraGreenPMI' || oL === 'ultraGreenGrandiAziende') ? 19.95 : 14.95;
+        let ogt = getOgtValue(oL, userType);
         let cT = 0, cE = 0, cE_WorstCase = 0; const cL = OFFERTE_SPREAD[oL];
         if (tL === 'fasce') { cT += (parseFloat(document.getElementById('kWhF1_M1').value)||0)+(parseFloat(document.getElementById('kWhF2_M1').value)||0)+(parseFloat(document.getElementById('kWhF3_M1').value)||0); } else { cT += parseFloat(document.getElementById('kWhTot1').value)||0; }
         if (fr === 2) { if (tL === 'fasce') { cT += (parseFloat(document.getElementById('kWhF1_M2').value)||0)+(parseFloat(document.getElementById('kWhF2_M2').value)||0)+(parseFloat(document.getElementById('kWhF3_M2').value)||0); } else { cT += parseFloat(document.getElementById('kWhTot2').value)||0; } }
@@ -177,7 +202,7 @@ document.getElementById('calculator-form').onsubmit = function(e) {
 
     if (utility === 'gas' || utility === 'lightAndGas') {
         const fr = parseInt(document.getElementById('freqGas').value), ann = parseFloat(document.getElementById('annuoGas').value) || 0, sP = parseFloat(document.getElementById('costMateriaGas').value) || 0, pP = parseFloat(document.getElementById('pcvAttualeGas').value) || 0;
-        let ogt = (oG === 'ultraGreenCasa' || oG === 'ultraGreenFixCasa' || userType === 'consumer') ? 8.95 : (oG === 'ultraGreenPMI' || oG === 'ultraGreenGrandiAziende') ? 19.95 : 14.95;
+        let ogt = getOgtValue(oG, userType);
         let cT = 0, cG = 0, cG_WorstCase = 0; const cGConf = OFFERTE_SPREAD[oG];
         if (cGConf && cGConf.isFix) {
             cT += parseFloat(document.getElementById('smcTot1').value) || 0; if (fr === 2) cT += parseFloat(document.getElementById('smcTot2').value) || 0;
